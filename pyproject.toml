@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "whylabs-textmetricstoolkit"
+version = "0.1.0"
+description = "A collection of text metric udfs for whylogs profiling"
+authors = ["Jamie Broomall <jamie@whylabs.ai>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+whylogs = {version = "^1.1.38", extras = ["all"]}
+textstat = "^0.7.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
