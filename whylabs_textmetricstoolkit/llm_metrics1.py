@@ -1,22 +1,12 @@
 from whylogs.core.datatypes import String
 from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
+    _col_type_submetrics
 )
-import textstat
+from .textstat import *
+from .input_output import *
+from .sentiment import *
 
-#Here's how you can wire a udf, just add the decorator like these three examples
 
-@register_metric_udf(col_type=String)
-def flesch_kincaid_grade(text: str) -> float:
-    # TODO: check if input is actually a string, try/except
-    return textstat.flesch_kincaid_grade(text)
-
-@register_metric_udf(col_type=String)
-def smog_index(text: str) -> float:
-    # TODO: check if input is actually a string, try/except
-    return textstat.smog_index(text)
-
-@register_metric_udf(col_type=String)
-def dale_chall_readability_score(text: str) -> float:
-    # TODO: check if input is actually a string, try/except
-    return textstat.dale_chall_readability_score(text)
+def register_text_metrics():
+    return f"imported metrics for string features {_col_type_submetrics[String]}"
