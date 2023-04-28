@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "whylabs-textmetricstoolkit"
-version = "0.1.2.dev0"
+version = "0.1.2.dev1"
 description = "A collection of text metric udfs for whylogs profiling"
 authors = ["Jamie Broomall <jamie@whylabs.ai>"]
 license = "Apache-2.0"

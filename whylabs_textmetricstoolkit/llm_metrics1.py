@@ -4,8 +4,9 @@ from whylogs.experimental.core.metrics.udf_metric import (
     _col_type_submetrics
 )
 from .textstat import *
-from .input_output import *
+from .nlp_udfs import *
 from .sentiment import *
+from .input_output import *
 
 
 def register_text_metrics():
