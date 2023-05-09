@@ -33,7 +33,7 @@ import whylogs as why
 from langkit.sentiment import *
 from langkit.textstat import *
 
-text_schema=udf_metric_schema()
+text_schema = udf_metric_schema()
 results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
 
 ```
