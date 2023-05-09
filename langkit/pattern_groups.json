@@ -28,11 +28,5 @@
             "\\b\\d{1,8}\\b[\\s\\S]{10,100}?\\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY)\\b\\s\\d{5}\\b"
         ],
         "name": "US Address"
-    },
-    {
-        "expressions": [
-            "(?:P<USA)(?:[A-Z0-9<].+)"
-        ],
-        "name": "US Passport"
     }
 ]
