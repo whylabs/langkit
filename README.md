@@ -5,7 +5,7 @@ The generated profiles can be visualized and monitored in the [WhyLabs platform]
 
 ## Motivation
 
-Productionalizing language models, including LLMs, comes with a range of risks due to the infinite amount of input combinations, which can elicit an infinite amount of outputs. The unstructured nature of text poses a challenge in the ML observability space - a challenge worth solving, since the lack of visibility on the model's behavior can have serious consequences.
+Productionizing language models, including LLMs, comes with a range of risks due to the infinite amount of input combinations, which can elicit an infinite amount of outputs. The unstructured nature of text poses a challenge in the ML observability space - a challenge worth solving, since the lack of visibility on the model's behavior can have serious consequences.
 
 ## Features
 
@@ -18,14 +18,14 @@ The currently supported metrics include:
 
 ## Installation
 
-To install Langkit, use the Python Package Index (PyPI) as follows:
+To install LangKit, use the Python Package Index (PyPI) as follows:
 ```bash
 pip install langkit
 ```
 
 ## Usage
 
-Langkit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the Langkit modules and then instantiate a custom schema as shown in the example below.
+LangKit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the LangKit modules and then instantiate a custom schema as shown in the example below.
 
 ```python 
 from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
