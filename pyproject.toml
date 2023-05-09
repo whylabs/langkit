@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.1.dev0"
+version = "0.0.1.dev1"
 description = "A collection of text metric udfs for whylogs profiling and monitoring in WhyLabs"
 authors = ["WhyLabs.ai <support@whylabs.ai>"]
 license = "Apache-2.0"
@@ -13,6 +13,7 @@ whylogs = {version = "^1.1.40"}
 textstat = "^0.7.3"
 sentence-transformers = "^2.2.2"
 nltk = "^3.8.1"
+pandas = "^2.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
