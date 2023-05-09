@@ -29,18 +29,13 @@ LangKit modules contain UDFs that automatically wire into the collection of UDFs
 
 ```python 
 from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
-from whylogs.core.resolvers import STANDARD_RESOLVER
-from whylogs.core.schema import DatasetSchema, DeclarativeSchema
+from whylogs.core.schema import DeclarativeSchema
 import whylogs as why
 from langkit.sentiment import *
 from langkit.textstat import *
 
-def standard_udf_schema() -> DatasetSchema:
-    return DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
-
-schema=standard_udf_schema()
-
-results = why.log(df, schema=schema)
+text_schema = DeclarativeSchema(generate_udf_schema())
+results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
 
 ```
 The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules.
