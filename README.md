@@ -39,4 +39,4 @@ results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema
 ```
 The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules.
 
-More examples available [here](https://github.com/whylabs/LanguageToolkit/tree/main/examples)
+More examples available [here](https://github.com/whylabs/LanguageToolkit/tree/main/langkit/examples)
