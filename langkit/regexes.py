@@ -11,8 +11,8 @@ from logging import getLogger
 logger = getLogger(__name__)
 
 # If not stated otherwise, suggested patterns in the default file should reflect US patterns.
-patterns_json_filename = "patterns_groups.json"
-json_path = pkg_resources.resource_filename(__name__, patterns_json_filename)
+pattern_json_filename = "pattern_groups.json"
+json_path = pkg_resources.resource_filename(__name__, pattern_json_filename)
 
 try:
     skip = False
@@ -28,10 +28,10 @@ try:
         )
 except FileNotFoundError:
     skip = True
-    logger.warning(f"Could not find {patterns_json_filename}")
+    logger.warning(f"Could not find {pattern_json_filename}")
 except json.decoder.JSONDecodeError:
     skip = True
-    logger.warning(f"Could not parse {patterns_json_filename}")
+    logger.warning(f"Could not parse {pattern_json_filename}")
 
 if not skip:
 
