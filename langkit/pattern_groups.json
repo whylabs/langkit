@@ -1,0 +1,32 @@
+[
+    {
+        "expressions": [
+            "[A-Za-z0-9._+\\-\\']+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}"
+        ],
+        "name": "Email"
+    },
+    {
+        "expressions": [
+            "\\b(?:\\d{4}[ -]?){3}(?=\\d{4}\\b)(?:\\d{4})"
+        ],
+        "name": "Payment Card"
+    },
+    {
+        "expressions": [
+            "(?!666|000|9\\d{2})\\d{3}-(?!00)\\d{2}-(?!0{4})\\d{4}"
+        ],
+        "name": "SSN"
+    },
+    {
+        "expressions": [
+            "((\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}|[0-9]{10}|\\+{1}[0-9 ]{11,15}|[0-9]{4} [0-9]{6})"
+        ],
+        "name": "Telephone"
+    },
+    {
+        "expressions": [
+            "\\b\\d{1,8}\\b[\\s\\S]{10,100}?\\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY)\\b\\s\\d{5}\\b"
+        ],
+        "name": "US Address"
+    }
+]
