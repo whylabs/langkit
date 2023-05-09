@@ -46,7 +46,7 @@ def gunning_fog(text: str) -> float:
     return textstat.textstat.gunning_fog(text)
 
 @register_metric_udf(col_type=String)
-def text_standard(text: str) -> float:
+def aggregate_reading_level(text: str) -> float:
     return textstat.textstat.text_standard(text)
 
 @register_metric_udf(col_type=String)

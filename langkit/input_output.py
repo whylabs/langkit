@@ -1,25 +1,25 @@
-from typing import Tuple
+from typing import Optional, Tuple
 from sentence_transformers import SentenceTransformer, util
 from torch import Tensor
-from whylogs.core.datatypes import String
 from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
 )
-from typing import Callable
-from whylogs.core.datatypes import DataType
-from whylogs.experimental.core.metrics.udf_metric import (
-    _col_type_submetrics
-)
 
-_example_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+_transformer_model = None
 
 
-def register_udf(name: str, func: Callable, col_type: DataType):
-    _col_type_submetrics[col_type].append((name, func))
+def init(transformer_name: Optional[str]):
+    global _transformer_model
+    if transformer_name is None:
+        transformer_name = 'sentence-transformers/all-MiniLM-L6-v2'
+    _transformer_model = SentenceTransformer(transformer_name)
+
+
+init()
 
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
-    embedding = _example_model.encode(text, convert_to_tensor=True)
+    embedding = _transformer_model.encode(text, convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
     return similarity.item()
 
@@ -27,7 +27,7 @@ def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
 @register_metric_udf(col_name="combined")
 def similarity_MiniLM_L6_v2(combined: Tuple[str, str]) -> float:
     x, y = combined
-    embedding_1 = _example_model.encode(x, convert_to_tensor=True)
-    embedding_2 = _example_model.encode(y, convert_to_tensor=True)
+    embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
+    embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
     return similarity.item()
