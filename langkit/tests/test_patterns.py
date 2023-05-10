@@ -30,7 +30,7 @@ user_json = """
 [
     {
         "expressions": [
-            "[A-Za-z0-9._+\\-\\']+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}"
+            "[A-Za-z0-9]+@[A-Za-z0-9]+.[A-Za-z]{2,}"
         ],
         "name": "custom_group"
     }
@@ -59,7 +59,7 @@ def test_ptt(ptt_df, user_defined_json):
         "udf/has_patterns:frequent_items/frequent_strings"
     ]["output"]
     if not user_defined_json:
-        group_names = {"Telephone", "Email", "SSN", "US Address", "Payment Card"}
+        group_names = {"phone number", "email address", "SSN", "mailing address", "credit card number"}
     else:
         group_names = {"custom_group", ""}
 
