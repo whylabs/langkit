@@ -14,13 +14,22 @@ def ptt_df():
     df = pd.DataFrame(
         {
             "input": [
-                "address: 123 Main St Anytown, NY 12345",
+                "address: 123 Main St.",
+                "2255 140th Ave NE",
+                "535 Bellevue Sq",
+                "15220 SE 37th St",
                 "anemail@address.com",
                 "my phone is +1 309-404-7587",
                 "credit card 4556205848969759",
+                "credit card 3851-6256-0926-7271",
+                "Visa Card Number: 4929 5423 7528 1067 \nExpiration Date: 03/24 \nCVV: 348",
+                "622202049892743 - this is a credit card number",
                 "my ssn is 856-45-6789",
+                "ssn - 702-02-9921",
+                "ssn is 702 02 9921",
+                "702029921 (SSN)",
+                "no patterns here.",
             ],
-            "output": ["a", "b", "c", "d", "e"],
         }
     )
     return df
@@ -55,13 +64,16 @@ def test_ptt(ptt_df, user_defined_json):
     fi_input_list = result.view().to_pandas()[
         "udf/has_patterns:frequent_items/frequent_strings"
     ]["input"]
-    fi_output_list = result.view().to_pandas()[
-        "udf/has_patterns:frequent_items/frequent_strings"
-    ]["output"]
     if not user_defined_json:
-        group_names = {"phone number", "email address", "SSN", "mailing address", "credit card number"}
+        group_names = {
+            "",
+            "credit card number",
+            "email address",
+            "SSN",
+            "phone number",
+            "mailing address",
+        }
     else:
         group_names = {"custom_group", ""}
 
     assert set([x.value for x in fi_input_list]) == group_names
-    assert set([x.value for x in fi_output_list]) == {""}

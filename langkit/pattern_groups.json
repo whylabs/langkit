@@ -7,13 +7,13 @@
     },
     {
         "expressions": [
-            "\\b(?:4[0-9]{12}(?:[0-9]{3})?|[25][1-7][0-9]{14}|6(?:011|5[0-9][0-9])[0-9]{12}|3[47][0-9]{13}|3(?:0[0-5]|[68][0-9])[0-9]{11}|(?:2131|1800|35\\d{3})\\d{11})\\b"
+            "\\b(?:\\d[ -]*?){13,16}\\b"
         ],
         "name": "credit card number"
     },
     {
         "expressions": [
-            "\\b(?!000|.+0{4})(?:\\d{9}|\\d{3}-\\d{2}-\\d{4})\\b"
+            "(?!(\\d){3}(-| |)\\1{2}\\2\\1{4})(?!666|000|9\\d{2})(\\b\\d{3}(-| |)(?!00)\\d{2}\\4(?!0{4})\\d{4}\\b)"
         ],
         "name": "SSN"
     },
@@ -25,7 +25,7 @@
     },
     {
         "expressions": [
-            "\\b\\d{1,8}\\b[\\s\\S]{10,100}?\\b(AK|AL|AR|AZ|CA|CO|CT|DC|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY)\\b\\s\\d{5}\\b"
+            "\\b\\d+[ ](?:[A-Za-z0-9.-]+[ ]?)+(Avenue|Lane|Road|Boulevard|Drive|Street|Ave|Dr|Rd|Blvd|Ln|St|Sq)\\b"
         ],
         "name": "mailing address"
     }
