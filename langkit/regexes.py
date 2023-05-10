@@ -8,7 +8,7 @@ from typing import Optional
 from logging import getLogger
 from . import LangKitConfig
 
-logger = getLogger(__name__)
+diagnostic_logger = getLogger(__name__)
 
 lang_config = LangKitConfig()
 
@@ -29,15 +29,17 @@ class PatternLoader:
                 compiled_expressions = []
                 for expression in group["expressions"]:
                     compiled_expressions.append(re.compile(expression))
+
                 regex_groups.append(
                     {"name": group["name"], "expressions": compiled_expressions}
                 )
+                diagnostic_logger.info(f"Loaded regex pattern for {group['name']}")
         except FileNotFoundError:
             skip = True
-            logger.warning(f"Could not find {json_path}")
-        except json.decoder.JSONDecodeError:
+            diagnostic_logger.warning(f"Could not find {json_path}")
+        except json.decoder.JSONDecodeError as json_error:
             skip = True
-            logger.warning(f"Could not parse {json_path}")
+            diagnostic_logger.warning(f"Could not parse {json_path}: {json_error}")
         if not skip:
             return regex_groups
         return None
@@ -60,11 +62,12 @@ if pattern_loader.get_regex_groups() is not None:
     def has_patterns(text: str) -> Optional[str]:
         regex_groups = pattern_loader.get_regex_groups()
         patterns_info = ""
-        for group in regex_groups:
-            for expression in group["expressions"]:
-                if expression.search(text):
-                    patterns_info = group["name"]
-                    return group["name"]
+        if regex_groups:
+            for group in regex_groups:
+                for expression in group["expressions"]:
+                    if expression.search(text):
+                        patterns_info = group["name"]
+                        return group["name"]
         return patterns_info
 
 
