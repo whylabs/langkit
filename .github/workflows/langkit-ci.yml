@@ -1,0 +1,47 @@
+name: langkit-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  python-ci:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+      - name: Set up python with poetry cache
+        uses: actions/setup-python@v4
+        id: setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: poetry
+      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Check virtualenv location
+        run: |
+          EXPECTED_VIRTUALENV_PATH=${{ github.workspace }}/python/.venv
+          INSTALLED_VIRTUALENV_PATH=$(poetry env info --path)
+          echo "The virtualenv should be at $EXPECTED_VIRTUALENV_PATH."
+          echo "Poetry is using a virtualenv at $INSTALLED_VIRTUALENV_PATH."
+          case "$INSTALLED_VIRTUALENV_PATH" in
+          "$EXPECTED_VIRTUALENV_PATH") echo "Correct Poetry virtualenv." ;;
+          *) echo "Incorrect Poetry virtualenv." && exit 1 ;;
+          esac
+
+      - name: Run build
+        run: poetry build
+      - name: Run test
+        run: poetry run pytest
