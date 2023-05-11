@@ -16,6 +16,7 @@ nltk = "^3.8.1"
 openai = "^0.27.6"
 pandas = "*"
 datasets = "^2.12.0"
+torch = "^2.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
