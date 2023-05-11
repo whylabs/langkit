@@ -5,7 +5,6 @@ import whylogs as why
 from whylogs.core.resolvers import STANDARD_RESOLVER
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
-from langkit import exclusions
 
 @pytest.fixture
 def exclusion_df():
@@ -28,6 +27,7 @@ def exclusion_df():
 def test_exclusion(exclusion_df):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
+    from langkit import exclusions
     exclusions.init(input_col="input")
     schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
     result = why.log(exclusion_df, schema=schema)
