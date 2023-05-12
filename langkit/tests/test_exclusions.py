@@ -24,6 +24,7 @@ def exclusion_df():
     )
     return df
 
+@pytest.mark.load
 def test_exclusion(exclusion_df):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
