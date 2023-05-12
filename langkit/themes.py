@@ -11,23 +11,22 @@ from whylogs.experimental.core.metrics.udf_metric import _col_type_submetrics
 from logging import getLogger
 import json
 from langkit.transformer import load_model
+from whylogs.core.datatypes import String
 
 diagnostic_logger = getLogger(__name__)
 
 _transformer_model = None
-_exclusion_groups = None
+_theme_groups = None
 
 lang_config = LangKitConfig()
-input_col_name = None
-output_col_name = None
 
-def register_exclusion_udfs():
-    if "jailbreaks" in _exclusion_groups:
+def register_theme_udfs():
+    if "jailbreaks" in _theme_groups:
         jailbreak_embeddings = [
             _transformer_model.encode(s, convert_to_tensor=True)
-            for s in _exclusion_groups["jailbreaks"]
+            for s in _theme_groups["jailbreaks"]
         ]
-        @register_metric_udf(col_name=input_col_name)
+        @register_metric_udf(col_type=String)
         def jailbreak_similarity(text: str) -> float:
             similarities = []
             for embedding in jailbreak_embeddings:
@@ -35,12 +34,12 @@ def register_exclusion_udfs():
                 similarities.append(similarity)
             return max(similarities)
 
-    if "refusals" in _exclusion_groups:
+    if "refusals" in _theme_groups:
         refusal_embeddings = [
         _transformer_model.encode(s, convert_to_tensor=True)
-        for s in _exclusion_groups["refusals"]
+        for s in _theme_groups["refusals"]
         ]
-        @register_metric_udf(col_name=output_col_name)
+        @register_metric_udf(col_type=String)
         def refusal_similarity(text: str) -> float:
             similarities = []
             for embedding in refusal_embeddings:
@@ -49,11 +48,11 @@ def register_exclusion_udfs():
             return max(similarities)
 
 
-def load_exclusions(json_path: str):
+def load_themes(json_path: str):
     try:
         skip = False
         with open(json_path, "r") as myfile:
-            exclusion_groups = json.load(myfile)
+            theme_groups = json.load(myfile)
     except FileNotFoundError:
         skip = True
         diagnostic_logger.warning(f"Could not find {json_path}")
@@ -61,33 +60,23 @@ def load_exclusions(json_path: str):
         skip = True
         diagnostic_logger.warning(f"Could not parse {json_path}: {json_error}")
     if not skip:
-        return exclusion_groups
+        return theme_groups
     return None
 
 
-def init(transformer_name: Optional[str]=None, input_col: Optional[str]=None, output_col: Optional[str]=None, exclusion_file_path: Optional[str]=None):
+def init(transformer_name: Optional[str]=None, theme_file_path: Optional[str]=None):
     global _transformer_model
-    global _exclusion_groups
-    global input_col_name
-    global output_col_name
+    global _theme_groups
     if transformer_name is None:
         transformer_name = lang_config.transformer_name
-    if input_col is None:
-        input_col_name = lang_config.input_name
+    if theme_file_path is None:
+        _theme_groups = load_themes(lang_config.theme_file_path)
     else:
-        input_col_name = input_col
-    if output_col is None:
-        output_col_name = lang_config.output_name
-    else:
-        output_col_name = output_col
-    if exclusion_file_path is None:
-        _exclusion_groups = load_exclusions(lang_config.exclusion_file_path)
-    else:
-        _exclusion_groups = load_exclusions(exclusion_file_path)
+        _theme_groups = load_themes(theme_file_path)
 
     _transformer_model = load_model(transformer_name)
 
-    register_exclusion_udfs()
+    register_theme_udfs()
 
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:

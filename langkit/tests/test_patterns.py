@@ -1,6 +1,5 @@
 import pandas as pd
 import whylogs as why
-from whylogs.core.resolvers import STANDARD_RESOLVER
 from whylogs.core.schema import DeclarativeSchema
 from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
 from langkit import LangKitConfig
@@ -60,7 +59,7 @@ def test_ptt(ptt_df, user_defined_json):
                 LangKitConfig(pattern_file_path=os.path.join(temp_dir, json_filename))
             )
 
-    schema = DeclarativeSchema(STANDARD_RESOLVER + generate_udf_schema())
+    schema = DeclarativeSchema(generate_udf_schema())
     result = why.log(ptt_df, schema=schema)
     fi_input_list = result.view().to_pandas()[
         "udf/has_patterns:frequent_items/frequent_strings"
