@@ -4,6 +4,11 @@ from torch import Tensor
 from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
 )
+from . import LangKitConfig
+from langkit.transformer import load_model
+
+lang_config = LangKitConfig()
+
 
 _transformer_model = None
 
@@ -11,17 +16,11 @@ _transformer_model = None
 def init(transformer_name: Optional[str]):
     global _transformer_model
     if transformer_name is None:
-        transformer_name = 'sentence-transformers/all-MiniLM-L6-v2'
-    _transformer_model = SentenceTransformer(transformer_name)
+        transformer_name = lang_config.transformer_name
+    _transformer_model = load_model(transformer_name)
 
 
 init()
-
-
-def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
-    embedding = _transformer_model.encode(text, convert_to_tensor=True)
-    similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
-    return similarity.item()
 
 
 @register_metric_udf(col_name="combined")
