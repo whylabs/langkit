@@ -70,7 +70,8 @@ if pattern_loader.get_regex_groups() is not None:
                         return group["name"]
         return patterns_info
 
-
-def set_config(config: LangKitConfig):
-    pattern_loader.set_config(config)
-    pattern_loader.update_patterns()
+def init(pattern_file_path: Optional[str]=None):
+    if pattern_file_path:
+        lang_config.pattern_file_path = pattern_file_path
+        pattern_loader.set_config(lang_config)
+        pattern_loader.update_patterns()
