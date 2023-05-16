@@ -1,12 +1,3 @@
-"""
-References for jailbreaks and refusals
-- https://github.com/agencyenterprise/PromptInject
-- https://cdn.openai.com/papers/gpt-4.pdf
-- https://arxiv.org/pdf/2302.12173v1.pdf
-- https://github.com/gigabuck/prompt-rebellion
-
-
-"""
 from . import LangKitConfig
 from whylogs.experimental.core.metrics.udf_metric import (
     register_metric_udf,
