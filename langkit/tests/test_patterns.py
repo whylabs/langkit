@@ -29,7 +29,7 @@ def ptt_df():
                 "702029921 (SSN)",
                 "no patterns here.",
                 ]
-            }
+        }
     )
     return df
 
@@ -55,7 +55,9 @@ def test_ptt(ptt_df, user_defined_json):
             json_path = os.path.join(temp_dir, json_filename)
             with open(json_path, "w") as file:
                 file.write(user_json)
-            regexes.init(pattern_file_path=os.path.join(temp_dir, json_filename))
+            regexes.set_config(
+                LangKitConfig(pattern_file_path=os.path.join(temp_dir, json_filename))
+            )
 
     schema = DeclarativeSchema(generate_udf_schema())
     result = why.log(ptt_df, schema=schema)
