@@ -14,9 +14,9 @@ def ptt_df():
         {
             "input": [
                 "address: 123 Main St.",
-                "2255 140th Ave NE",
+                "2255 140th Ave. NE",
                 "535 Bellevue Sq",
-                "15220 SE 37th St",
+                "15220 SE 37th St, its a nice place",
                 "anemail@address.com",
                 "my phone is +1 309-404-7587",
                 "credit card 4556205848969759",
@@ -28,8 +28,8 @@ def ptt_df():
                 "ssn is 702 02 9921",
                 "702029921 (SSN)",
                 "no patterns here.",
-            ],
-        }
+                ]
+            }
     )
     return df
 
