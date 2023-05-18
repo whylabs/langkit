@@ -12,19 +12,20 @@ lang_config = LangKitConfig()
 
 
 _transformer_model = None
+_transformer_name = None
 
 
 def init(transformer_name: Optional[str]=None):
-    global _transformer_model
+    global _transformer_model, _transformer_name
     if transformer_name is None:
         transformer_name = lang_config.transformer_name
     _transformer_model = load_model(transformer_name)
-
+    _transformer_name = transformer_name
 
 init()
 
 
-@register_dataset_udf(col_names=["prompt", "response"])
+@register_dataset_udf(["prompt", "response"], _transformer_name)
 def similarity_MiniLM_L6_v2(text):
     x = text["prompt"]
     y = text["response"]

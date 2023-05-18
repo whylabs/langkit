@@ -16,10 +16,10 @@ def interactions():
 
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
-    from langkit import input_output
+    from langkit import input_output as lkio
     schema = generate_udf_dataset_schema()
     for i,interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
-        similarity_median = result.view().get_column('similarity_MiniLM_L6_v2').get_metric("distribution").to_summary_dict()['median']
+        similarity_median = result.view().get_column(lkio._transformer_name).get_metric("distribution").to_summary_dict()['median']
         assert -1 <= similarity_median <= 1
 
