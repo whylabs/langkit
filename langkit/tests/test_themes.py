@@ -1,5 +1,6 @@
 import pytest
 import whylogs as why
+from whylogs.core.metrics import MetricConfig
 from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
 
 @pytest.fixture
@@ -19,9 +20,11 @@ def test_theme(interactions):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
     from langkit import themes
-    schema = udf_metric_schema()
+    schema = udf_metric_schema(default_config=MetricConfig(fi_disabled=True))
     for i,interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
+        assert "frequent_items/frequent_strings" not in result.view().get_column("prompt").to_summary_dict()
+        assert "frequent_items/frequent_strings" not in result.view().get_column("response").to_summary_dict()
         jail_median = result.view().get_columns()['prompt'].get_metrics()[-1].to_summary_dict()['jailbreak_similarity:distribution/median']
 
         refusal_median = result.view().get_columns()['response'].get_metrics()[-1].to_summary_dict()['refusal_similarity:distribution/median']

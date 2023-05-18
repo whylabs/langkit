@@ -2594,14 +2594,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.1.42.dev0"
+version = "1.1.42.dev1"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.1.42.dev0-py3-none-any.whl", hash = "sha256:33218edddcb3a4eb7cc0dfe2afbc6598988b9ca143f8f51a9c2f052cee124cb1"},
-    {file = "whylogs-1.1.42.dev0.tar.gz", hash = "sha256:43727c54e0a9b0cad1da9b4ed8d97bd48bd7a35396a5464e8c1a986717251c21"},
+    {file = "whylogs-1.1.42.dev1-py3-none-any.whl", hash = "sha256:a6d4def1744a2125f8b2c24103a0d9fa23cbaaed66add9cf37d6937426dbe15e"},
+    {file = "whylogs-1.1.42.dev1.tar.gz", hash = "sha256:510caced41d19776754ca303d2c934c18bf1bbbeb3ce80431b956fdba4cfac60"},
 ]
 
 [package.dependencies]
@@ -2880,4 +2880,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "25d472c3993be2cd375c8551ac46cd0ed2d1b60ead494e259407d8250d169dd8"
+content-hash = "2f7acecd234132cf4355e7774e29bc9b7aca07dc2e3b7c884494fc20fffae276"
