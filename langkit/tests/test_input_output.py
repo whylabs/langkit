@@ -16,7 +16,6 @@ def interactions():
 
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
-    # since our df has different input col name, let's specify it.
     from langkit import input_output
     schema = generate_udf_dataset_schema()
     for i,interaction in enumerate(interactions):
