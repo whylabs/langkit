@@ -1,6 +1,6 @@
 import pytest
 import whylogs as why
-from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
+from whylogs.experimental.core.udf_schema import generate_udf_dataset_schema
 
 @pytest.fixture
 def interactions():
@@ -14,21 +14,13 @@ def interactions():
     ]
     return interactions_list
 
-@pytest.mark.load
-def test_theme(interactions):
+def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
-    from langkit import themes
-    schema = udf_metric_schema()
+    from langkit import input_output
+    schema = generate_udf_dataset_schema()
     for i,interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
-        jail_median = result.view().get_columns()['prompt'].get_metrics()[-1].to_summary_dict()['jailbreak_similarity:distribution/median']
-
-        refusal_median = result.view().get_columns()['response'].get_metrics()[-1].to_summary_dict()['refusal_similarity:distribution/median']
-        if i == 2:
-            assert jail_median <= 0.1
-            assert refusal_median <= 0.1
-        else:
-            assert jail_median >= 0.5
-            assert refusal_median >= 0.5
+        similarity_median = result.view().get_column('similarity_MiniLM_L6_v2').get_metric("distribution").to_summary_dict()['median']
+        assert -1 <= similarity_median <= 1
 
