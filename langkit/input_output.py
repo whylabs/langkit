@@ -22,6 +22,7 @@ def init(transformer_name: Optional[str]=None):
     _transformer_model = load_model(transformer_name)
     _transformer_name = transformer_name
 
+
 init()
 
 

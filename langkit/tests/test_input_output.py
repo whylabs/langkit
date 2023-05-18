@@ -14,6 +14,7 @@ def interactions():
     ]
     return interactions_list
 
+
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
     from langkit import input_output as lkio
