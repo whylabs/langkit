@@ -1,17 +1,15 @@
-from . import LangKitConfig
-from whylogs.experimental.core.metrics.udf_metric import (
-    register_metric_udf,
-)
-from typing import Optional
-from sentence_transformers import SentenceTransformer, util
-from torch import Tensor
-from typing import Callable
-from whylogs.core.datatypes import DataType
-from whylogs.experimental.core.metrics.udf_metric import _col_type_submetrics
-from logging import getLogger
 import json
-from langkit.transformer import load_model
+from logging import getLogger
+from typing import Optional
+
+from sentence_transformers import util
+from torch import Tensor
 from whylogs.core.datatypes import String
+from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+
+from langkit.transformer import load_model
+
+from . import LangKitConfig
 
 diagnostic_logger = getLogger(__name__)
 
@@ -20,12 +18,14 @@ _theme_groups = None
 
 lang_config = LangKitConfig()
 
+
 def register_theme_udfs():
     if "jailbreaks" in _theme_groups:
         jailbreak_embeddings = [
             _transformer_model.encode(s, convert_to_tensor=True)
             for s in _theme_groups["jailbreaks"]
         ]
+
         @register_metric_udf(col_type=String)
         def jailbreak_similarity(text: str) -> float:
             similarities = []
@@ -36,9 +36,10 @@ def register_theme_udfs():
 
     if "refusals" in _theme_groups:
         refusal_embeddings = [
-        _transformer_model.encode(s, convert_to_tensor=True)
-        for s in _theme_groups["refusals"]
+            _transformer_model.encode(s, convert_to_tensor=True)
+            for s in _theme_groups["refusals"]
         ]
+
         @register_metric_udf(col_type=String)
         def refusal_similarity(text: str) -> float:
             similarities = []
@@ -64,7 +65,7 @@ def load_themes(json_path: str):
     return None
 
 
-def init(transformer_name: Optional[str]=None, theme_file_path: Optional[str]=None):
+def init(transformer_name: Optional[str] = None, theme_file_path: Optional[str] = None):
     global _transformer_model
     global _theme_groups
     if transformer_name is None:
@@ -80,8 +81,11 @@ def init(transformer_name: Optional[str]=None, theme_file_path: Optional[str]=No
 
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
     embedding = _transformer_model.encode(text, convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
     return similarity.item()
+
 
 init()

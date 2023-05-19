@@ -1,11 +1,16 @@
 import pytest
 
+
 def pytest_addoption(parser) -> None:  # type: ignore
-    parser.addoption("--load", action="store_true", default=False, help="run load tests")
+    parser.addoption(
+        "--load", action="store_true", default=False, help="run load tests"
+    )
 
 
 def pytest_configure(config) -> None:  # type: ignore
-    config.addinivalue_line("markers", "load: mark test as load to skip running with unit tests")
+    config.addinivalue_line(
+        "markers", "load: mark test as load to skip running with unit tests"
+    )
 
 
 def pytest_collection_modifyitems(config, items) -> None:  # type: ignore
