@@ -9,7 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-whylogs = {version = "1.1.42.dev1"}
+whylogs = {version = "1.1.42.dev2"}
 textstat = "^0.7.3"
 sentence-transformers = "^2.2.2"
 nltk = "^3.8.1"

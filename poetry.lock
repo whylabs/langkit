@@ -1233,14 +1233,14 @@ files = [
 
 [[package]]
 name = "openai"
-version = "0.27.6"
+version = "0.27.7"
 description = "Python client library for the OpenAI API"
 category = "main"
 optional = false
 python-versions = ">=3.7.1"
 files = [
-    {file = "openai-0.27.6-py3-none-any.whl", hash = "sha256:1f07ed06f1cfc6c25126107193726fe4cf476edcc4e1485cd9eb708f068f2606"},
-    {file = "openai-0.27.6.tar.gz", hash = "sha256:63ca9f6ac619daef8c1ddec6d987fe6aa1c87a9bfdce31ff253204d077222375"},
+    {file = "openai-0.27.7-py3-none-any.whl", hash = "sha256:788fb7fa85bf7caac6c1ed7eea5984254a1bdaf09ef485acf0e5718c8b2dc25a"},
+    {file = "openai-0.27.7.tar.gz", hash = "sha256:bca95fd4c3054ef38924def096396122130454442ec52005915ecf8269626b1d"},
 ]
 
 [package.dependencies]
@@ -2578,14 +2578,14 @@ files = [
 
 [[package]]
 name = "whylabs-client"
-version = "0.5.0"
+version = "0.5.1"
 description = "WhyLabs API client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.5.0.tar.gz", hash = "sha256:cc55b4ce8b62d9945c3cb3dedeac21f1345b178c2f6b71b0dd6a2f0a0a0dbdb8"},
-    {file = "whylabs_client-0.5.0-py3-none-any.whl", hash = "sha256:8de5a24f6b1b96d78002645288fccff5e84d13311fdab69ce8cd6197e611bc24"},
+    {file = "whylabs-client-0.5.1.tar.gz", hash = "sha256:f7aacfab7d176812c2eb4cdeb8c52521eed0d30bc2a0836399798197a513cf04"},
+    {file = "whylabs_client-0.5.1-py3-none-any.whl", hash = "sha256:dc6958d5bb390f1057fe6f513cbce55c4e71d5f8a1461a7c93eb73814089de33"},
 ]
 
 [package.dependencies]
@@ -2594,14 +2594,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.1.42.dev1"
+version = "1.1.42.dev2"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.1.42.dev1-py3-none-any.whl", hash = "sha256:a6d4def1744a2125f8b2c24103a0d9fa23cbaaed66add9cf37d6937426dbe15e"},
-    {file = "whylogs-1.1.42.dev1.tar.gz", hash = "sha256:510caced41d19776754ca303d2c934c18bf1bbbeb3ce80431b956fdba4cfac60"},
+    {file = "whylogs-1.1.42.dev2-py3-none-any.whl", hash = "sha256:4f72cc336fe775c7e8232fce16c5ecc5a623f0775996256b55d2e672e9e25ba4"},
+    {file = "whylogs-1.1.42.dev2.tar.gz", hash = "sha256:c5962e656250144f116bed911bfe6dd236dacd752005840cdbd455b9ce5a6ff7"},
 ]
 
 [package.dependencies]
@@ -2883,4 +2883,4 @@ io = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "2c44396cbd843ae5dd30683803432ef83c54a5118409c59e50207d1fd37ceb48"
+content-hash = "d15253ad96c2a1ae05c48d87dbb18bd2c082c51fb58693b10e3cfa00ee5264a6"
