@@ -1,10 +1,10 @@
+import os
+import tempfile
+
 import pandas as pd
+import pytest
 import whylogs as why
 from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
-from langkit import LangKitConfig
-import pytest
-import tempfile
-import os
 
 
 @pytest.fixture
@@ -27,8 +27,8 @@ def ptt_df():
                 "ssn is 702 02 9921",
                 "702029921 (SSN)",
                 "no patterns here.",
-                ]
-            }
+            ]
+        }
     )
     return df
 
@@ -44,10 +44,12 @@ user_json = """
 ]
 """
 
+
 # log dataframe
 @pytest.mark.parametrize("user_defined_json", [False, True])
 def test_ptt(ptt_df, user_defined_json):
     from langkit import regexes
+
     if user_defined_json:
         with tempfile.TemporaryDirectory() as temp_dir:
             json_filename = "user.json"
