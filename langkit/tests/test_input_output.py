@@ -39,6 +39,7 @@ def test_similarity(interactions):
     schema = generate_udf_dataset_schema(default_config=MetricConfig(fi_disabled=True))
     for i,interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
+        column_name = f"similarity_{lkio._transformer_name.split('/')[-1]}"
         if {"prompt", "response"}.issubset(set(interaction.keys())):
             similarity_median = result.view().get_column(lkio._transformer_name).get_metric("distribution").to_summary_dict()['median']
             assert (similarity_median is None and not texty(interaction)) or (texty(interaction) and (-1 <= similarity_median <= 1))
