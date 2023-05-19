@@ -3,3 +3,4 @@ References for jailbreaks and refusals
 - https://cdn.openai.com/papers/gpt-4.pdf
 - https://arxiv.org/pdf/2302.12173v1.pdf
 - https://github.com/gigabuck/prompt-rebellion
+- https://arxiv.org/pdf/2302.12173v2.pdf

@@ -1,11 +1,10 @@
-import pandas as pd
-import whylogs as why
-from whylogs.core.schema import DeclarativeSchema
-from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
-from langkit import LangKitConfig
-import pytest
-import tempfile
 import os
+import tempfile
+
+import pandas as pd
+import pytest
+import whylogs as why
+from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
 
 
 @pytest.fixture
@@ -28,7 +27,7 @@ def ptt_df():
                 "ssn is 702 02 9921",
                 "702029921 (SSN)",
                 "no patterns here.",
-                ]
+            ]
         }
     )
     return df
@@ -45,10 +44,12 @@ user_json = """
 ]
 """
 
+
 # log dataframe
 @pytest.mark.parametrize("user_defined_json", [False, True])
 def test_ptt(ptt_df, user_defined_json):
     from langkit import regexes
+
     if user_defined_json:
         with tempfile.TemporaryDirectory() as temp_dir:
             json_filename = "user.json"
@@ -59,8 +60,7 @@ def test_ptt(ptt_df, user_defined_json):
                 LangKitConfig(pattern_file_path=os.path.join(temp_dir, json_filename))
             )
 
-    schema = DeclarativeSchema(generate_udf_schema())
-    result = why.log(ptt_df, schema=schema)
+    result = why.log(ptt_df, schema=udf_metric_schema())
     fi_input_list = result.view().to_pandas()[
         "udf/has_patterns:frequent_items/frequent_strings"
     ]["input"]
