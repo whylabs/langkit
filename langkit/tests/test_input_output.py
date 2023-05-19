@@ -46,4 +46,4 @@ def test_similarity(interactions):
             assert "frequent_items/frequent_strings" not in result.view().get_column("prompt").to_summary_dict()
             assert "frequent_items/frequent_strings" not in result.view().get_column("response").to_summary_dict()
         else:
-            assert lkio._transformer_name not in result.view().get_columns()
+            assert column_name not in result.view().get_columns()
