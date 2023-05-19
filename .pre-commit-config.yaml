@@ -12,8 +12,6 @@ repos:
         args:
           - --max-line-length=160
           - --exclude="""\.tox |
-            python/build |
-            python/dist |
             \.eggs |
             \.venv"""
           - --extend-ignore=E203,W503
