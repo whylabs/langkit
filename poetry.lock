@@ -1236,7 +1236,7 @@ name = "openai"
 version = "0.27.7"
 description = "Python client library for the OpenAI API"
 category = "main"
-optional = false
+optional = true
 python-versions = ">=3.7.1"
 files = [
     {file = "openai-0.27.7-py3-none-any.whl", hash = "sha256:788fb7fa85bf7caac6c1ed7eea5984254a1bdaf09ef485acf0e5718c8b2dc25a"},
@@ -2594,14 +2594,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.1.42.dev2"
+version = "1.1.42.dev3"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.1.42.dev2-py3-none-any.whl", hash = "sha256:4f72cc336fe775c7e8232fce16c5ecc5a623f0775996256b55d2e672e9e25ba4"},
-    {file = "whylogs-1.1.42.dev2.tar.gz", hash = "sha256:c5962e656250144f116bed911bfe6dd236dacd752005840cdbd455b9ce5a6ff7"},
+    {file = "whylogs-1.1.42.dev3-py3-none-any.whl", hash = "sha256:99aadb05b68c6c2dc5d00ba1fb45bdd5ac2c3da3fe812f3fd1573a0f06674121"},
+    {file = "whylogs-1.1.42.dev3.tar.gz", hash = "sha256:c82badf821f56935fd274e696e4d5ed151934e486f23ea5f5c60af31e6cdb632"},
 ]
 
 [package.dependencies]
@@ -2883,4 +2883,4 @@ io = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "d15253ad96c2a1ae05c48d87dbb18bd2c082c51fb58693b10e3cfa00ee5264a6"
+content-hash = "60901c35d52a58add7f28e2b10c53c838113e2ad0f9d574b7524b35be2da3a56"

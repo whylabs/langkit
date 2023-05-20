@@ -56,9 +56,7 @@ def test_ptt(ptt_df, user_defined_json):
             json_path = os.path.join(temp_dir, json_filename)
             with open(json_path, "w") as file:
                 file.write(user_json)
-            regexes.set_config(
-                LangKitConfig(pattern_file_path=os.path.join(temp_dir, json_filename))
-            )
+            regexes.init(pattern_file_path=os.path.join(temp_dir, json_filename))
 
     result = why.log(ptt_df, schema=udf_metric_schema())
     fi_input_list = result.view().to_pandas()[
