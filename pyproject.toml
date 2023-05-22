@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.1b1"
+version = "0.0.1b2"
 description = "A collection of text metric udfs for whylogs profiling and monitoring in WhyLabs"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 license = "Apache-2.0"
@@ -14,7 +14,7 @@ textstat = "^0.7.3"
 sentence-transformers = "^2.2.2"
 nltk = "^3.8.1"
 pandas = "*"
-datasets = "^2.12.0"
+datasets = "*"
 
 # optional dependencies
 torch = {version = "*", optional = true}
