@@ -64,7 +64,6 @@ def test_ptt(ptt_df, user_defined_json):
     ]["input"]
     if not user_defined_json:
         group_names = {
-            "",
             "credit card number",
             "email address",
             "SSN",
@@ -72,6 +71,6 @@ def test_ptt(ptt_df, user_defined_json):
             "mailing address",
         }
     else:
-        group_names = {"custom_group", ""}
+        group_names = {"custom_group"}
 
     assert set([x.value for x in fi_input_list]) == group_names
