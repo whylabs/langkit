@@ -108,12 +108,12 @@ def letter_count(text: str) -> float:
 
 @register_metric_udf(col_type=String)
 def polysyllable_count(text: str) -> float:
-    return textstat.textstat.polysyllablecount(text)
+    return textstat.textstat.polysyllabcount(text)
 
 
 @register_metric_udf(col_type=String)
 def monosyllable_count(text: str) -> float:
-    return textstat.textstat.monosyllablecount(text)
+    return textstat.textstat.monosyllabcount(text)
 
 
 @register_metric_udf(col_type=String)
