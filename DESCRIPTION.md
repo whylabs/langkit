@@ -39,7 +39,7 @@ from langkit.sentiment import *
 from langkit.textstat import *
 
 text_schema = DeclarativeSchema(generate_udf_schema())
-results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
+results = why.log({"prompt": "Hello,", "response": "World!"}, schema=text_schema)
 
 ```
 

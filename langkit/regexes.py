@@ -11,6 +11,7 @@ diagnostic_logger = getLogger(__name__)
 
 lang_config = LangKitConfig()
 
+
 class AllString(TypeMapper):
     """Map a dtype (Pandas) or a Python type to a data type."""
 
@@ -21,9 +22,9 @@ class AllString(TypeMapper):
             custom_types: List of additional DataType classes that you want to extend.
         """
         pass
+
     def __call__(self, dtype_or_type: Any) -> DataType:
         return String()
-
 
 
 class PatternLoader:
@@ -70,7 +71,7 @@ class PatternLoader:
 pattern_loader = PatternLoader()
 if pattern_loader.get_regex_groups() is not None:
 
-    @register_metric_udf(col_type=String,type_mapper=AllString())
+    @register_metric_udf(col_type=String, type_mapper=AllString())
     def has_patterns(text: str) -> Optional[str]:
         regex_groups = pattern_loader.get_regex_groups()
         patterns_info = None
