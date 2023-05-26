@@ -2883,4 +2883,4 @@ all = ["openai", "torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "f34f8d896a009a2a1c960fd71d80ab0daae85662cb036c5364322323fff35319"
+content-hash = "86bd1f7e3310532815689bc6fbbbf8691702604733e35de0019b0b07f48e3cd9"

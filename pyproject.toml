@@ -4,7 +4,7 @@ version = "0.0.1b4"
 description = "A collection of text metric udfs for whylogs profiling and monitoring in WhyLabs"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 license = "Apache-2.0"
-readme = "README.md"
+readme = "DESCRIPTION.md"
 
 
 [tool.poetry.dependencies]
@@ -18,7 +18,7 @@ datasets = "*"
 
 # optional dependencies
 torch = {version = "*", optional = true}
-openai = {version = "^0.27.6", optional = true}
+openai = {version = "*", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
