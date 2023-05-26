@@ -1,16 +1,29 @@
 import json
 import re
 from logging import getLogger
-from typing import Optional
 
-from whylogs.core.datatypes import String
 from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
-
 from . import LangKitConfig
+from whylogs.core.datatypes import TypeMapper, DataType, String
+from typing import Any, List, Optional, Type
 
 diagnostic_logger = getLogger(__name__)
 
 lang_config = LangKitConfig()
+
+class AllString(TypeMapper):
+    """Map a dtype (Pandas) or a Python type to a data type."""
+
+    def __init__(self, custom_types: Optional[List[Type[DataType]]] = None):
+        """
+
+        Args:
+            custom_types: List of additional DataType classes that you want to extend.
+        """
+        pass
+    def __call__(self, dtype_or_type: Any) -> DataType:
+        return String()
+
 
 
 class PatternLoader:
@@ -55,13 +68,12 @@ class PatternLoader:
 
 
 pattern_loader = PatternLoader()
-
 if pattern_loader.get_regex_groups() is not None:
 
-    @register_metric_udf(col_type=String)
+    @register_metric_udf(col_type=String,type_mapper=AllString())
     def has_patterns(text: str) -> Optional[str]:
         regex_groups = pattern_loader.get_regex_groups()
-        patterns_info = ""
+        patterns_info = None
         if regex_groups:
             for group in regex_groups:
                 for expression in group["expressions"]:

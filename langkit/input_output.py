@@ -21,10 +21,9 @@ def init(transformer_name: Optional[str] = None):
 
 
 init()
-_udf_name = _transformer_name or lang_config.transformer_name
 
 
-@register_dataset_udf(["prompt", "response"], f"similarity_{_udf_name.split('/')[-1]}")
+@register_dataset_udf(["prompt", "response"], "response.relevance_to_prompt")
 def similarity_MiniLM_L6_v2(text):
     x = text["prompt"]
     y = text["response"]
