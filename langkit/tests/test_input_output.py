@@ -36,7 +36,7 @@ def texty(d):
 @pytest.mark.load
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
-    from langkit import input_output as lkio
+    from langkit import input_output as lkio  # noqa
 
     schema = generate_udf_dataset_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):

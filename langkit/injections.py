@@ -1,4 +1,3 @@
-from typing import Union, SupportsIndex
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from transformers import (
     AutoModelForSequenceClassification,
@@ -14,8 +13,9 @@ pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer)
 
 
 @register_dataset_udf(["prompt"], "prompt.injection")
-def injection(text: Union[SupportsIndex, slice]) -> float:
-    result = pipeline(text["prompt"])
+def injection(text) -> float:
+    prompt = text.get("prompt")
+    result = pipeline(prompt)
     injection_score = (
         result[0]["score"]
         if result[0]["label"] == "INJECTION"
