@@ -4,6 +4,7 @@ from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 
 # score metrics
 
+
 @register_metric_udf(col_type=String)
 def flesch_kincaid_grade(text: str) -> float:
     return textstat.textstat.flesch_kincaid_grade(text)
@@ -80,6 +81,7 @@ def osman(text: str) -> float:
 
 
 # count metrics
+
 
 @register_metric_udf(col_type=String)
 def syllable_count(text: str) -> float:
