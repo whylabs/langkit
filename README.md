@@ -34,14 +34,13 @@ pip install langkit
 LangKit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the LangKit modules and then instantiate a custom schema as shown in the example below.
 
 ```python
-from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
+from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.schema import DeclarativeSchema
 import whylogs as why
 from langkit.sentiment import *
 from langkit.textstat import *
 
-text_schema = DeclarativeSchema(generate_udf_schema())
-results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
+results = why.log({"prompt": "Hello,", "response": "World!"}, schema=udf_schema())
 
 ```
 
