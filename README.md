@@ -58,4 +58,4 @@ More examples are available [here](https://github.com/whylabs/LanguageToolkit/tr
 
 ## Modules
 
-You can have more information about the modules and their metrics [here](langkit/docs/modules.md).
+You can have more information about the different modules and their metrics [here](langkit/docs/modules.md).
