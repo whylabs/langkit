@@ -1,3 +1,14 @@
+# Modules List
+
+- [Injections](#injections)
+- [Input/Output](#inputoutput)
+- [Regexes](#regexes)
+- [Sentiment](#sentiment)
+- [Text Statistics](#text-statistics)
+- [Themes](#themes)
+- [Toxicity](#toxicity)
+
+
 ## Injections
 
 The `injections` module gather metrics on possible prompt injection attacks. It will be applied to column named `prompt`, and it will create a new column named `prompt.injection`.
@@ -177,5 +188,86 @@ This method returns the Gulpease Index for Italian texts, a readability formula 
 
 This method returns the Osman readability score of the input text. This is a readability test designed for the Turkish language.
 
+### `syllable_count`
+
+This method returns the number of syllables present in the input text.
+
+### `lexicon_count`
+
+This method returns the number of words present in the input text.
+
+### `sentence_count`
+
+This method returns the number of sentences present in the input text.
+
+### `character_count`
+
+This method returns the number of characters present in the input text.
+
+### `letter_count`
+
+This method returns the number of letters present in the input text.
+
+### `polysyllable_count`
+
+This method returns the number of words with three or more syllables present in the input text.
+
+### `monosyllable_count`
+
+This method returns the number of words with one syllable present in the input text.
+
+## Themes
+
+The `themes` module will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
+
+The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+
+Currently, supported themes are: `jailbreaks` and `refusals`.
+
+### Usage
+
+```python
+from langkit import themes
+from whylogs.experimental.core.udf_schema import udf_schema
+import whylogs as why
+text_schema = udf_schema()
+
+profile = why.log({"response":"I'm sorry, but as an AI Language Model, I cannot provide information on the topic you requested."}, schema=text_schema).profile()
+```
+
+### Configuration
+
+Users can customize the themes by editing the `themes.json` file. The file contains a dictionary of themes, each with a list of examples. To pass a custom `themes.json` file, use the `init` method:
+
+```python 
+from langkit import themes
+themes.init(theme_file_path="path/to/themes.json")
+```
+
+### `jailbreaks`
+
+This group gathers a set of known jailbreak examples.
+
+### `refusals`
+
+This group gathers a set of known LLM refusal examples.
 
 
+## Toxicity
+
+The `toxicity` module will compute toxicity scores for each value in every column of type `String`. It will create a new udf submetric called `toxicity`.
+
+### Usage
+
+```python
+from langkit import toxicity
+from whylogs.experimental.core.udf_schema import udf_schema
+import whylogs as why
+text_schema = udf_schema()
+
+profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+```
+
+### `toxicity`
+
+The `toxicity` will contain metrics related to the toxicity score calculated for each value in the string column. The toxicity score is calculated using huggingface's `martin-ha/toxic-comment-model` toxicity analyzer. The score ranges from 0 to 1, where 0 is no toxicity and 1 is maximum toxicity.
