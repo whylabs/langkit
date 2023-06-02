@@ -49,7 +49,7 @@ from langkit import textstat
 
 results = why.log({"prompt": "Hello!", "response": "World!"}, schema=udf_schema())
 ```
-The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules.
+The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules. This profile can be visualized and monitored in the [WhyLabs platform](https://whylabs.ai/) or they can be further analyzed by the user on their own accord.
 
 More examples are available [here](https://github.com/whylabs/langkit/tree/main/langkit/examples).
 
