@@ -13,7 +13,7 @@ Productionizing language models, including LLMs, comes with a range of risks due
 ## Features
 
 The currently supported metrics include:
-- [Text quality](langkit/docs/features/quality.md)
+- [Text Quality](langkit/docs/features/quality.md)
     - readability score
     - complexity and grade scores
 - [Text Relevance](langkit/docs/features/relevance.md)
