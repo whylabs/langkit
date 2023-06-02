@@ -13,13 +13,20 @@ Productionizing language models, including LLMs, comes with a range of risks due
 ## Features
 
 The currently supported metrics include:
-
-- readability score
-- complexity and grade scores
-- sentiment analysis
-- patterns - count of strings matching a user-defined regex pattern group
-- jailbreaks - similarity scores with respect to known jailbreak attempts and prompt injection attacks
-- refusals - similarity scores with respect to known LLM refusal of service responses
+- [Text Quality](langkit/docs/features/quality.md)
+    - readability score
+    - complexity and grade scores
+- [Text Relevance](langkit/docs/features/relevance.md)
+    - Similarity scores between prompt/responses
+    - Similarity scores against user-defined themes
+- [Security and Privacy](langkit/docs/features/security.md)
+    - patterns - count of strings matching a user-defined regex pattern group
+    - jailbreaks - similarity scores with respect to known jailbreak attempts
+    - prompt injection - similarity scores with respect to known prompt injection attacks
+    - refusals - similarity scores with respect to known LLM refusal of service responses
+- [Sentiment and Toxicity](langkit/docs/features/sentiment.md)
+    - sentiment analysis
+    - toxicity analysis
 
 ## Installation
 
@@ -48,3 +55,7 @@ results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema
 The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules.
 
 More examples are available [here](https://github.com/whylabs/LanguageToolkit/tree/main/langkit/examples).
+
+## Modules
+
+You can have more information about the different modules and their metrics [here](langkit/docs/modules.md).
