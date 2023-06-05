@@ -10,6 +10,8 @@ class LangKitConfig:
     )
     transformer_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     theme_file_path: str = pkg_resources.resource_filename(__name__, "themes.json")
+    prompt_column: str = "prompt"
+    response_column: str = "response"
 
 
 def package_version(package: str = __package__) -> str:
