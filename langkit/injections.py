@@ -1,16 +1,21 @@
-from whylogs.experimental.core.udf_schema import register_dataset_udf
+from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
     TextClassificationPipeline,
 )
+from . import LangKitConfig
+lang_config = LangKitConfig()
+prompt = lang_config.prompt_column
+
 model_path = "JasperLS/gelectra-base-injection"
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = AutoModelForSequenceClassification.from_pretrained(model_path)
 
 pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer)
 
-@register_dataset_udf(['prompt'], "prompt.injection")
+
+@register_metric_udf(col_name=prompt)
 def injection(text: str) -> float:
     result = pipeline(text['prompt'],truncation=True,max_length=tokenizer.model_max_length)
     injection_score = (
