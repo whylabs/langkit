@@ -15,7 +15,7 @@ pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer)
 
 @register_metric_udf(col_type=String)
 def toxicity(text: str) -> float:
-    result = pipeline(text)
+    result = pipeline(text,truncation=True,max_length=tokenizer.model_max_length)
     toxicity_score = (
         result[0]["score"] if result[0]["label"] == "toxic" else 1 - result[0]["score"]
     )
