@@ -24,6 +24,7 @@ def log_openai_with_langkit(func, logger):
         if messages:
             user_prompt = [message['content'] for message in messages if message['role'] == 'user'][0]
             system_prompt = [message['content'] for message in messages if message['role'] == 'system'][0]
+            llm_response = ""
             if func.__name__ == "create":
                 if "ChatCompletion" in func.__qualname__:
                     llm_response = response['choices'][0]['message']['content'].strip()
