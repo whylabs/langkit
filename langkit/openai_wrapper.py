@@ -32,8 +32,6 @@ def log_openai_with_langkit(func, logger):
                     llm_response = response.choices[0].text.strip()
                 else:
                     llm_response = ""
-            else:
-                llm_response = ""
 
             logger.log({"prompt":user_prompt, "system_prompt":system_prompt, "response":llm_response})
         return response
