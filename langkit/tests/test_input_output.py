@@ -1,7 +1,7 @@
 import pytest
 import whylogs as why
 from whylogs.core.metrics import MetricConfig
-from whylogs.experimental.core.udf_schema import generate_udf_dataset_schema
+from whylogs.experimental.core.udf_schema import udf_schema
 
 
 @pytest.fixture
@@ -36,9 +36,9 @@ def texty(d):
 @pytest.mark.load
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
-    from langkit import input_output as lkio
+    from langkit import input_output as lkio  # noqa
 
-    schema = generate_udf_dataset_schema(default_config=MetricConfig(fi_disabled=True))
+    schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
         column_name = "response.relevance_to_prompt"

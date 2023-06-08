@@ -12,7 +12,16 @@ class LangKitConfig:
     theme_file_path: str = pkg_resources.resource_filename(__name__, "themes.json")
     prompt_column: str = "prompt"
     response_column: str = "response"
-    topics: list = field(default_factory=lambda: ["law", "finance", "medical", "education", "politics", "support"])
+    topics: list = field(
+        default_factory=lambda: [
+            "law",
+            "finance",
+            "medical",
+            "education",
+            "politics",
+            "support",
+        ]
+    )
 
 
 def package_version(package: str = __package__) -> str:

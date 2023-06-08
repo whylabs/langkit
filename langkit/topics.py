@@ -4,6 +4,7 @@ from transformers import (
     pipeline,
 )
 from . import LangKitConfig
+
 lang_config = LangKitConfig()
 _topics = lang_config.topics
 
@@ -16,9 +17,11 @@ def closest_topic(text: str) -> str:
     output = classifier(text, _topics, multi_label=False)
     return output["labels"][0]
 
+
 def init(topics: Optional[list] = None):
     global _topics
     if topics:
         _topics = topics
+
 
 init()
