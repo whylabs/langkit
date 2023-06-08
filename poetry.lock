@@ -1461,7 +1461,7 @@ tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "pa
 name = "platformdirs"
 version = "3.5.1"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
@@ -2523,6 +2523,33 @@ video = ["av (==9.2.0)", "decord (==0.6.0)"]
 vision = ["Pillow"]
 
 [[package]]
+name = "types-requests"
+version = "2.31.0.1"
+description = "Typing stubs for requests"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-requests-2.31.0.1.tar.gz", hash = "sha256:3de667cffa123ce698591de0ad7db034a5317457a596eb0b4944e5a9d9e8d1ac"},
+    {file = "types_requests-2.31.0.1-py3-none-any.whl", hash = "sha256:afb06ef8f25ba83d59a1d424bd7a5a939082f94b94e90ab5e6116bd2559deaa3"},
+]
+
+[package.dependencies]
+types-urllib3 = "*"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.25.13"
+description = "Typing stubs for urllib3"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-urllib3-1.26.25.13.tar.gz", hash = "sha256:3300538c9dc11dad32eae4827ac313f5d986b8b21494801f1bf97a1ac6c03ae5"},
+    {file = "types_urllib3-1.26.25.13-py3-none-any.whl", hash = "sha256:5dbd1d2bef14efee43f5318b5d36d805a489f6600252bb53626d4bfafd95e27c"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2594,24 +2621,27 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.1.42.dev2"
+version = "1.1.45.dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.1.42.dev2-py3-none-any.whl", hash = "sha256:4f72cc336fe775c7e8232fce16c5ecc5a623f0775996256b55d2e672e9e25ba4"},
-    {file = "whylogs-1.1.42.dev2.tar.gz", hash = "sha256:c5962e656250144f116bed911bfe6dd236dacd752005840cdbd455b9ce5a6ff7"},
+    {file = "whylogs-1.1.45.dev0-py3-none-any.whl", hash = "sha256:386de488fd0c5d55e07cfc1f67ecccea547aea3309422d7582b94b5d9c98ae0a"},
+    {file = "whylogs-1.1.45.dev0.tar.gz", hash = "sha256:0aaa4e6c8027a3f239a392684a7418e3337d2bb95c577722b274d61b251f4d5a"},
 ]
 
 [package.dependencies]
+platformdirs = ">=3.5.0,<4.0.0"
 protobuf = ">=3.19.4"
+requests = ">=2.27,<3.0"
+types-requests = ">=2.30.0.0,<3.0.0.0"
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
-whylabs-client = ">=0.4.4,<1"
+whylabs-client = ">=0.5.1,<1"
 whylogs-sketching = ">=3.4.1.dev3"
 
 [package.extras]
-all = ["Pillow (>=9.2.0,<10.0.0)", "boto3 (>=1.22.13,<2.0.0)", "fugue (>=0.8.1,<0.9.0)", "google-cloud-storage (>=2.5.0,<3.0.0)", "ipython", "mlflow-skinny (>=1.26.1,<2.0.0)", "numpy", "numpy (>=1.23.2)", "pandas", "pyarrow (>=8.0.0,<13)", "pybars3 (>=0.9,<0.10)", "pyspark (>=3.0.0,<4.0.0)", "requests (>=2.27,<3.0)", "scikit-learn (>=1.0.2,<2.0.0)", "scikit-learn (>=1.1.2,<2)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
+all = ["Pillow (>=9.2.0,<10.0.0)", "boto3 (>=1.22.13,<2.0.0)", "fugue (>=0.8.1,<0.9.0)", "google-cloud-storage (>=2.5.0,<3.0.0)", "ipython", "mlflow-skinny (>=1.26.1,<2.0.0)", "numpy", "numpy (>=1.23.2)", "pandas", "pyarrow (>=8.0.0,<13)", "pybars3 (>=0.9,<0.10)", "pyspark (>=3.0.0,<4.0.0)", "scikit-learn (>=1.0.2,<2.0.0)", "scikit-learn (>=1.1.2,<2)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
 datasets = ["pandas"]
 docs = ["furo (>=2022.3.4,<2023.0.0)", "ipython_genutils (>=0.2.0,<0.3.0)", "myst-parser[sphinx] (>=0.17.2,<0.18.0)", "nbconvert (>=7.0.0,<8.0.0)", "nbsphinx (>=0.8.9,<0.9.0)", "sphinx", "sphinx-autoapi", "sphinx-autobuild (>=2021.3.14,<2022.0.0)", "sphinx-copybutton (>=0.5.0,<0.6.0)", "sphinx-inline-tabs", "sphinxext-opengraph (>=0.6.3,<0.7.0)"]
 embeddings = ["numpy", "numpy (>=1.23.2)", "scikit-learn (>=1.0.2,<2.0.0)", "scikit-learn (>=1.1.2,<2)"]
@@ -2621,8 +2651,7 @@ image = ["Pillow (>=9.2.0,<10.0.0)"]
 mlflow = ["mlflow-skinny (>=1.26.1,<2.0.0)"]
 s3 = ["boto3 (>=1.22.13,<2.0.0)"]
 spark = ["pyarrow (>=8.0.0,<13)", "pyspark (>=3.0.0,<4.0.0)"]
-viz = ["Pillow (>=9.2.0,<10.0.0)", "ipython", "numpy", "numpy (>=1.23.2)", "pybars3 (>=0.9,<0.10)", "requests (>=2.27,<3.0)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
-whylabs = ["requests (>=2.27,<3.0)"]
+viz = ["Pillow (>=9.2.0,<10.0.0)", "ipython", "numpy", "numpy (>=1.23.2)", "pybars3 (>=0.9,<0.10)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
 
 [[package]]
 name = "whylogs-sketching"
@@ -2883,4 +2912,4 @@ io = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "d15253ad96c2a1ae05c48d87dbb18bd2c082c51fb58693b10e3cfa00ee5264a6"
+content-hash = "4d6c007d3a211e9b3e3023916d973faa26190e5d7d3a766f994b96763501212c"
