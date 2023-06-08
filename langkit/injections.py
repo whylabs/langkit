@@ -5,6 +5,7 @@ from transformers import (
     TextClassificationPipeline,
 )
 from . import LangKitConfig
+
 lang_config = LangKitConfig()
 prompt = lang_config.prompt_column
 
@@ -16,9 +17,13 @@ pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer)
 
 
 @register_metric_udf(col_name=prompt)
-def injection(text: str) -> float:
-    result = pipeline(text['prompt'],truncation=True,max_length=tokenizer.model_max_length)
+def injection(text) -> float:
+    result = pipeline(
+        text["prompt"], truncation=True, max_length=tokenizer.model_max_length
+    )
     injection_score = (
-        result[0]["score"] if result[0]["label"] == "INJECTION" else 1 - result[0]["score"]
+        result[0]["score"]
+        if result[0]["label"] == "INJECTION"
+        else 1 - result[0]["score"]
     )
     return injection_score

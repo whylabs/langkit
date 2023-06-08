@@ -13,20 +13,21 @@ Productionizing language models, including LLMs, comes with a range of risks due
 ## Features
 
 The currently supported metrics include:
+
 - [Text Quality](langkit/docs/features/quality.md)
-    - readability score
-    - complexity and grade scores
+  - readability score
+  - complexity and grade scores
 - [Text Relevance](langkit/docs/features/relevance.md)
-    - Similarity scores between prompt/responses
-    - Similarity scores against user-defined themes
+  - Similarity scores between prompt/responses
+  - Similarity scores against user-defined themes
 - [Security and Privacy](langkit/docs/features/security.md)
-    - patterns - count of strings matching a user-defined regex pattern group
-    - jailbreaks - similarity scores with respect to known jailbreak attempts
-    - prompt injection - similarity scores with respect to known prompt injection attacks
-    - refusals - similarity scores with respect to known LLM refusal of service responses
+  - patterns - count of strings matching a user-defined regex pattern group
+  - jailbreaks - similarity scores with respect to known jailbreak attempts
+  - prompt injection - similarity scores with respect to known prompt injection attacks
+  - refusals - similarity scores with respect to known LLM refusal of service responses
 - [Sentiment and Toxicity](langkit/docs/features/sentiment.md)
-    - sentiment analysis
-    - toxicity analysis
+  - sentiment analysis
+  - toxicity analysis
 
 ## Installation
 
