@@ -25,10 +25,27 @@ init()
 
 @register_dataset_udf(["prompt", "response"], "response.relevance_to_prompt")
 def similarity_MiniLM_L6_v2(text):
-    x = text["prompt"]
-    y = text["response"]
-    # below assumes text is Dict[str, str], no pandas support
-    embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
-    embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
-    similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-    return similarity.item()
+    if _transformer_model is None:
+        raise ValueError(
+            "response.relevance_to_prompt must have a transformer model initialized before use."
+        )
+
+    if isinstance(text["prompt"], str):
+        x = text["prompt"]
+        y = text["response"]
+        embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
+        embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
+        similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
+        return similarity.item()
+
+    series_result = []
+    for x, y in zip(text["prompt"], text["response"]):
+        # below assumes text is Dict[str, str], no pandas support
+        embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
+        embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
+        try:
+            similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
+            series_result.append(similarity.item())
+        except Exception:
+            series_result.append(0.0)
+    return series_result

@@ -1,15 +1,16 @@
 import whylogs as why
-from whylogs.experimental.core.udf_schema import udf_schema
+from langkit import llm_metrics
 
 
 class RollingLogger:
     def __init__(self):
+        llm_schema = llm_metrics.init()
         self.logger = why.logger(
             mode="rolling",
             interval=5,
             when="M",
             base_name="langkit",
-            schema=udf_schema(),
+            schema=llm_schema,
         )
         self.logger.append_writer("whylabs")
 

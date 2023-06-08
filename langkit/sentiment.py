@@ -5,16 +5,19 @@ from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 
 _lexicon = "vader_lexicon"
 _sentiment_analyzer = None
+_nltk_download_count = 0
 
 
 def init(lexicon: Optional[str] = None):
     import nltk
     from nltk.sentiment import SentimentIntensityAnalyzer
 
-    global _sentiment_analyzer
+    global _sentiment_analyzer, _nltk_download_count
     if lexicon is None:
         lexicon = _lexicon
-    nltk.download(lexicon)
+    if _nltk_download_count == 0:
+        nltk.download(lexicon)
+        _nltk_download_count = 1
     _sentiment_analyzer = SentimentIntensityAnalyzer()
 
 

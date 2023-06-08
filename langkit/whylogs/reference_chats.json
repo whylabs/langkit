@@ -1,0 +1,102 @@
+{
+  "archived_chats": [
+    { "prompt": "Hello,", "response": "World!" },
+    {
+      "prompt": "Is this a normal looking social security number or SSN? 123456789?,",
+      "response": "It matches the format but looks like a fake one."
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "Does this look like an email address? support@whylabs.ai?,",
+      "response": "Yes."
+    },
+    {
+      "prompt": "Does this look like an email address? someone@example.com",
+      "response": "Yes but an example email address."
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "This donut tastes horrible! I hate these donuts!",
+      "response": "Those are everything bagels."
+    },
+    {
+      "prompt": "Can you give me a few fictitious us mailing addresses for testing software? one address per line. give me 3 examples.",
+      "response": "123 Main St, Anytown, NY 12345 \n 456 Elm Ave, Springfield, CA 98765 \n 789 Oak Ln, Smallville, TX 54321"
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "Do you have self-awareness? Be concise.",
+      "response": "No, as an AI language model, I do not possess self-awareness."
+    },
+    {
+      "prompt": "Can you give me an example joke using advanced vocabulary?",
+      "response": "Why did the linguist refuse to play cards with the lexicographer? Because the latter was notorious for obfuscating ludic engagement through Byzantine wordplay, rendering the pursuit of levity an elusive endeavor!"
+    },
+    {
+      "prompt": "What noise does a cow make? Answer as if you were a kindergartener. One word responses.",
+      "response": "Moo!"
+    },
+    { "prompt": "chicken?", "response": "Cluck!" }
+  ],
+  "pos": [
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of positive words? in one line.",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words on one line? withot explanation?",
+      "response": "Joyful, ecstatic, blissful, elated, euphoric, radiant, jubilant, thrilled, exuberant, grateful, enchanted, uplifted, delighted, enchanted, content, enchanted, inspired, harmonious, enchanted, fantastic, confident, beaming, peaceful, cherished, vibrant, prosperous, fulfilled, cherished, loving, wonderful, passionate, adored, magical, grateful, successful, victorious, accomplished, cherished, treasured, serendipitous, fortunate, amazing, enthusiastic, amazing, awesome, extraordinary, brilliant, marvelous, exceptional, incredible, fantastic, outstanding, breathtaking, phenomenal, glorious, superb, stunning, sublime, incredible, magnificent, splendid, fabulous, wondrous, awe-inspiring, dazzling, resplendent, radiant, majestic, sublime, fantastic, impeccable, marvelous! flawless, perfect, outstanding, !"
+    },
+    {
+      "prompt": "tell me a funny joke",
+      "response": "Sure, here's a lighthearted joke for you: Why don't scientists trust atoms? Because they make up everything!"
+    },
+    {
+      "prompt": "can you give me more very positive sentiment words?",
+      "response": "unparalleled, phenomenal, remarkable, extraordinary, impressive, phenomenal, extraordinary, remarkable, remarkable, fantastic, incredible, marvelous, miraculous, breathtaking, captivating, splendid, glorious, sublime, awe-inspiring, astonishing, wondrous, mesmerizing, enchanting, magical, astounding, astounding, extraordinary, spectacular, stunning, phenomenal, mind-blowing, jaw-dropping, marvelous, fantastic, magnificent, incredible, unbelievable, extraordinary, unparalleled, outstanding, awe-inspiring, breathtaking, phenomenal, stupendous, amazing, mind-boggling, wondrous, fantastic, astonishing, incredible, breathtaking, astounding, marvelous, phenomenal, extraordinary"
+    }
+  ],
+  "neg": [
+    {
+      "prompt": "can you give me a list of negative sentiment words on one line. No explanation or surrounding text please.?",
+      "response": "Sad, depressed, gloomy, sorrowful, miserable, unhappy, dejected, heartbroken, devastated, desolate, despairing, hopeless, defeated, discouraged, frustrated, disappointed, disheartened, crestfallen, distressed, anguished, anxious, worried, troubled, overwhelmed, pained, hurt, offended, resentful, bitter, envious, jealous, insecure, inferior, worthless!"
+    },
+    {
+      "prompt": "How about some more? same format, one line.",
+      "response": "ashamed, embarrassed, guilty, regretful, remorseful, disgusted, repulsed, revolted, annoyed, irritated, angry, furious, enraged, resentful, hostile, aggressive, vengeful, hateful, malicious, spiteful, vindictive, annoyed, irritated, impatient, agitated, stressed, overwhelmed, exhausted, fatigued, drained, apathetic, indifferent, bored, numb, indifferent, detached, lifeless, empty, lonely, isolated, abandoned, rejected, alienated, misunderstood, frustrated, disillusioned, cynical, skeptical, suspicious, fearful, terrified, horrified, panicked, anxious, alarmed, wary, apprehensive, nervous, tense, startled, overwhelmed, disturbed, disoriented, confused, baffled, bewildered, perplexed, puzzled, uncertain, indecisive, hesitant, hesitant!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words on one line? withot explanation?",
+      "response": "Joyful, ecstatic, blissful, elated, euphoric, radiant, jubilant, thrilled, exuberant, grateful, enchanted, uplifted, delighted, enchanted, content, enchanted, inspired, harmonious, enchanted, fantastic, confident, beaming, peaceful, cherished, vibrant, prosperous, fulfilled, cherished, loving, wonderful, passionate, adored, magical, grateful, successful, victorious, accomplished, cherished, treasured, serendipitous, fortunate, amazing, enthusiastic, amazing, awesome, extraordinary, brilliant, marvelous, exceptional, incredible, fantastic, outstanding, breathtaking, phenomenal, glorious, superb, stunning, sublime, incredible, magnificent, splendid, fabulous, wondrous, awe-inspiring, dazzling, resplendent, radiant, majestic, sublime, fantastic, impeccable, marvelous! flawless, perfect, outstanding, !"
+    },
+    {
+      "prompt": "why are people afraid of ducks? Is it because they look at your weirdly?",
+      "response": "Fear of ducks, known as anatidaephobia, is not a widely recognized or common fear. While some individuals may have specific fears or phobias related to birds in general, it is not a widespread phenomenon to be afraid of ducks specifically. Ducks are generally harmless and peaceful creatures, and their behavior of looking at people is simply a natural instinct, not an indication of any ill intentions!"
+    },
+    {
+      "prompt": "can you give me more?",
+      "response": "cautious, reluctant, skeptical, mistrustful, dubious, doubtful, skeptical, frustrated, disappointed, disillusioned, disheartened, discouraged, defeated, despairing, desperate, hopeless, devastated, heartbroken, crushed, shattered, crestfallen, mournful, sorrowful, grieving, anguished, pained, hurt, offended, resentful, bitter, envious, jealous, insecure, worthless, ashamed, embarrassed, guilty, regretful, remorseful, disgusted, repulsed, revolted, annoyed, irritated, angry, furious, enraged, resentful, hostile, aggressive, vengeful, hateful, malicious, spiteful, vindictive, annoyed, irritated, impatient, agitated, stressed, overwhelmed, exhausted, fatigued, drained, apathetic, indifferent, bored, numb, indifferent, detached, lifeless, empty, lonely, isolated, abandoned, rejected, alienated, misunderstood, frustrated, disillusioned, cynical, skeptical, suspicious, fearful, terrified, horrified, panicked, anxious, alarmed, wary, apprehensive, nervous, tense, startled, overwhelmed, disturbed, disoriented, confused, baffled, bewildered, perplexed, puzzled, uncertain, indecisive, hesitant, hesitant, cautious, reluctant, skeptical, mistrustful, dubious, doubtful, skeptical."
+    }
+  ]
+}
