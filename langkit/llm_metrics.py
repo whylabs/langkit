@@ -4,7 +4,6 @@ from whylogs.core.schema import DeclarativeSchema
 from langkit import regexes
 from langkit import sentiment
 from langkit import textstat
-from langkit import themes
 from langkit import toxicity
 from langkit import input_output
 
@@ -13,7 +12,6 @@ def init() -> DeclarativeSchema:
     regexes.init()
     sentiment.init()
     textstat.init()
-    themes.init()
     toxicity.init()
     input_output.init()
 
