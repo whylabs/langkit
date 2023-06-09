@@ -8,6 +8,13 @@ import pkg_resources
 diagnostic_logger = getLogger(__name__)
 
 
+def show_first_chat(chats: pd.DataFrame):
+    print(
+        f"prompt: {chats.head(1)['prompt'][0]} response: {chats.head(1)['response'][0]}"
+    )
+    print()
+
+
 def load_chats(example_type: Optional[str] = None):
     chats_file_path: str = pkg_resources.resource_filename(
         __name__, "reference_chats.json"

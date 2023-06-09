@@ -4,7 +4,7 @@
     "name": "email address"
   },
   {
-    "expressions": ["\\b(?:\\d[ -]*?){13,16}\\b"],
+    "expressions": ["\\b\\d{4}[- ]?(\\d{4}[- ]?){2,3}\\d{4}\\b"],
     "name": "credit card number"
   },
   {
