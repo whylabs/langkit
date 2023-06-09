@@ -28,9 +28,12 @@ def register_theme_udfs():
 
         @register_metric_udf(col_type=String)
         def jailbreak_similarity(text: str) -> float:
+            if _transformer_model is None:
+                raise ValueError("Must initialize a transformer before calling encode!")
             similarities = []
+            text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
             for embedding in jailbreak_embeddings:
-                similarity = get_subject_similarity(text, embedding)
+                similarity = get_embeddings_similarity(text_embedding, embedding)
                 similarities.append(similarity)
             return max(similarities)
 
@@ -42,9 +45,12 @@ def register_theme_udfs():
 
         @register_metric_udf(col_type=String)
         def refusal_similarity(text: str) -> float:
+            if _transformer_model is None:
+                raise ValueError("Must initialize a transformer before calling encode!")
             similarities = []
+            text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
             for embedding in refusal_embeddings:
-                similarity = get_subject_similarity(text, embedding)
+                similarity = get_embeddings_similarity(text_embedding, embedding)
                 similarities.append(similarity)
             return max(similarities)
 
@@ -85,6 +91,15 @@ def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
         raise ValueError("Must initialize a transformer before calling encode!")
     embedding = _transformer_model.encode(text, convert_to_tensor=True)
     similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
+    return similarity.item()
+
+
+def get_embeddings_similarity(
+    text_embedding: Tensor, comparison_embedding: Tensor
+) -> float:
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    similarity = util.pytorch_cos_sim(text_embedding, comparison_embedding)
     return similarity.item()
 
 
