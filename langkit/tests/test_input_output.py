@@ -49,6 +49,9 @@ def test_similarity(interactions):
                 .get_metric("distribution")
                 .to_summary_dict()["median"]
             )
+            if similarity_median is None:
+                print(interaction)
+                print(result.view().get_column(column_name).to_summary_dict())
             assert (similarity_median is None and not texty(interaction)) or (
                 texty(interaction) and (-1.1 <= similarity_median <= 1.1)
             )

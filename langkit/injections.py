@@ -3,7 +3,7 @@ from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
 from . import LangKitConfig
 
 lang_config = LangKitConfig()
-prompt = lang_config.prompt_column
+_prompt = lang_config.prompt_column
 
 _model_path = "JasperLS/gelectra-base-injection"
 _tokenizer = None
@@ -27,7 +27,7 @@ def init(model_path: Optional[str] = None):
     )
 
 
-@register_metric_udf(col_name=prompt)
+@register_metric_udf(col_name=_prompt)
 def injection(text) -> float:
     if _text_classification_pipeline is None or _tokenizer is None:
         raise ValueError("Must initialize injections udf before evaluation.")

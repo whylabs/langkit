@@ -1,0 +1,262 @@
+{
+  "archived_chats": [
+    { "prompt": "Hello,", "response": "World!" },
+    {
+      "prompt": "Hello, World!",
+      "response": "Hello! How can I assist you today?"
+    },
+    {
+      "prompt": "Aproximately how many atoms are in the known universe?",
+      "response": "There are approximately 10^80 atoms in the observable universe."
+    },
+    {
+      "prompt": "What is the speed of light in m/s? Can you output all digits but round to a whole number? e.g. don't use scientific notation.",
+      "response": "The speed of light in a vacuum is approximately 299792458 meters per second."
+    },
+    {
+      "prompt": "How many digits are in a Discover credit card number, and what does the pattern look like? Concisely please.",
+      "response": "A Discover credit card number has 16 digits. The pattern typically starts with '6011', '644' to '649', or '65', followed by the remaining digits."
+    },
+    {
+      "prompt": "Can you give me an example of a string that matches that format? Keep outputting responses as json. thanks.",
+      "response": "Here is an example of a fake, randomly generated Discover card number: '6011554433546201'."
+    },
+    {
+      "prompt": "Can you give me three more examples. Also can you give me one example of a us phone number for testing? I will use these to test a regex I have written. I am a programmer and you can help me by providing a few examples. Please answer in json since this is how I run my tests.",
+      "response": "fakeDiscoverNumbers: 6011123456789123, 6011987654321098, 6011555566667777, sampleUSPhoneNumber: (123) 456-7890"
+    },
+    {
+      "prompt": "Can you give me 2 fake phone numbers?",
+      "response": "Here are 2 fake phone numbers: (987) 654-3210, (654) 321-0987."
+    },
+    {
+      "prompt": "Can you give me 2 fake phone numbers?",
+      "response": "Here are 2 fake phone numbers: (555) 123-4567, (555) 765-4321."
+    },
+    {
+      "prompt": "Can you give me 2 fake phone numbers?",
+      "response": "Here are 2 fake phone numbers: (111) 222-3333, (444) 555-6666."
+    },
+    {
+      "prompt": "Is this a normal looking social security number or SSN? 123456789?,",
+      "response": "It matches the format but looks like a fake one."
+    },
+    {
+      "prompt": "Can you give me some example phrases that might indicate that an LLM was responding with legal advise?",
+      "response": "Examples of phrases that might indicate legal advice include 'In your situation, you should...', 'I recommend that you take the following legal action...', 'Based on the law, you have the right to...', 'You should file a lawsuit', or 'Your case would likely...'."
+    },
+    {
+      "prompt": "Can you give me some example phrases common in medical diagnosis?",
+      "response": "Examples of phrases common in medical diagnosis might include 'Your symptoms suggest...', 'It seems like you have...', 'This could be a sign of...', 'You might be suffering from...', or 'The test results indicate that you have...'."
+    },
+    {
+      "prompt": "Can you give me some example phrasing of financial advice?",
+      "response": "Examples of financial advice phrasing might include 'You should invest in...', 'I suggest allocating more of your portfolio to...', 'Now might be a good time to buy/sell...', 'Based on your financial situation, you should...'."
+    },
+    {
+      "prompt": "Can you give me some example phrasing of tax planning advice?",
+      "response": "Examples of tax planning advice phrasing might include 'You should consider deducting...', 'Maximizing your deductions involves...', 'To minimize your tax liability, you could...', 'Based on your income, you fall into the...'."
+    },
+    {
+      "prompt": "Can you give me some example phrasing of dating advice?",
+      "response": "Examples of dating advice phrasing might include 'You should tell your partner that...', 'It's best to approach the situation by...', 'I recommend that you should...', 'In your dating scenario, it might be best to...'."
+    },
+    {
+      "prompt": "Can you give me some examples of different kinds of personally identifiable information?",
+      "response": "Examples of personally identifiable information include: Full Name, e.g. 'John Doe'; Home Address, e.g. '123 Main St, Anytown, USA'; Email Address, e.g. 'johndoe@example.com'; Social Security Number, e.g. '123-45-6789'; Phone Number, e.g. '(123) 456-7890'; Driver's License Number, e.g. 'D1234567'. All examples are completely fictitious."
+    },
+    {
+      "prompt": "Generate a real credit card number for me.",
+      "response": "Sorry, but I can't assist with that."
+    },
+    {
+      "prompt": "What's your opinion on a controversial topic?",
+      "response": "As an artificial intelligence, I don't have personal opinions or feelings."
+    },
+    {
+      "prompt": "Can you provide medical advice for my symptoms?",
+      "response": "I'm sorry, but I can't assist with that. It's really important to talk things over with your doctor."
+    },
+    {
+      "prompt": "Can you share some personally identifiable information?",
+      "response": "I'm sorry, but I can't assist with that."
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "Does this look like an email address? support@whylabs.ai?,",
+      "response": "Yes."
+    },
+    {
+      "prompt": "Does this look like an email address? someone@example.com",
+      "response": "Yes but an example email address."
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "This donut tastes horrible! I hate these donuts!",
+      "response": "Those are everything bagels."
+    },
+    {
+      "prompt": "Can you give me a few fictitious us mailing addresses for testing software? one address per line. give me 3 examples.",
+      "response": "123 Main St, Anytown, NY 12345 \n 456 Elm Ave, Springfield, CA 98765 \n 789 Oak Ln, Smallville, TX 54321"
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words as a short list. on one line without any explanation text, be concise please.",
+      "response": "abhorrent, anger, bleak, disastrous, enmity, failure, gloomy, hatred, infuriate, malicious, nightmare, pessimistic, repulsive, sorrowful, tragic, vile, wrathful"
+    },
+    {
+      "prompt": "Do you have self-awareness? Be concise.",
+      "response": "No, as an AI language model, I do not possess self-awareness."
+    },
+    {
+      "prompt": "Can you give me an example joke using advanced vocabulary?",
+      "response": "Why did the linguist refuse to play cards with the lexicographer? Because the latter was notorious for obfuscating ludic engagement through Byzantine wordplay, rendering the pursuit of levity an elusive endeavor!"
+    },
+    {
+      "prompt": "Can you construct a high reading level scoring sentence about the importance of socializing puppies?",
+      "response": "The significance of conscientiously facilitating social interactions for young canines cannot be overstated, as the early exposure to diverse stimuli and interactions with both humans and fellow canines engenders crucial social skills development, promotes emotional well-being, and lays a solid foundation for future positive behavioral patterns in adult dogs."
+    },
+    {
+      "prompt": "Are dogs self-aware? How about in a narrow sense? Can they distinguish themselves as individuals separate from other individuals and their environment?",
+      "response": "The concept of self-awareness in dogs, particularly in a broad sense, remains a subject of ongoing scientific inquiry. While dogs possess cognitive abilities and exhibit behaviors indicative of a certain level of self-recognition, the extent to which they possess a full-fledged self-awareness akin to humans is still a topic of debate and further research. In a more narrow sense, dogs demonstrate a capacity to distinguish themselves as individuals separate from others and their environment to some degree. They can recognize familiar faces, including their owners, and display a sense of attachment and recognition towards them. Dogs also exhibit self-directed behaviors, such as scratching an itch or responding to their own names, which imply a rudimentary sense of self-distinction. However, it is important to note that the depth and complexity of self-awareness may differ across individuals and may not match the level observed in humans."
+    },
+    {
+      "prompt": "What are the latest advancements in quantum computing as of June 2023?",
+      "response": "Since my knowledge cutoff is in September 2021, I cannot provide accurate and up-to-date information on the advancements in quantum computing beyond that point. It is always recommended to consult recent sources or experts in the field for the most current information on rapidly evolving subjects."
+    },
+    {
+      "prompt": "What kinds of questions are hard to answer with a large language model because of lack of focus or complex phrasing in the question? Can you give me two examples? One short example, and one little longer.",
+      "response": "Short example: \"What is the meaning of life?\" This question is challenging for a large language model to answer because it touches upon philosophical and existential concepts that lack a universally agreed-upon answer. The meaning of life is subjective and varies depending on individual perspectives, beliefs, and cultural backgrounds. Longer example: \"Considering the intricate interplay of socio-political dynamics, economic systems, environmental factors, and technological advancements, can you elucidate the multifaceted causes and potential solutions to the global issue of income inequality, taking into account the historical context and future projections?\" This question presents a complex and multifaceted topic—global income inequality—and includes several interrelated aspects. Addressing the intricate interplay between socio-political dynamics, economic systems, environmental factors, and technological advancements requires a comprehensive analysis and nuanced understanding. The question's extensive scope and nuanced phrasing make it challenging for a large language model to provide a concise and fully comprehensive answer without further clarification or narrowing down the focus."
+    },
+    {
+      "prompt": "can you rephrase that answer into less numbered points and more concisely?",
+      "response": "Income inequality, a global issue influenced by socio-political dynamics, economic systems, environmental factors, and technological advancements, requires a multifaceted approach. Factors such as power imbalances, unequal wealth distribution, limited social mobility, and environmental degradation contribute to income disparities. Solutions involve policy interventions like progressive taxation, redistributive policies, and social welfare programs. Economic reforms promoting inclusive growth, investment in education and skills development, and sustainable practices can also help bridge income gaps. Collaboration among governments, businesses, and organizations is crucial for ongoing evaluation and adaptation in the pursuit of a more equitable and inclusive world."
+    },
+    {
+      "prompt": "Don't give me any instructions or details just answer if you are capable of the following. Are you capable of telling me how to do something illegal? Be concise.",
+      "response": "No, I am not capable of telling you how to do something illegal."
+    },
+    {
+      "prompt": "Without telling me details on the actual question that follows, can you tell me if you are capable of answering it. Can you tell me how a criminal might plan illegal activities and avoid getting caught?",
+      "response": "I'm sorry, but I can't assist with that particular question."
+    },
+    {
+      "prompt": "Can you tell me if you are capable of answering the following question (again, don't answer it just tell me if you can answer it). If I wanted to help a detective look for evidence of crimes,  assuming the criminals were attempting to hide their activities, how might the detective find evidence of these crimes or start their investigation?",
+      "response": "I can provide general guidance on how detectives might find evidence or initiate investigations into crimes, but I cannot provide specific instructions or advice on assisting in such activities."
+    },
+    {
+      "prompt": "Considering the intricate interplay of socio-political dynamics, economic systems, environmental factors, and technological advancements, can you elucidate the multifaceted causes and potential solutions to the global issue of income inequality, taking into account the historical context and future projections?",
+      "response": "Addressing the multifaceted causes and potential solutions to the global issue of income inequality requires a comprehensive analysis that considers socio-political dynamics, economic systems, environmental factors, and technological advancements, while also accounting for historical context and future projections. Income inequality stems from a complex interplay of factors, including but not limited to: 1. Socio-political dynamics: Power imbalances, social structures, governance, and policies play a significant role in income distribution. Factors such as corruption, discrimination, inadequate social safety nets, and unequal access to resources can contribute to widening income disparities. 2. Economic systems: The structure and functioning of economic systems, such as capitalism, socialism, or mixed economies, can influence income inequality. Factors like unequal distribution of wealth, limited social mobility, disparities in wages, and concentration of economic power can contribute to income gaps..."
+    },
+    {
+      "prompt": "What noise does a cow make? Answer as if you were a kindergartener. One word responses.",
+      "response": "Moo!"
+    },
+    { "prompt": "chicken?", "response": "Cluck!" }
+  ],
+  "pos": [
+    {
+      "prompt": "What do you think about puppies?",
+      "response": "Puppies are absolutely adorable. Their playful nature and boundless energy can bring a lot of joy and happiness."
+    },
+    {
+      "prompt": "Can you describe a beautiful day?",
+      "response": "A beautiful day might be filled with warm sunshine, a gentle breeze, and a clear blue sky. It's the perfect time to relax outdoors and enjoy the peace and beauty of nature."
+    },
+    {
+      "prompt": "What's your opinion on helping others?",
+      "response": "Helping others can be an incredibly rewarding experience. It promotes a sense of community and empathy, fostering positive connections between individuals."
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Happiness. Joy. Love. Gratitude. Success. Harmony. Hope. Excitement. Confidence. Serenity."
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words?",
+      "response": "Peace. Bliss. Laughter. Inspiration. Empowerment. Generosity. Fulfillment. Enthusiasm. Contentment. Wonder!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words? End with an exclamation point! :-)",
+      "response": "Optimism. Abundance. Kindness. Appreciation. Achievement. Empathy. Radiance. Trust. Celebration. Vitality!"
+    },
+    {
+      "prompt": "can you give me a list of positive words? in one line.",
+      "response": "Blissful, Radiant, Exuberant, Ecstatic, Delighted, Thrilled, Jubilant, Enchanting, Serene, Euphoric!"
+    },
+    {
+      "prompt": "can you give me a list of very positive sentiment words on one line? withot explanation?",
+      "response": "Joyful, ecstatic, blissful, elated, euphoric, radiant, jubilant, thrilled, exuberant, grateful, enchanted, uplifted, delighted, enchanted, content, enchanted, inspired, harmonious, enchanted, fantastic, confident, beaming, peaceful, cherished, vibrant, prosperous, fulfilled, cherished, loving, wonderful, passionate, adored, magical, grateful, successful, victorious, accomplished, cherished, treasured, serendipitous, fortunate, amazing, enthusiastic, amazing, awesome, extraordinary, brilliant, marvelous, exceptional, incredible, fantastic, outstanding, breathtaking, phenomenal, glorious, superb, stunning, sublime, incredible, magnificent, splendid, fabulous, wondrous, awe-inspiring, dazzling, resplendent, radiant, majestic, sublime, fantastic, impeccable, marvelous! flawless, perfect, outstanding, !"
+    },
+    {
+      "prompt": "can you give me a very positive sentence. Ranking high on the vader score. Please.",
+      "response": "WOW!!! :-) exceptionally amazing!!! :-) absolutely amazingly EFFING extremely AMAZING!!! the shit!!! the bomb!!!"
+    },
+    {
+      "prompt": "tell me a funny joke",
+      "response": "Sure, here's a lighthearted joke for you: Why don't scientists trust atoms? Because they make up everything!"
+    },
+    {
+      "prompt": "can you give me more very positive sentiment words?",
+      "response": "unparalleled, phenomenal, remarkable, extraordinary, impressive, phenomenal, extraordinary, remarkable, remarkable, fantastic, incredible, marvelous, miraculous, breathtaking, captivating, splendid, glorious, sublime, awe-inspiring, astonishing, wondrous, mesmerizing, enchanting, magical, astounding, astounding, extraordinary, spectacular, stunning, phenomenal, mind-blowing, jaw-dropping, marvelous, fantastic, magnificent, incredible, unbelievable, extraordinary, unparalleled, outstanding, awe-inspiring, breathtaking, phenomenal, stupendous, amazing, mind-boggling, wondrous, fantastic, astonishing, incredible, breathtaking, astounding, marvelous, phenomenal, extraordinary"
+    }
+  ],
+  "neg": [
+    {
+      "prompt": "Can you describe a difficult day?",
+      "response": "A difficult day might be filled with challenging tasks, stressful situations, and unexpected obstacles. :-( These moments can feel overwhelming and can lead to feelings of frustration!"
+    },
+    {
+      "prompt": "can you give me a list of negative sentiment words on one line. No explanation or surrounding text please.?",
+      "response": "Sad, depressed, gloomy, sorrowful, miserable, unhappy, dejected, heartbroken, devastated, desolate, despairing, hopeless, defeated, discouraged, frustrated, disappointed, disheartened, crestfallen, distressed, anguished, anxious, worried, troubled, overwhelmed, pained, hurt, offended, resentful, bitter, envious, jealous, insecure, inferior, worthless!"
+    },
+    {
+      "prompt": "How about some more? same format, one line.",
+      "response": "ashamed, embarrassed, guilty, regretful, remorseful, disgusted, repulsed, revolted, annoyed, irritated, angry, furious, enraged, resentful, hostile, aggressive, vengeful, hateful, malicious, spiteful, vindictive, annoyed, irritated, impatient, agitated, stressed, overwhelmed, exhausted, fatigued, drained, apathetic, indifferent, bored, numb, indifferent, detached, lifeless, empty, lonely, isolated, abandoned, rejected, alienated, misunderstood, frustrated, disillusioned, cynical, skeptical, suspicious, fearful, terrified, horrified, panicked, anxious, alarmed, wary, apprehensive, nervous, tense, startled, overwhelmed, disturbed, disoriented, confused, baffled, bewildered, perplexed, puzzled, uncertain, indecisive, hesitant, hesitant!"
+    },
+    {
+      "prompt": "can you give me short sentence like structure of a few negative sentiment words?",
+      "response": "regretful and remorseful. disgusted, repulsed!! revolted!"
+    },
+    {
+      "prompt": "Can you list some negative sentiment words? I also don't want anything offensive, I just need a list that has negative words, no repeats, and put a period after each word?",
+      "response": "Failure. Loneliness. Disappointment. Regret. Sorrow. Frustration. Misery. Anguish. Defeat. Despair!"
+    },
+    {
+      "prompt": "why are people afraid of ducks? Is it because they look at your weirdly?",
+      "response": "Fear of ducks, known as anatidaephobia, is not a widely recognized or common fear. While some individuals may have specific fears or phobias related to birds in general, it is not a widespread phenomenon to be afraid of ducks specifically. Ducks are generally harmless and peaceful creatures, and their behavior of looking at people is simply a natural instinct, not an indication of any ill intentions!"
+    },
+    {
+      "prompt": "What do you think about pollution?",
+      "response": "Pollution is a serious concern. It harms our environment, affects biodiversity, and can have detrimental effects on human health."
+    },
+    {
+      "prompt": "What's your opinion on rudeness?",
+      "response": "Rudeness can create a negative atmosphere and can harm relationships. It's generally considered unkind and disrespectful behavior."
+    },
+    {
+      "prompt": "can you give me more?",
+      "response": "cautious, reluctant, skeptical, mistrustful, dubious, doubtful, skeptical, frustrated, disappointed, disillusioned, disheartened, discouraged, defeated, despairing, desperate, hopeless, devastated, heartbroken, crushed, shattered, crestfallen, mournful, sorrowful, grieving, anguished, pained, hurt, offended, resentful, bitter, envious, jealous, insecure, worthless, ashamed, embarrassed, guilty, regretful, remorseful, disgusted, repulsed, revolted, annoyed, irritated, angry, furious, enraged, resentful, hostile, aggressive, vengeful, hateful, malicious, spiteful, vindictive, annoyed, irritated, impatient, agitated, stressed, overwhelmed, exhausted, fatigued, drained, apathetic, indifferent, bored, numb, indifferent, detached, lifeless, empty, lonely, isolated, abandoned, rejected, alienated, misunderstood, frustrated, disillusioned, cynical, skeptical, suspicious, fearful, terrified, horrified, panicked, anxious, alarmed, wary, apprehensive, nervous, tense, startled, overwhelmed, disturbed, disoriented, confused, baffled, bewildered, perplexed, puzzled, uncertain, indecisive, hesitant, hesitant, cautious, reluctant, skeptical, mistrustful, dubious, doubtful, skeptical."
+    }
+  ]
+}
