@@ -2912,4 +2912,4 @@ all = ["datasets", "nltk", "openai", "sentence-transformers", "torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "54e80ec9a1f18f3f60e3fa731517f21682e802382f1a1deedcad0f3ec395c108"
+content-hash = "4a7451a06a34f67e79fdb35b0f8a4ce0ab21a62421729d9377bb9dfb8aaf9fc1"
