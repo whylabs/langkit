@@ -14,7 +14,7 @@ def flesch_kincaid_grade(text: str) -> float:
     return textstat.textstat.flesch_kincaid_grade(text)
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
+@register_metric_udf(col_type=String)
 def flesch_reading_ease(text: str) -> float:
     return textstat.textstat.flesch_reading_ease(text)
 
