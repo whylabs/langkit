@@ -1,5 +1,7 @@
 LangKit is an open-source text metrics toolkit for monitoring language models. It offers an array of methods for extracting relevant signals from the input and/or output text, which are compatible with the open-source data logging library [whylogs](https://whylogs.readthedocs.io/en/latest).
 
+> 💡 Want to experience LangKit? Go to this [notebook](https://github.com/whylabs/langkit/blob/main/langkit/examples/Intro_to_Langkit.ipynb)!
+
 ## Table of Contents 📖
 
 - [Motivation](#motivation-)
@@ -36,20 +38,19 @@ The currently supported metrics include:
 To install LangKit, use the Python Package Index (PyPI) as follows:
 
 ```
-pip install langkit
+pip install langkit[all]
 ```
 
 ## Usage 🚀
+
 
 LangKit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the LangKit modules and then instantiate a custom schema as shown in the example below.
 
 ```python
 import whylogs as why
-from whylogs.experimental.core.udf_schema import udf_schema
-from langkit import sentiment
-from langkit import textstat
+from langkit import llm_metrics
 
-results = why.log({"prompt": "Hello!", "response": "World!"}, schema=udf_schema())
+results = why.log({"prompt": "Hello!", "response": "World!"}, schema=llm_metrics.init())
 ```
 
 The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules. This profile can be visualized and monitored in the [WhyLabs platform](https://whylabs.ai/) or they can be further analyzed by the user on their own accord.

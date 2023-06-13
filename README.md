@@ -34,7 +34,7 @@ The currently supported metrics include:
 To install LangKit, use the Python Package Index (PyPI) as follows:
 
 ```bash
-pip install langkit
+pip install langkit[all]
 ```
 
 ## Usage
@@ -42,15 +42,10 @@ pip install langkit
 LangKit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the LangKit modules and then instantiate a custom schema as shown in the example below.
 
 ```python
-from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
-from whylogs.core.schema import DeclarativeSchema
 import whylogs as why
-from langkit.sentiment import *
-from langkit.textstat import *
+from langkit import llm_metrics
 
-text_schema = DeclarativeSchema(generate_udf_schema())
-results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
-
+results = why.log({"prompt": "Hello!", "response": "World!"}, schema=llm_metrics.init())
 ```
 
 The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules.
