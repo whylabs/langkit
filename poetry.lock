@@ -2621,14 +2621,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.1.45.dev4"
+version = "1.1.45.dev6"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.1.45.dev4-py3-none-any.whl", hash = "sha256:192bbf913629bb913f37cef7cec8f268ffb813047ec28269fce3618996a07e2c"},
-    {file = "whylogs-1.1.45.dev4.tar.gz", hash = "sha256:a10257c7edb448bc62c6f4455a6383b9abb3e45f3043490eb553b7db2722018c"},
+    {file = "whylogs-1.1.45.dev6-py3-none-any.whl", hash = "sha256:8d5a96ecf7b181b5034168b7ba979d463a2dd33a8b7a728ffd911b493de89857"},
+    {file = "whylogs-1.1.45.dev6.tar.gz", hash = "sha256:a4b81bea7adf407de200ae6e8c7b53316b3304b3922ae4518a0f4234086db7ba"},
 ]
 
 [package.dependencies]
@@ -2912,4 +2912,4 @@ all = ["datasets", "nltk", "openai", "sentence-transformers", "torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "bb1b17052bc101fd9b066c764e43a8309600ad4be3d6c397794eeabf89d903b2"
+content-hash = "a6bd8ef6d8e1a53ab42c92da1f77c63c68048156d5e4ca6e07baea56593699e4"
