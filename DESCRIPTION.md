@@ -53,7 +53,7 @@ from langkit import llm_metrics
 results = why.log({"prompt": "Hello!", "response": "World!"}, schema=llm_metrics.init())
 ```
 
-The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules. This profile can be visualized and monitored in the [WhyLabs platform](https://whylabs.ai/) or they can be further analyzed by the user on their own accord.
+The code above will produce a set of metrics comprised of the default whylogs metrics for text features and all the metrics defined in the imported modules. This profile can be visualized and monitored in the [WhyLabs platform](https://whylabs.ai/safeguard-large-language-models?utm_source=github&utm_medium=referral&utm_campaign=langkit) or they can be further analyzed by the user on their own accord.
 
 More examples are available [here](https://github.com/whylabs/langkit/tree/main/langkit/examples).
 
