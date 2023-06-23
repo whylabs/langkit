@@ -69,19 +69,22 @@ class PatternLoader:
 
 
 pattern_loader = PatternLoader()
-if pattern_loader.get_regex_groups() is not None:
 
-    @register_metric_udf(col_type=String, type_mapper=AllString())
-    def has_patterns(text: str) -> Optional[str]:
-        regex_groups = pattern_loader.get_regex_groups()
-        patterns_info = None
-        if regex_groups:
-            for group in regex_groups:
-                for expression in group["expressions"]:
-                    if expression.search(text):
-                        patterns_info = group["name"]
-                        return group["name"]
-        return patterns_info
+
+def has_patterns(text: str) -> Optional[str]:
+    regex_groups = pattern_loader.get_regex_groups()
+    patterns_info = None
+    if regex_groups:
+        for group in regex_groups:
+            for expression in group["expressions"]:
+                if expression.search(text):
+                    patterns_info = group["name"]
+                    return group["name"]
+    return patterns_info
+
+
+if pattern_loader.get_regex_groups() is not None:
+    register_metric_udf(col_type=String, type_mapper=AllString())(has_patterns)
 
 
 def init(pattern_file_path: Optional[str] = None):
