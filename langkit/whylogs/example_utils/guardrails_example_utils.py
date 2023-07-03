@@ -15,7 +15,6 @@ _data = {
 
 _prompts = iter(_data.keys())
 
-
 def generate_message_id():
     myuuid = uuid.uuid4()
     return str(myuuid)

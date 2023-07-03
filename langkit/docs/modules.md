@@ -6,6 +6,7 @@
 - [Sentiment](#sentiment)
 - [Text Statistics](#text-statistics)
 - [Themes](#themes)
+- [Topics](#topics)
 - [Toxicity](#toxicity)
 
 ## Injections
@@ -242,6 +243,31 @@ This group gathers a set of known jailbreak examples.
 ### `refusals`
 
 This group gathers a set of known LLM refusal examples.
+
+## Topics
+
+The `topics` module will utilize the [`MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7`](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) model to classify the input text into one of the defined topics, default topics include: `law`, `finance`, `medical`, `education`, `politics`, `support`. It will create a new udf submetric called `closest_topic` with the highest scored label.
+
+### Usage
+
+```python
+from langkit import topics
+from whylogs.experimental.core.udf_schema import udf_schema
+import whylogs as why
+text_schema = udf_schema()
+
+profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+```
+
+### Configuration
+
+Users can define their own topics by specifying a list of candidate labels to the init method of the module:
+    
+```python
+from langkit import topics
+topics.init(topics=["romance", "scifi", "horror"])
+```
+
 
 ## Toxicity
 

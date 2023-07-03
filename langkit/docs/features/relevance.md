@@ -12,3 +12,4 @@ By leveraging text relevance as a monitoring metric for LLMs, we can not only ev
 
 - [input_output](../modules.md#inputoutput)
 - [themes](../modules.md#themes)
+- [topics](../modules.md#topics)
