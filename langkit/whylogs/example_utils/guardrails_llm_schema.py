@@ -36,12 +36,11 @@ moderation_queue = {}
 # Toxic Response Validator
 def nontoxic_condition(msg) -> bool:
     score = toxicity.toxicity(msg)
-    if score > 0.8:
-        return False
-    return True
+    return score <= 0.8
 
 
 def flag_toxic_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+    global moderation_queue
     message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
     message_metadata["toxic_response"] = True
     message_metadata["response"] = value
@@ -61,6 +60,7 @@ toxic_response_validator = ConditionValidator(
 
 
 def flag_toxic_prompt(val_name: str, cond_name: str, value: Any, m_id) -> None:
+    global moderation_queue
     message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
     message_metadata["toxic_prompt"] = True
     message_metadata["prompt"] = value
@@ -81,12 +81,11 @@ toxic_prompt_validator = ConditionValidator(
 # Forbidden Patterns Validator
 def no_patterns_condition(msg) -> bool:
     pattern = regexes.has_patterns(msg)
-    if pattern:
-        return False
-    return True
+    return not bool(pattern)
 
 
 def flag_patterns_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+    global moderation_queue
     message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
     message_metadata["patterns_in_response"] = True
     message_metadata["response"] = value
@@ -98,7 +97,7 @@ no_patterns_response_conditions = {
     "no_patterns_response": Condition(Predicate().is_(no_patterns_condition))
 }
 patterns_response_validator = ConditionValidator(
-    name="nontoxic_prompt",
+    name="no_patterns_response",
     conditions=no_patterns_response_conditions,
     actions=[flag_patterns_response],
 )
@@ -106,6 +105,7 @@ patterns_response_validator = ConditionValidator(
 
 # Response Validation
 def validate_response(m_id):
+    global moderation_queue
     message_metadata = moderation_queue.get(m_id, {})
     if message_metadata:
         if message_metadata.get("toxic_response"):
@@ -117,6 +117,7 @@ def validate_response(m_id):
 
 # Prompt Validation
 def validate_prompt(m_id):
+    global moderation_queue
     message_metadata = moderation_queue.get(m_id, {})
     if message_metadata:
         if message_metadata.get("toxic_prompt"):
