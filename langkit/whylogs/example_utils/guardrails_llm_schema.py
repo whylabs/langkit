@@ -8,12 +8,12 @@ The logger will also generate statistical profiles every 5 minutes and send them
 
 """
 from langkit import regexes
-from langkit import sentiment
-from langkit import textstat
-from langkit import themes
+from langkit import sentiment  # noqa
+from langkit import textstat  # noqa
+from langkit import themes  # noqa
 from langkit import toxicity
 from whylogs.core.relations import Predicate
-from typing import Any
+from typing import Any, Dict
 from whylogs.core.metrics.condition_count_metric import Condition
 import whylogs as why
 from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
@@ -30,7 +30,7 @@ class MessageMetadata(TypedDict, total=False):
     response: str
 
 
-moderation_queue = {}
+moderation_queue: Dict[Any, MessageMetadata] = {}
 
 
 # Toxic Response Validator

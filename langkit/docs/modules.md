@@ -262,12 +262,11 @@ profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profi
 ### Configuration
 
 Users can define their own topics by specifying a list of candidate labels to the init method of the module:
-    
+
 ```python
 from langkit import topics
 topics.init(topics=["romance", "scifi", "horror"])
 ```
-
 
 ## Toxicity
 
