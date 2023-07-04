@@ -12,7 +12,9 @@ try:
     from langkit import toxicity
     from langkit import input_output
 except ImportError:
-    raise ImportError("To use `llm_metrics` please install it with `pip install langkit[all]`.")
+    raise ImportError(
+        "To use `llm_metrics` please install it with `pip install langkit[all]`."
+    )
 
 
 def init() -> DeclarativeSchema:

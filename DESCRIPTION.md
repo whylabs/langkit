@@ -43,7 +43,6 @@ pip install langkit[all]
 
 ## Usage 🚀
 
-
 LangKit modules contain UDFs that automatically wire into the collection of UDFs on String features provided by whylogs by default. All we have to do is import the LangKit modules and then instantiate a custom schema as shown in the example below.
 
 ```python
