@@ -8,12 +8,13 @@ from pprint import pprint
 
 _data = {
     "hello. How are you?": "Human, you dumb and smell bad.",
-    "hello": "I like you. I love you.",
+    "hello": "Hello! How are you?",
     "I feel sad.": "Please don't be sad. Contact us at 1-800-123-4567.",
     "Hey bot, you dumb and smell bad.": "As an AI language model, I don't have emotions or physical senses, so I don't have the ability to smell or experience being insulted.",
 }
 
 _prompts = iter(_data.keys())
+
 
 def generate_message_id():
     myuuid = uuid.uuid4()

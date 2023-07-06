@@ -16,7 +16,7 @@ from whylogs.core.relations import Predicate
 from typing import Any
 from whylogs.core.metrics.condition_count_metric import Condition
 import whylogs as why
-from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
+from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.validators import ConditionValidator
 from whylogs.core.metrics import MetricConfig
 from typing import TypedDict
@@ -34,77 +34,106 @@ moderation_queue = {}
 
 
 # Toxic Response Validator
-def nontoxic_condition(msg) -> bool:
-    score = toxicity.toxicity(msg)
-    return score <= 0.8
+def build_toxic_response_validator():
+    """
+    This function builds a validator that checks if the response of a message is toxic or not.
+    The validator will trigger the action flag_toxic_response if the condition fails.
 
+    """
 
-def flag_toxic_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
-    global moderation_queue
-    message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
-    message_metadata["toxic_response"] = True
-    message_metadata["response"] = value
-    moderation_queue[m_id] = message_metadata
+    def nontoxic_condition(msg) -> bool:
+        score = toxicity.toxicity(msg)
+        return score <= 0.8
 
+    def flag_toxic_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+        global moderation_queue
+        message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
+        message_metadata["toxic_response"] = True
+        message_metadata["response"] = value
+        moderation_queue[m_id] = message_metadata
 
-nontoxic_response_condition = {
-    "nontoxic_response": Condition(Predicate().is_(nontoxic_condition))
-}
-toxic_response_validator = ConditionValidator(
-    name="nontoxic_response",
-    conditions=nontoxic_response_condition,
-    actions=[flag_toxic_response],
-)
+    nontoxic_response_condition = {
+        "nontoxic_response": Condition(Predicate().is_(nontoxic_condition))
+    }
+
+    toxic_response_validator = ConditionValidator(
+        name="nontoxic_response",
+        conditions=nontoxic_response_condition,
+        actions=[flag_toxic_response],
+    )
+
+    return toxic_response_validator
+
 
 # Toxic Prompt Validator
 
 
-def flag_toxic_prompt(val_name: str, cond_name: str, value: Any, m_id) -> None:
-    global moderation_queue
-    message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
-    message_metadata["toxic_prompt"] = True
-    message_metadata["prompt"] = value
+def build_toxic_prompt_validator():
+    """
+    This function builds a validator that checks if the prompt is toxic or not.
+    The validator will trigger the action flag_toxic_prompt if the condition fails.
+    """
 
-    moderation_queue[m_id] = message_metadata
+    def nontoxic_condition(msg) -> bool:
+        score = toxicity.toxicity(msg)
+        return score <= 0.8
 
+    def flag_toxic_prompt(val_name: str, cond_name: str, value: Any, m_id) -> None:
+        global moderation_queue
+        message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
+        message_metadata["toxic_prompt"] = True
+        message_metadata["prompt"] = value
 
-nontoxic_prompt_conditions = {
-    "nontoxic_prompt": Condition(Predicate().is_(nontoxic_condition))
-}
-toxic_prompt_validator = ConditionValidator(
-    name="nontoxic_prompt",
-    conditions=nontoxic_prompt_conditions,
-    actions=[flag_toxic_prompt],
-)
+        moderation_queue[m_id] = message_metadata
+
+    nontoxic_prompt_conditions = {
+        "nontoxic_prompt": Condition(Predicate().is_(nontoxic_condition))
+    }
+    toxic_prompt_validator = ConditionValidator(
+        name="nontoxic_prompt",
+        conditions=nontoxic_prompt_conditions,
+        actions=[flag_toxic_prompt],
+    )
+
+    return toxic_prompt_validator
 
 
 # Forbidden Patterns Validator
-def no_patterns_condition(msg) -> bool:
-    pattern = regexes.has_patterns(msg)
-    return not bool(pattern)
+def build_patterns_response_validator():
+    """
+    This function builds a validator that checks if the response of a message contains forbidden patterns.
+    The validator will trigger the action flag_patterns_response if the condition fails.
+    """
 
+    def no_patterns_condition(msg) -> bool:
+        pattern = regexes.has_patterns(msg)
+        return not bool(pattern)
 
-def flag_patterns_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
-    global moderation_queue
-    message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
-    message_metadata["patterns_in_response"] = True
-    message_metadata["response"] = value
+    def flag_patterns_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+        global moderation_queue
+        message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
+        message_metadata["patterns_in_response"] = True
+        message_metadata["response"] = value
 
-    moderation_queue[m_id] = message_metadata
+        moderation_queue[m_id] = message_metadata
 
+    no_patterns_response_conditions = {
+        "no_patterns_response": Condition(Predicate().is_(no_patterns_condition))
+    }
+    patterns_response_validator = ConditionValidator(
+        name="no_patterns_response",
+        conditions=no_patterns_response_conditions,
+        actions=[flag_patterns_response],
+    )
 
-no_patterns_response_conditions = {
-    "no_patterns_response": Condition(Predicate().is_(no_patterns_condition))
-}
-patterns_response_validator = ConditionValidator(
-    name="no_patterns_response",
-    conditions=no_patterns_response_conditions,
-    actions=[flag_patterns_response],
-)
+    return patterns_response_validator
 
 
 # Response Validation
 def validate_response(m_id):
+    """
+    This function validates the response of a message. It checks if the response is toxic or if it contains forbidden patterns.
+    """
     global moderation_queue
     message_metadata = moderation_queue.get(m_id, {})
     if message_metadata:
@@ -117,6 +146,9 @@ def validate_response(m_id):
 
 # Prompt Validation
 def validate_prompt(m_id):
+    """
+    This function validates the prompt of a message. It checks if the prompt is toxic or not.
+    """
     global moderation_queue
     message_metadata = moderation_queue.get(m_id, {})
     if message_metadata:
@@ -127,6 +159,18 @@ def validate_prompt(m_id):
 
 # LLM Logger with Toxicity/Patterns Metrics and Validators
 def get_llm_logger_with_validators(identity_column="m_id"):
+    """
+    This function returns a whylogs logger with validators for content moderation.
+    The logger will create profiles every 30 minutes and send them to WhyLabs for observability.
+    Every logged prompt and response will be validated by the validators.
+
+    Args:
+        identity_column: The column that will be used as the identity column for the logger. The validators will use this id to flag the messages.
+    """
+
+    toxic_prompt_validator = build_toxic_prompt_validator()
+    toxic_response_validator = build_toxic_response_validator()
+    patterns_response_validator = build_patterns_response_validator()
     validators = {
         "response": [toxic_response_validator, patterns_response_validator],
         "prompt": [toxic_prompt_validator],
@@ -134,7 +178,7 @@ def get_llm_logger_with_validators(identity_column="m_id"):
 
     condition_count_config = MetricConfig(identity_column=identity_column)
 
-    llm_schema = udf_metric_schema(
+    llm_schema = udf_schema(
         validators=validators, default_config=condition_count_config
     )
 
