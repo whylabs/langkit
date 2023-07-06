@@ -15,44 +15,52 @@ diagnostic_logger = getLogger(__name__)
 
 _transformer_model = None
 _theme_groups = None
-
 lang_config = LangKitConfig()
+
+_jailbreak_embeddings = None
+_refusal_embeddings = None
 
 
 def register_theme_udfs():
-    if "jailbreaks" in _theme_groups:
-        jailbreak_embeddings = [
-            _transformer_model.encode(s, convert_to_tensor=True)
-            for s in _theme_groups["jailbreaks"]
-        ]
+    global _jailbreak_embeddings
+    global _refusal_embeddings
 
-        @register_metric_udf(col_type=String)
-        def jailbreak_similarity(text: str) -> float:
-            if _transformer_model is None:
-                raise ValueError("Must initialize a transformer before calling encode!")
-            similarities = []
-            text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
-            for embedding in jailbreak_embeddings:
-                similarity = get_embeddings_similarity(text_embedding, embedding)
-                similarities.append(similarity)
-            return max(similarities)
+    _jailbreak_embeddings = [
+        _transformer_model.encode(s, convert_to_tensor=True)
+        for s in _theme_groups.get("jailbreaks", [])
+    ]
+    _refusal_embeddings = [
+        _transformer_model.encode(s, convert_to_tensor=True)
+        for s in _theme_groups.get("refusals", [])
+    ]
+
+    if "jailbreaks" in _theme_groups:
+        register_metric_udf(col_type=String)(jailbreak_similarity)
 
     if "refusals" in _theme_groups:
-        refusal_embeddings = [
-            _transformer_model.encode(s, convert_to_tensor=True)
-            for s in _theme_groups["refusals"]
-        ]
+        register_metric_udf(col_type=String)(refusal_similarity)
 
-        @register_metric_udf(col_type=String)
-        def refusal_similarity(text: str) -> float:
-            if _transformer_model is None:
-                raise ValueError("Must initialize a transformer before calling encode!")
-            similarities = []
-            text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
-            for embedding in refusal_embeddings:
-                similarity = get_embeddings_similarity(text_embedding, embedding)
-                similarities.append(similarity)
-            return max(similarities)
+
+def jailbreak_similarity(text: str) -> Optional[float]:
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    similarities = []
+    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
+    for embedding in _jailbreak_embeddings:
+        similarity = get_embeddings_similarity(text_embedding, embedding)
+        similarities.append(similarity)
+    return max(similarities) if similarities else None
+
+
+def refusal_similarity(text: str) -> Optional[float]:
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    similarities = []
+    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
+    for embedding in _refusal_embeddings:
+        similarity = get_embeddings_similarity(text_embedding, embedding)
+        similarities.append(similarity)
+    return max(similarities) if similarities else None
 
 
 def load_themes(json_path: str):
@@ -71,13 +79,22 @@ def load_themes(json_path: str):
     return None
 
 
-def init(transformer_name: Optional[str] = None, theme_file_path: Optional[str] = None):
+def init(
+    transformer_name: Optional[str] = None,
+    theme_file_path: Optional[str] = None,
+    theme_json: Optional[str] = None,
+):
     global _transformer_model
     global _theme_groups
     if transformer_name is None:
         transformer_name = lang_config.transformer_name
+    if theme_file_path is not None and theme_json is not None:
+        raise ValueError("Cannot specify both theme_file_path and theme_json")
     if theme_file_path is None:
-        _theme_groups = load_themes(lang_config.theme_file_path)
+        if theme_json:
+            _theme_groups = json.loads(theme_json)
+        else:
+            _theme_groups = load_themes(lang_config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
 
