@@ -36,9 +36,13 @@ def register_theme_udfs():
 
     if "jailbreaks" in _theme_groups:
         register_metric_udf(col_type=String)(jailbreak_similarity)
+    else:
+        diagnostic_logger.info("No jailbreaks found in theme groups file")
 
     if "refusals" in _theme_groups:
         register_metric_udf(col_type=String)(refusal_similarity)
+    else:
+        diagnostic_logger.info("No refusals found in theme groups file")
 
 
 def jailbreak_similarity(text: str) -> Optional[float]:
