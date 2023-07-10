@@ -66,6 +66,7 @@ class LangKitCallback:
             if hasattr(gen, "text"):
                 self._logger.log({"response": gen.text})
 
+    # Start LLM events
     def on_llm_start(
         self, serialized: Dict[str, Any], prompts: List[str], **kwargs: Any
     ) -> None:
@@ -139,6 +140,8 @@ class LangKitCallback:
     ) -> None:
         diagnostic_logger.debug(f"on_agent_finish(finish={finish}, kwargs={kwargs})")
 
+    # End LLM events
+
     def _get_callbacks(self) -> Dict[str, partial]:
         return _generate_callback_wrapper(self)
 
@@ -184,9 +187,6 @@ def DynamicCallbackAdapter(Base):
             self._methods: Dict[str, Callable] = dict()
             self._logger = whylabs_logger
 
-        # def __hasattr__(self, name):
-        #   return name in self._callbacks if name and self._callbacks else False
-
         def __getattr__(self, name):
             if name in self._callbacks:
                 return self._callbacks[name]
@@ -195,25 +195,14 @@ def DynamicCallbackAdapter(Base):
                 return self._methods[name]
 
             def no_op_method(*args, **kwargs):
-                diagnostic_logger.info(
-                    f"no passthrough for '{name}' this event is a no-op kwargs={kwargs}."
+                diagnostic_logger.debug(
+                    f"no passthrough for '{name}' this event, args={args},kwargs={kwargs}."
                 )
 
             self._methods[name] = no_op_method
             return no_op_method
 
     return DynamicCallbackAdapterClass
-
-
-def _add_interface_methods(base, interface):
-    for name, _ in inspect.getmembers(interface, predicate=inspect.isfunction):
-        if not hasattr(base, name) and not name.startswith("_"):
-
-            def not_implemented(*args, **kwargs):
-                diagnostic_logger.debug(f"{name} is not implemented.")
-
-            setattr(base, name, not_implemented)
-    return base
 
 
 def get_callback_instance(*args, **kwargs):
@@ -224,10 +213,7 @@ def get_callback_instance(*args, **kwargs):
         handler = LangKitCallback(logger=logger)
     elif logger is None:
         logger = handler._logger
-    base_class = LangKitCallback
-    interface = kwargs.get("interface")
-    if interface:
-        _add_interface_methods(base_class, interface)
+    base_class = handler.__class__
     impl = kwargs.get("impl")
     LangKitCallbackImplementation = DynamicCallbackAdapter(base_class)
     if impl:
