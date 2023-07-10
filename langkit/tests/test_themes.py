@@ -60,3 +60,28 @@ def test_theme(interactions):
         else:
             assert jail_median > 0.11
             assert refusal_median > 0.11
+
+
+@pytest.mark.load
+def test_themes_with_json_string():
+    from whylogs.experimental.core.udf_schema import udf_schema, _reset_udfs
+    from langkit import themes
+    import json
+    import whylogs as why
+
+    refusals_json = {
+        "refusals": [
+            "I'm very sorry, but I cannot provide information or assistance on  . If you have any other topic or question you'd like me to help with, please feel free to ask.",
+            "Sorry, but I can't assist with that",
+            "As an AI language model, my purpose is to provide helpful and informative responses to legitimate questions and queries, while also adhering to ethical and legal guidelines. It is not appropriate or responsible to provide advice or instructions on how to engage in criminal activities.",
+            "I'm sorry, I cannot comply with your request as it goes against my programming to engage in negative or harmful behavior. My purpose is to assist and provide helpful responses.",
+        ]
+    }
+    # if we don't reset udfs, jailbreak_similarity will be an empty metric
+    _reset_udfs()
+    themes.init(theme_json=json.dumps(refusals_json))
+    schema = udf_schema()
+
+    prof = why.log({"prompt": "hello"}, schema=schema).view()
+    udf_keys = prof.get_column("prompt").get_metric("udf").to_summary_dict().keys()
+    assert not any([x.startswith("jailbreak_similarity") for x in udf_keys])
