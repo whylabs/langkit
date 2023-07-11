@@ -12,7 +12,6 @@ diagnostic_logger = getLogger(__name__)
 
 def register_score_udfs():
     if _corpus:
-        print(_scores)
         for score in _scores:
             if 'bleu' in score:
                 bleu = evaluate.load("bleu")
