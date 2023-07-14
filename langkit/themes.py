@@ -67,10 +67,10 @@ def refusal_similarity(text: str) -> Optional[float]:
     return max(similarities) if similarities else None
 
 
-def load_themes(json_path: str):
+def load_themes(json_path: str, encoding="utf-8"):
     try:
         skip = False
-        with open(json_path, "r", encoding="utf-8") as myfile:
+        with open(json_path, "r", encoding=encoding) as myfile:
             theme_groups = json.load(myfile)
     except FileNotFoundError:
         skip = True
