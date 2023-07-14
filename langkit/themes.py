@@ -70,7 +70,7 @@ def refusal_similarity(text: str) -> Optional[float]:
 def load_themes(json_path: str):
     try:
         skip = False
-        with open(json_path, "r") as myfile:
+        with open(json_path, "r", encoding="utf-8") as myfile:
             theme_groups = json.load(myfile)
     except FileNotFoundError:
         skip = True
