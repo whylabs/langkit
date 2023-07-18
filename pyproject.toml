@@ -25,6 +25,10 @@ sentence-transformers = {version ="^2.2.2", optional = true}
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.23.0"
 pytest = "^7.3.1"
+mypy = "^1.4.1"
+pre-commit = "^2.8"
+black = "^23.7.0"
+flake8 = { version = "^6.0.0", python = ">=3.8.1,<4.0" }
 
 
 [tool.poetry.extras]
