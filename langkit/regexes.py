@@ -93,6 +93,5 @@ def init(
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
     else:
-        lang_config = LangKitConfig()
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
