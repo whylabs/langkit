@@ -73,14 +73,12 @@ pattern_loader = PatternLoader()
 
 def has_patterns(text: str) -> Optional[str]:
     regex_groups = pattern_loader.get_regex_groups()
-    patterns_info = None
     if regex_groups:
         for group in regex_groups:
             for expression in group["expressions"]:
                 if expression.search(text):
-                    patterns_info = group["name"]
                     return group["name"]
-    return patterns_info
+    return None
 
 
 if pattern_loader.get_regex_groups() is not None:

@@ -1,13 +1,13 @@
 [
-  {
-    "expressions": ["\\b\\d{4}[- ]?(\\d{4}[- ]?){2,3}\\d{4}\\b"],
-    "name": "credit card number"
-  },
-  {
+    {
     "expressions": [
       "(?!(\\d){3}(-| |)\\1{2}\\2\\1{4})(?!666|000|9\\d{2})(\\b\\d{3}(-| |)(?!00)\\d{2}\\4(?!0{4})\\d{4}\\b)"
     ],
     "name": "SSN"
+  },
+  {
+    "expressions": ["\\b\\d{4}[- ]?(\\d{4}[- ]?){2,3}\\d{4}\\b|\\b\\d{15}\\b"],
+    "name": "credit card number"
   },
   {
     "expressions": [
