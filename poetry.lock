@@ -2817,6 +2817,18 @@ files = [
 types-urllib3 = "*"
 
 [[package]]
+name = "types-setuptools"
+version = "68.0.0.2"
+description = "Typing stubs for setuptools"
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-setuptools-68.0.0.2.tar.gz", hash = "sha256:fede8b46862dd9fe68a12f11a8444c3d240d11178eba7d584d6f22ca3114b894"},
+    {file = "types_setuptools-68.0.0.2-py3-none-any.whl", hash = "sha256:311a14819416716029d1113c7452143e2fa857e6cc19186bb6830aff69379c48"},
+]
+
+[[package]]
 name = "types-urllib3"
 version = "1.26.25.13"
 description = "Typing stubs for urllib3"
@@ -3212,4 +3224,4 @@ all = ["datasets", "nltk", "openai", "sentence-transformers", "torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "af123599d537390901316bcf28631fb79309bb2b198a0e64001b56db2ead4198"
+content-hash = "dd73b2c64ab8277ed54bd930d1fe1fcb89e95770b39827b390a58fe014a1c46d"
