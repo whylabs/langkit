@@ -35,7 +35,7 @@ jobs:
         run: mkdir ~/.whylogs && echo \"\" >> ~/.whylogs/disable_telemetry
       - name: Run pre-commit checks
         if: ${{ matrix.python-version == 3.8 }}
-        run: make pre-commit
+        run: poetry run pre-commit run --all-files
       - name: Run build
         run: poetry build
       - name: Run test
