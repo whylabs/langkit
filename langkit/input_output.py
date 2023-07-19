@@ -47,7 +47,7 @@ def similarity_MiniLM_L6_v2(text):
             diagnostic_logger.warning(
                 f"Message({text}) caused similarity_MiniLM_L6_v2 to encounter error: {e}"
             )
-        return result
+        return [result]
     else:
         series_result = []
         for x, y in zip(text["prompt"], text["response"]):
