@@ -34,31 +34,15 @@ def similarity_MiniLM_L6_v2(text):
             "response.relevance_to_prompt must have a transformer model initialized before use."
         )
 
-    if not isinstance(text, pd.DataFrame):
-        result = None
+    series_result = []
+    for x, y in zip(text["prompt"], text["response"]):
         try:
-            x = text["prompt"]
-            y = text["response"]
             embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
             embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
             similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-            result = similarity.item()
+            series_result.append(similarity.item())
         except Exception as e:
             diagnostic_logger.warning(
-                f"Message({text}) caused similarity_MiniLM_L6_v2 to encounter error: {e}"
+                f"pandas {text} caused similarity_MiniLM_L6_v2 to encounter error: {e}"
             )
-        return [result]
-    else:
-        series_result = []
-        for x, y in zip(text["prompt"], text["response"]):
-            try:
-                embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
-                embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
-                similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-                series_result.append(similarity.item())
-            except Exception as e:
-                diagnostic_logger.warning(
-                    f"pandas {text} caused similarity_MiniLM_L6_v2 to encounter error: {e}"
-                )
-        return series_result
-    return 0
+    return series_result
