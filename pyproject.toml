@@ -30,6 +30,7 @@ pre-commit = "^2.8"
 black = "^23.7.0"
 flake8 = { version = "^6.0.0", python = ">=3.8.1,<4.0" }
 types-setuptools = "^68.0.0.2"
+bump2version = "^1.0.1"
 
 
 [tool.poetry.extras]

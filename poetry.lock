@@ -245,6 +245,18 @@ jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
 uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
+name = "bump2version"
+version = "1.0.1"
+description = "Version-bump your software with a single command!"
+category = "dev"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
+    {file = "bump2version-1.0.1.tar.gz", hash = "sha256:762cb2bfad61f4ec8e2bdf452c7c267416f8c70dd9ecb1653fd0bbb01fa936e6"},
+]
+
+[[package]]
 name = "certifi"
 version = "2023.5.7"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -2933,14 +2945,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.2.5"
+version = "1.2.4"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.2.5-py3-none-any.whl", hash = "sha256:223374ebafe52538dbed5656df1d412fa4390018c7f8c0fc95938e4746acfc3b"},
-    {file = "whylogs-1.2.5.tar.gz", hash = "sha256:3c12a543ec3584e7a7b62023778d8ff9ef68b125f3c2c4dd622887b4353316a8"},
+    {file = "whylogs-1.2.4-py3-none-any.whl", hash = "sha256:90735d3a7d275463a9410dc46b2a0b15b5a1f8a23fb851e2ac7da4fcbe60fd32"},
+    {file = "whylogs-1.2.4.tar.gz", hash = "sha256:8fef25a508647eb0f89597eb554dcf266a8fa6058441101a2d0393e235040d85"},
 ]
 
 [package.dependencies]
@@ -3224,4 +3236,4 @@ all = ["datasets", "nltk", "openai", "sentence-transformers", "torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "dd73b2c64ab8277ed54bd930d1fe1fcb89e95770b39827b390a58fe014a1c46d"
+content-hash = "b6e32772cfc3db9f1af56056467ffc5b02d86012f1f4fb73d376d6cf08741f5e"
