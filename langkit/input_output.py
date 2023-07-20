@@ -1,6 +1,5 @@
 from logging import getLogger
 from typing import Optional
-import pandas as pd
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
