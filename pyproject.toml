@@ -11,7 +11,7 @@ readme = "DESCRIPTION.md"
 python = "^3.8"
 textstat = "^0.7.3"
 pandas = "*"
-whylogs = "^1.2.4"
+whylogs = "1.2.4"
 
 
 # optional dependencies
