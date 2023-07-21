@@ -9,8 +9,6 @@ from typing import Any, List, Optional, Type
 
 diagnostic_logger = getLogger(__name__)
 
-lang_config = LangKitConfig()
-
 
 class AllString(TypeMapper):
     """Map a dtype (Pandas) or a Python type to a data type."""
@@ -73,22 +71,27 @@ pattern_loader = PatternLoader()
 
 def has_patterns(text: str) -> Optional[str]:
     regex_groups = pattern_loader.get_regex_groups()
-    patterns_info = None
     if regex_groups:
         for group in regex_groups:
             for expression in group["expressions"]:
                 if expression.search(text):
-                    patterns_info = group["name"]
                     return group["name"]
-    return patterns_info
+    return None
 
 
 if pattern_loader.get_regex_groups() is not None:
     register_metric_udf(col_type=String, type_mapper=AllString())(has_patterns)
 
 
-def init(pattern_file_path: Optional[str] = None):
+def init(
+    pattern_file_path: Optional[str] = None, lang_config: Optional[LangKitConfig] = None
+):
+    if lang_config is None:
+        lang_config = LangKitConfig()
     if pattern_file_path:
         lang_config.pattern_file_path = pattern_file_path
+        pattern_loader.set_config(lang_config)
+        pattern_loader.update_patterns()
+    else:
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
