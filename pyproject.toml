@@ -11,7 +11,7 @@ readme = "DESCRIPTION.md"
 python = "^3.8"
 textstat = "^0.7.3"
 pandas = "*"
-whylogs = "^1.2.4"
+whylogs = "1.2.4"
 
 
 # optional dependencies
@@ -20,6 +20,7 @@ datasets = {version ="^2.12.0", optional = true}
 openai = {version ="^0.27.6", optional = true}
 nltk = {version ="^3.8.1", optional = true}
 sentence-transformers = {version ="^2.2.2", optional = true}
+evaluate = {version = "^0.4.0", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -40,6 +41,7 @@ all = [
     "openai",
     "nltk",
     "sentence-transformers",
+    "evaluate",
 ]
 
 
