@@ -55,9 +55,10 @@ def _generate_callback_wrapper(handler) -> Dict[str, partial]:
 
 
 class LangKitCallback:
-    def __init__(self, logger: Logger):
+    def __init__(self, logger: Logger, log_metadata: bool = False):
         """Bind the configured logger for this langKit callback handler."""
         self._logger = logger
+        self._log_metadata = log_metadata
         diagnostic_logger.info(
             f"Initialized LangKitCallback handler with configured whylogs Logger {logger}."
         )
@@ -80,7 +81,7 @@ class LangKitCallback:
         invocation_params = kwargs.get("invocation_params")
         run_id = kwargs.get("run_id", 0)
         self.records[run_id] = {"prompts": prompts, "t0": time()}
-        if hasattr(self._logger, "_current_profile"):
+        if self._log_metadata and hasattr(self._logger, "_current_profile"):
             profile = self._logger._current_profile
             if invocation_params is not None:
                 profile.track(
@@ -96,8 +97,9 @@ class LangKitCallback:
         run_id = kwargs.get("run_id", 0)
         llm_record = self.records.get(run_id)
         if llm_record is not None:
-            response_latency_s = time() - llm_record["t0"]
-            self._logger.log({"response_latency_s": response_latency_s})
+            if self._log_metadata:
+                response_latency_s = time() - llm_record["t0"]
+                self._logger.log({"response_latency_s": response_latency_s})
             index = 0
             prompts = llm_record["prompts"]
             for generations in response.generations:
@@ -107,7 +109,7 @@ class LangKitCallback:
                     self._logger.log(response_record)
                 index = index + 1
 
-        if hasattr(response, "llm_output"):
+        if self._log_metadata and hasattr(response, "llm_output"):
             llm_output = response.llm_output
             token_usage = llm_output.get("token_usage")
             if token_usage:
