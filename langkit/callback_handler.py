@@ -83,10 +83,6 @@ class LangKitCallback:
         if hasattr(self._logger, "_current_profile"):
             profile = self._logger._current_profile
             if invocation_params is not None:
-                {
-                    "invocation_params." + key: value
-                    for key, value in invocation_params.items()
-                }
                 profile.track(
                     {
                         "invocation_params." + key: value
