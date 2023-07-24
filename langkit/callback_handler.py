@@ -83,8 +83,17 @@ class LangKitCallback:
         if hasattr(self._logger, "_current_profile"):
             profile = self._logger._current_profile
             if invocation_params is not None:
-                {"invocation_params." + key: value for key, value in invocation_params.items()}
-                profile.track({"invocation_params." + key: value for key, value in invocation_params.items()}, execute_udfs=False)
+                {
+                    "invocation_params." + key: value
+                    for key, value in invocation_params.items()
+                }
+                profile.track(
+                    {
+                        "invocation_params." + key: value
+                        for key, value in invocation_params.items()
+                    },
+                    execute_udfs=False,
+                )
 
     def on_llm_end(self, response: Any, **kwargs: Any) -> None:
         """Pass the generated response to the logger."""
