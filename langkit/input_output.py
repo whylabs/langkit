@@ -44,4 +44,5 @@ def similarity_MiniLM_L6_v2(text):
             diagnostic_logger.warning(
                 f"pandas {text} caused similarity_MiniLM_L6_v2 to encounter error: {e}"
             )
+            series_result.append(None)
     return series_result
