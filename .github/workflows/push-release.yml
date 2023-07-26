@@ -41,13 +41,7 @@ jobs:
           force: true
 
       - name: Build and publish LangKit to PyPI
-        env:
-          PYPI_API_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          echo "[pypi]" >> ~/.pypirc && echo "username = __token__" >> ~/.pypirc && echo "password = $PYPI_API_TOKEN" >> ~/.pypirc
-          rm -rf dist
-          rm -rf build
-          poetry publish --build
+        run: poetry publish --build --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
 
   bump_mainline:
     runs-on: ubuntu-latest
