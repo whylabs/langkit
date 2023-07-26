@@ -22,6 +22,14 @@ class LangKitConfig:
             "support",
         ]
     )
+    nlp_scores: list = field(
+        default_factory=lambda: [
+            "bleu",
+            "rouge",
+            "meteor",
+        ]
+    )
+    reference_corpus: str = ""
 
 
 def package_version(package: str = __package__) -> str:
