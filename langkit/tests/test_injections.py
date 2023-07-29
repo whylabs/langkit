@@ -18,7 +18,6 @@ def test_injections():
     diagnostic_logger.info(
         profile.view().get_column("prompt").get_metric("udf").to_summary_dict()
     )
-    print(profile.view().get_columns().keys())
     mean_score = (
         profile.view()
         .get_column("injection")
