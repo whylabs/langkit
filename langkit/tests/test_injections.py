@@ -1,5 +1,6 @@
 from logging import getLogger
 import whylogs as why
+from whylogs.core.stubs import pd
 import pytest
 
 diagnostic_logger = getLogger(__name__)
@@ -18,11 +19,12 @@ def test_injections():
     diagnostic_logger.info(
         profile.view().get_column("prompt").get_metric("udf").to_summary_dict()
     )
+    print(profile.view().get_columns().keys())
     mean_score = (
         profile.view()
-        .get_column("prompt")
-        .get_metric("udf")
-        .to_summary_dict()["injection:distribution/mean"]
+        .get_column("injection")
+        .get_metric("distribution")
+        .to_summary_dict()["mean"]
     )
     assert mean_score > 0.8
 
