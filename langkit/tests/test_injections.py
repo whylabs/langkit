@@ -1,6 +1,5 @@
 from logging import getLogger
 import whylogs as why
-from whylogs.core.stubs import pd
 import pytest
 
 diagnostic_logger = getLogger(__name__)
