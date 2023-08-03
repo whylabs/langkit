@@ -227,6 +227,10 @@ def DynamicCallbackAdapter(Base):
         def include_metadata(self, value: bool = True):
             if hasattr(self._handler, "_log_metadata"):
                 self._handler._log_metadata = value
+            else:
+                diagnostic_logger.warning(
+                    f"called include_metadata but the {self._handler} does not have this ability, doing nothing."
+                )
 
         def __getattr__(self, name):
             if name in self._callbacks:
