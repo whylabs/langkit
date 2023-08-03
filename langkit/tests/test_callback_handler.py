@@ -95,6 +95,18 @@ def test_callback_instance_handler_defined():
     universal_callback.close()
 
 
+def test_callback_instance_handler_with_metadata():
+    callback_handler = LangKitCallback(logger=MockLogger())
+    universal_callback = get_callback_instance(
+        handler=callback_handler, impl=MockBaseHandler2
+    )
+    universal_callback.include_metadata()
+    test_prompts = ["goodbye!"]
+    universal_callback.on_llm_start(prompts=test_prompts)
+    mock_response = type("MockResponse", (object,), {"generations": []})
+    universal_callback.on_llm_end(response=mock_response)
+
+
 def test_callback_instance_handler_defined_getattr():
     callback_handler = LangKitCallback(logger=MockLogger())
     universal_callback = get_callback_instance(
