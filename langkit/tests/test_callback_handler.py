@@ -103,7 +103,7 @@ def test_callback_instance_handler_with_metadata():
     universal_callback.include_metadata()
     test_prompts = ["goodbye!"]
     universal_callback.on_llm_start(prompts=test_prompts)
-    mock_response = type('MockResponse', (object,), {'generations': []})
+    mock_response = type("MockResponse", (object,), {"generations": []})
     universal_callback.on_llm_end(response=mock_response)
 
 
