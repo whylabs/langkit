@@ -20,9 +20,9 @@ def test_injections():
     )
     mean_score = (
         profile.view()
-        .get_column("prompt")
-        .get_metric("udf")
-        .to_summary_dict()["injection:distribution/mean"]
+        .get_column("injection")
+        .get_metric("distribution")
+        .to_summary_dict()["mean"]
     )
     assert mean_score > 0.8
 
