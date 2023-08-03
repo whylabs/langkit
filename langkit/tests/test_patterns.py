@@ -132,10 +132,8 @@ def test_individual_patterns_isolated(target_pattern_tests):
                 TEST_LOGGER.info(result.view().get_column("prompt").to_summary_dict())
             frequentStringsComponent = (
                 result.view()
-                .get_column("prompt")
-                .get_metric("udf")
-                .submetrics.get("has_patterns")
-                .get("frequent_items")
+                .get_column("prompt.has_patterns")
+                .get_metric("frequent_items")
             )
             assert frequentStringsComponent is not None
             for frequent_item in frequentStringsComponent.strings:

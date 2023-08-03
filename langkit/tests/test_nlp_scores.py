@@ -16,8 +16,8 @@ def test_bleu_score():
     ).profile()
     max_score = (
         profile.view()
-        .get_column("response")
-        .get_metrics()[-1]
-        .to_summary_dict()["bleu_score:distribution/max"]
+        .get_column("response.bleu_score")
+        .get_metrics("distribution")
+        .to_summary_dict()["max"]
     )
     assert round(max_score, 2) == 0.42
