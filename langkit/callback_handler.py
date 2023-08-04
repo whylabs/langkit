@@ -222,6 +222,15 @@ def DynamicCallbackAdapter(Base):
                 )
             self._methods: Dict[str, Callable] = dict()
             self._logger = whylabs_logger
+            self._handler = handler
+
+        def include_metadata(self, value: bool = True):
+            if hasattr(self._handler, "_log_metadata"):
+                self._handler._log_metadata = value
+            else:
+                diagnostic_logger.warning(
+                    f"called include_metadata but the {self._handler} does not have this ability, doing nothing."
+                )
 
         def __getattr__(self, name):
             if name in self._callbacks:
@@ -243,10 +252,11 @@ def DynamicCallbackAdapter(Base):
 
 def get_callback_instance(*args, **kwargs):
     handler = kwargs.get("handler")
+    log_metadata = kwargs.get("log_metadata", False)
     logger = kwargs.get("logger")
     if handler is None:
         logger = kwargs.get("logger")
-        handler = LangKitCallback(logger=logger)
+        handler = LangKitCallback(logger=logger, log_metadata=log_metadata)
     elif logger is None:
         logger = handler._logger
     base_class = handler.__class__

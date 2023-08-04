@@ -1,5 +1,6 @@
-from typing import Optional
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from typing import Dict, List, Optional, Union
+from whylogs.core.stubs import pd
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 
 lang_config = LangKitConfig()
@@ -27,18 +28,21 @@ def init(model_path: Optional[str] = None):
     )
 
 
-@register_metric_udf(col_name=_prompt)
-def injection(text) -> float:
+@register_dataset_udf([_prompt])
+def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     if _text_classification_pipeline is None or _tokenizer is None:
         raise ValueError("Must initialize injections udf before evaluation.")
-    result = _text_classification_pipeline(
-        text, truncation=True, max_length=_tokenizer.model_max_length
-    )
-    injection_score = (
-        result[0]["score"]
-        if result[0]["label"] == "INJECTION"
-        else 1 - result[0]["score"]
-    )
+
+    injection_score: List[float] = []
+    for text in prompt[_prompt]:
+        result = _text_classification_pipeline(
+            text, truncation=True, max_length=_tokenizer.model_max_length
+        )
+        injection_score.append(
+            result[0]["score"]
+            if result[0]["label"] == "INJECTION"
+            else 1 - result[0]["score"]
+        )
     return injection_score
 
 
