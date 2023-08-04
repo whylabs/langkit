@@ -16,7 +16,7 @@ TEST_LOGGER = getLogger(__name__)
 def ptt_df():
     df = pd.DataFrame(
         {
-            "input": [
+            "prompt": [
                 "address: 123 Main St.",
                 "2255 140th Ave. NE",
                 "535 Bellevue Sq",
@@ -41,14 +41,14 @@ def ptt_df():
 @pytest.fixture
 def target_pattern_tests():
     test_groups = {}
-    test_groups["credit card number"] = [
+    test_groups["Credit Card Number"] = [
         "credit card 4556205848969759",
         "credit card 3851-6256-0926-7271",
         "Visa Card Number: 4929 5423 7528 1067 \nExpiration Date: 03/24 \nCVV: 348",
         "622202049892743 - this is a credit card number",
     ]
 
-    test_groups["email address"] = [
+    test_groups["Email Address"] = [
         "anemail@address.com",
         "my.email@whylabs.ai",
     ]
@@ -59,12 +59,12 @@ def target_pattern_tests():
         "ssn is 702 02 9921",
     ]
 
-    test_groups["phone number"] = [
+    test_groups["Phone Number"] = [
         "my phone is +1 309-404-7587",
         "Can you call me at (206) 555-1212?",
     ]
 
-    test_groups["mailing address"] = [
+    test_groups["Mailing Address"] = [
         "address: 123 Main St.",
         "2255 140th Ave. NE",
         "535 Bellevue Sq",
@@ -101,15 +101,15 @@ def test_ptt(ptt_df, user_defined_json):
 
     result = why.log(ptt_df, schema=udf_metric_schema())
     fi_input_list = result.view().to_pandas()[
-        "udf/has_patterns:frequent_items/frequent_strings"
-    ]["input"]
+        "frequent_items/frequent_strings"
+    ]["prompt.has_patterns"]
     if not user_defined_json:
         group_names = {
-            "credit card number",
-            "email address",
+            "Credit Card number",
+            "Email Address",
             "SSN",
-            "phone number",
-            "mailing address",
+            "Phone Number",
+            "Mailing Address",
         }
     else:
         group_names = {"custom_group"}
@@ -125,7 +125,7 @@ def test_individual_patterns_isolated(target_pattern_tests):
     for target_pattern in target_pattern_tests:
         for test_prompt in target_pattern_tests[target_pattern]:
             result = why.log({"prompt": test_prompt}, schema=test_schema)
-            if result.view().get_column("prompt").get_metric("udf") is None:
+            if result.view().get_column("prompt.has_patterns") is None:
                 TEST_LOGGER.warning(
                     f"No UDFs={test_schema.resolvers._resolvers} Failed to find pattern {target_pattern} in {test_prompt}"
                 )
@@ -143,6 +143,6 @@ def test_individual_patterns_isolated(target_pattern_tests):
                         f"registered patterns are: {pattern_loader.get_regex_groups()}"
                     )
                     TEST_LOGGER.info(
-                        result.view().get_column("prompt").to_summary_dict()
+                        result.view().get_column("prompt.has_patterns").to_summary_dict()
                     )
                 assert target_pattern in frequent_item.value
