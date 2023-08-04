@@ -5,6 +5,9 @@ from logging import getLogger
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 from whylogs.core.datatypes import TypeMapper, DataType, String
+from whylogs.core.metrics.metrics import FrequentItemsMetric
+from whylogs.core.resolvers import MetricSpec
+from whylogs.core.stubs import pd
 from typing import Any, List, Optional, Type
 
 diagnostic_logger = getLogger(__name__)
@@ -99,4 +102,8 @@ def init(
 
     if pattern_loader.get_regex_groups() is not None:
         for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf([column], udf_name=f"{column}.has_patterns")(has_patterns)
+            register_dataset_udf(
+                [column],
+                udf_name=f"{column}.has_patterns",
+                metrics=[MetricSpec(FrequentItemsMetric)]
+            )(has_patterns)

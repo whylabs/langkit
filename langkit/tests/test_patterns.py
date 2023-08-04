@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
-from langkit.regexes import pattern_loader
 
 
 TEST_LOGGER = getLogger(__name__)
@@ -16,7 +15,7 @@ TEST_LOGGER = getLogger(__name__)
 def ptt_df():
     df = pd.DataFrame(
         {
-            "input": [
+            "prompt": [
                 "address: 123 Main St.",
                 "2255 140th Ave. NE",
                 "535 Bellevue Sq",
@@ -98,21 +97,13 @@ def test_ptt(ptt_df, user_defined_json):
             with open(json_path, "w") as file:
                 file.write(user_json)
             regexes.init(pattern_file_path=os.path.join(temp_dir, json_filename))
+    else:
+        regexes.init()
 
-    from whylogs.core.resolvers import MetricSpec, ResolverSpec
-    from whylogs.core.metrics import StandardMetric
-    from whylogs.core.datatypes import String
-    from whylogs.core.resolvers import STANDARD_RESOLVER
-    resolvers = STANDARD_RESOLVER + [ResolverSpec(column_name="input.has_patterns", metrics=[MetricSpec(StandardMetric.frequent_items.value)])]
-    print("udf output:")
-    udf_out, _ = udf_schema(types={"input": str, "input.has_patterns": str}, resolvers=resolvers).apply_udfs(ptt_df)
-    print(udf_out["input.has_patterns"])
-    result = why.log(ptt_df, schema=udf_schema(types={"input": str, "input.has_patterns": str}))
-    print("result view")
-    print(result.view().get_column("input.has_patterns").get_metric_names())
+    result = why.log(ptt_df, schema=udf_schema())
     fi_input_list = result.view().to_pandas()[
         "frequent_items/frequent_strings"
-    ]["input"]
+    ]["prompt.has_patterns"]
     if not user_defined_json:
         group_names = {
             "credit card number",
@@ -135,17 +126,15 @@ def test_individual_patterns_isolated(target_pattern_tests):
     for target_pattern in target_pattern_tests:
         for test_prompt in target_pattern_tests[target_pattern]:
             result = why.log({"prompt": test_prompt}, schema=test_schema)
-            if result.view().get_column("prompt").get_metric("udf") is None:
+            if result.view().get_column("prompt.has_patterns").get_metric("frequent_items") is None:
                 TEST_LOGGER.warning(
                     f"No UDFs={test_schema.resolvers._resolvers} Failed to find pattern {target_pattern} in {test_prompt}"
                 )
-                TEST_LOGGER.info(result.view().get_column("prompt").to_summary_dict())
+                TEST_LOGGER.info(result.view().get_column("prompt.has_patterns").to_summary_dict())
             frequentStringsComponent = (
                 result.view()
-                .get_column("prompt")
-                .get_metric("udf")
-                .submetrics.get("has_patterns")
-                .get("frequent_items")
+                .get_column("prompt.has_patterns")
+                .get_metric("frequent_items")
             )
             assert frequentStringsComponent is not None
             for frequent_item in frequentStringsComponent.strings:

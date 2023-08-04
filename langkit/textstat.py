@@ -13,7 +13,7 @@ _udfs_to_register: List[Tuple[Callable, str]] = []
 def langkit_udf(schema_name="") -> Callable:
     def decorator_register(func):
         global _udfs_to_register
-        _udfs_to_register.append((func.__name__, schema_name))
+        _udfs_to_register.append((func, schema_name))
         return func
     return decorator_register
 
