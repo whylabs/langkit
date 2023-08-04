@@ -1,6 +1,6 @@
 from typing import Optional
 
-from whylogs.core.datatypes import String
+from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 
@@ -34,7 +34,9 @@ def init(lexicon: Optional[str] = None):
         _nltk_downloaded = True
     _sentiment_analyzer = SentimentIntensityAnalyzer()
     for column in [lang_config.prompt_column, lang_config.response_column]:
-        register_dataset_udf([column], udf_name=f"{column}.sentiment_nltk")(has_patterns)
+        register_dataset_udf([column], udf_name=f"{column}.sentiment_nltk")(
+            sentiment_nltk
+        )
 
 
 init()

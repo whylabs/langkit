@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Any, Callable, List, Tuple
+from typing import Callable, List, Tuple
 import textstat
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
@@ -15,6 +15,7 @@ def langkit_udf(schema_name="") -> Callable:
         global _udfs_to_register
         _udfs_to_register.append((func, schema_name))
         return func
+
     return decorator_register
 
 
@@ -215,7 +216,5 @@ def init():
     for udf, schema_name in _udfs_to_register:
         for column in [lang_config.prompt_column, lang_config.response_column]:
             register_dataset_udf(
-                [column],
-                udf_name=f"{column}.{udf.__name__}",
-                schema_name=schema_name
+                [column], udf_name=f"{column}.{udf.__name__}", schema_name=schema_name
             )(udf)

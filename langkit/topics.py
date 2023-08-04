@@ -1,4 +1,6 @@
 from whylogs.experimental.core.udf_schema import register_dataset_udf
+from whylogs.core.stubs import pd
+from typing import List, Optional
 from transformers import (
     pipeline,
 )
@@ -20,12 +22,14 @@ def closest_topic(text):
     return result
 
 
-def init(topics: Optional[list] = None):
+def init(topics: Optional[List] = None):
     global _topics
     if topics:
         _topics = topics
     for column in [lang_config.prompt_column, lang_config.response_column]:
-        register_dataset_udf([column], udf_name=f"{column}.closest_topic")(closest_topic)
+        register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
+            closest_topic
+        )
 
 
 init()

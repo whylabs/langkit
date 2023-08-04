@@ -1,5 +1,6 @@
 from typing import Optional
 
+from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 
@@ -20,7 +21,9 @@ def toxicity(text):
             input, truncation=True, max_length=_toxicity_tokenizer.model_max_length
         )
         toxicity_score = (
-            result[0]["score"] if result[0]["label"] == "toxic" else 1 - result[0]["score"]
+            result[0]["score"]
+            if result[0]["label"] == "toxic"
+            else 1 - result[0]["score"]
         )
         result.append(toxicity_score)
     return result

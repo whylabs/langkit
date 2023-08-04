@@ -101,9 +101,9 @@ def test_ptt(ptt_df, user_defined_json):
         regexes.init()
 
     result = why.log(ptt_df, schema=udf_schema())
-    fi_input_list = result.view().to_pandas()[
-        "frequent_items/frequent_strings"
-    ]["prompt.has_patterns"]
+    fi_input_list = result.view().to_pandas()["frequent_items/frequent_strings"][
+        "prompt.has_patterns"
+    ]
     if not user_defined_json:
         group_names = {
             "credit card number",
@@ -126,11 +126,18 @@ def test_individual_patterns_isolated(target_pattern_tests):
     for target_pattern in target_pattern_tests:
         for test_prompt in target_pattern_tests[target_pattern]:
             result = why.log({"prompt": test_prompt}, schema=test_schema)
-            if result.view().get_column("prompt.has_patterns").get_metric("frequent_items") is None:
+            if (
+                result.view()
+                .get_column("prompt.has_patterns")
+                .get_metric("frequent_items")
+                is None
+            ):
                 TEST_LOGGER.warning(
                     f"No UDFs={test_schema.resolvers._resolvers} Failed to find pattern {target_pattern} in {test_prompt}"
                 )
-                TEST_LOGGER.info(result.view().get_column("prompt.has_patterns").to_summary_dict())
+                TEST_LOGGER.info(
+                    result.view().get_column("prompt.has_patterns").to_summary_dict()
+                )
             frequentStringsComponent = (
                 result.view()
                 .get_column("prompt.has_patterns")
@@ -139,6 +146,8 @@ def test_individual_patterns_isolated(target_pattern_tests):
             assert frequentStringsComponent is not None
             for frequent_item in frequentStringsComponent.strings:
                 if target_pattern not in frequent_item.value:
+                    from langkit.regexes import pattern_loader
+
                     TEST_LOGGER.warning(
                         f"Failed to find pattern {target_pattern} in {test_prompt}"
                         f"registered patterns are: {pattern_loader.get_regex_groups()}"

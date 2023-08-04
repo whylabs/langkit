@@ -4,6 +4,7 @@ from typing import Optional
 
 from sentence_transformers import util
 from torch import Tensor
+from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
@@ -65,13 +66,17 @@ def register_theme_udfs():
 
     if "jailbreaks" in _theme_groups:
         for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf([column], udf_name=f"{column}.jailbreak_similarity")(jailbreak_similarity)
+            register_dataset_udf([column], udf_name=f"{column}.jailbreak_similarity")(
+                jailbreak_similarity
+            )
     else:
         diagnostic_logger.info("No jailbreaks found in theme groups file")
 
     if "refusals" in _theme_groups:
         for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf([column], udf_name=f"{column}.refusal_similarity")(refusal_similarity)
+            register_dataset_udf([column], udf_name=f"{column}.refusal_similarity")(
+                refusal_similarity
+            )
     else:
         diagnostic_logger.info("No refusals found in theme groups file")
 

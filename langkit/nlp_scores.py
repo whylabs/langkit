@@ -21,7 +21,11 @@ def register_score_udfs():
                 def bleu_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
-                        result.append(bleu.compute(predictions=[response], references=[_corpus])["bleu"])
+                        result.append(
+                            bleu.compute(predictions=[response], references=[_corpus])[
+                                "bleu"
+                            ]
+                        )
                     return result
 
             if "rouge" in score:
@@ -31,11 +35,13 @@ def register_score_udfs():
                 def rouge_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
-                        result.append(rouge.compute(
-                            predictions=[text],
-                            references=[_corpus],
-                            rouge_types=[_rouge_type],
-                        )[_rouge_type])
+                        result.append(
+                            rouge.compute(
+                                predictions=[text],
+                                references=[_corpus],
+                                rouge_types=[_rouge_type],
+                            )[_rouge_type]
+                        )
                     return result
 
             if "meteor" in score:
@@ -45,7 +51,11 @@ def register_score_udfs():
                 def meteor_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
-                        result.append(meteor.compute(predictions=[text], references=[_corpus])["meteor"])
+                        result.append(
+                            meteor.compute(predictions=[text], references=[_corpus])[
+                                "meteor"
+                            ]
+                        )
                     return result
 
     else:

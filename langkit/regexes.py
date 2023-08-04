@@ -76,7 +76,9 @@ def has_patterns(text):
     regex_groups = pattern_loader.get_regex_groups()
     result = []
     if regex_groups:
-        index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+        index = (
+            text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+        )
         for group in regex_groups:
             for expression in group["expressions"]:
                 for input in text[index]:
@@ -105,5 +107,5 @@ def init(
             register_dataset_udf(
                 [column],
                 udf_name=f"{column}.has_patterns",
-                metrics=[MetricSpec(FrequentItemsMetric)]
+                metrics=[MetricSpec(FrequentItemsMetric)],
             )(has_patterns)
