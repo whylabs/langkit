@@ -2,7 +2,7 @@ import json
 import re
 from logging import getLogger
 
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 from whylogs.core.datatypes import TypeMapper, DataType, String
 from typing import Any, List, Optional, Type
@@ -69,18 +69,19 @@ class PatternLoader:
 pattern_loader = PatternLoader()
 
 
-def has_patterns(text: str) -> Optional[str]:
+def has_patterns(text):
     regex_groups = pattern_loader.get_regex_groups()
+    result = []
     if regex_groups:
+        index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
         for group in regex_groups:
             for expression in group["expressions"]:
-                if expression.search(text):
-                    return group["name"]
-    return None
-
-
-if pattern_loader.get_regex_groups() is not None:
-    register_metric_udf(col_type=String, type_mapper=AllString())(has_patterns)
+                for input in text[index]:
+                    if expression.search(input):
+                        result.append(group["name"])
+                    else:
+                        result.append(None)
+    return result
 
 
 def init(
@@ -95,3 +96,7 @@ def init(
     else:
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
+
+    if pattern_loader.get_regex_groups() is not None:
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf([column], udf_name=f"{column}.has_patterns")(has_patterns)

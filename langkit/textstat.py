@@ -1,7 +1,21 @@
 from logging import getLogger
+from typing import Any, Callable, List, Tuple
 import textstat
-from whylogs.core.datatypes import String
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.udf_schema import register_dataset_udf
+from . import LangKitConfig
+
+lang_config = LangKitConfig()
+
+
+_udfs_to_register: List[Tuple[Callable, str]] = []
+
+
+def langkit_udf(schema_name="") -> Callable:
+    def decorator_register(func):
+        global _udfs_to_register
+        _udfs_to_register.append((func.__name__, schema_name))
+        return func
+    return decorator_register
 
 
 diagnostic_logger = getLogger(__name__)
@@ -9,123 +23,199 @@ diagnostic_logger = getLogger(__name__)
 # score metrics
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def flesch_kincaid_grade(text: str) -> float:
-    return textstat.textstat.flesch_kincaid_grade(text)
+@langkit_udf("text_standard_component")
+def flesch_kincaid_grade(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.flesch_kincaid_grade(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def flesch_reading_ease(text: str) -> float:
-    return textstat.textstat.flesch_reading_ease(text)
+@langkit_udf
+def flesch_reading_ease(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.flesch_reading_ease(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def smog_index(text: str) -> float:
-    return textstat.textstat.smog_index(text)
+@langkit_udf("text_standard_component")
+def smog_index(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.smog_index(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def coleman_liau_index(text: str) -> float:
-    return textstat.textstat.coleman_liau_index(text)
+@langkit_udf("text_standard_component")
+def coleman_liau_index(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.coleman_liau_index(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def automated_readability_index(text: str) -> float:
-    return textstat.textstat.automated_readability_index(text)
+@langkit_udf
+def automated_readability_index(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.automated_readability_index(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def dale_chall_readability_score(text: str) -> float:
-    return textstat.textstat.dale_chall_readability_score(text)
+@langkit_udf("text_standard_component")
+def dale_chall_readability_score(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.dale_chall_readability_score(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def linsear_write_formula(text: str) -> float:
-    return textstat.textstat.linsear_write_formula(text)
+@langkit_udf("text_standard_component")
+def linsear_write_formula(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.linsear_write_formula(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="text_standard_component")
-def gunning_fog(text: str) -> float:
-    return textstat.textstat.gunning_fog(text)
+@langkit_udf("text_standard_component")
+def gunning_fog(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.gunning_fog(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def aggregate_reading_level(text: str) -> float:
-    return textstat.textstat.text_standard(text, float_output=True)
+@langkit_udf
+def aggregate_reading_level(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.text_standard(input, float_output=True))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="es")
-def fernandez_huerta(text: str) -> float:
-    return textstat.textstat.fernandez_huerta(text)
+@langkit_udf("es")
+def fernandez_huerta(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.fernandez_huerta(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="es")
-def szigriszt_pazos(text: str) -> float:
-    return textstat.textstat.szigriszt_pazos(text)
+@langkit_udf("es")
+def szigriszt_pazos(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.szigriszt_pazos(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="es")
-def gutierrez_polini(text: str) -> float:
-    return textstat.textstat.gutierrez_polini(text)
+@langkit_udf("es")
+def gutierrez_polini(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.gutierrez_polini(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="es")
-def crawford(text: str) -> float:
-    return textstat.textstat.crawford(text)
+@langkit_udf("es")
+def crawford(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.crawford(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="it")
-def gulpease_index(text: str) -> float:
-    return textstat.textstat.gulpease_index(text)
+@langkit_udf("it")
+def gulpease_index(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.gulpease_index(input))
+    return result
 
 
-@register_metric_udf(col_type=String, schema_name="ar")
-def osman(text: str) -> float:
-    return textstat.textstat.osman(text)
+@langkit_udf("ar")
+def osman(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.osman(input))
+    return result
 
 
 # count metrics
 
 
-@register_metric_udf(col_type=String)
-def syllable_count(text: str) -> float:
-    return textstat.textstat.syllable_count(text)
+@langkit_udf
+def syllable_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.syllable_count(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def lexicon_count(text: str) -> float:
-    return textstat.textstat.lexicon_count(text)
+@langkit_udf
+def lexicon_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.lexicon_count(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def sentence_count(text: str) -> float:
-    return textstat.textstat.sentence_count(text)
+@langkit_udf
+def sentence_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.sentence_count(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def character_count(text: str) -> float:
-    return textstat.textstat.char_count(text)
+@langkit_udf
+def character_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.char_count(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def letter_count(text: str) -> float:
-    return textstat.textstat.letter_count(text)
+@langkit_udf
+def letter_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.letter_count(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def polysyllable_count(text: str) -> float:
-    return textstat.textstat.polysyllabcount(text)
+@langkit_udf
+def polysyllable_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.polysyllabcount(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def monosyllable_count(text: str) -> float:
-    return textstat.textstat.monosyllabcount(text)
+@langkit_udf
+def monosyllable_count(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.monosyllabcount(input))
+    return result
 
 
-@register_metric_udf(col_type=String)
-def difficult_words(text: str) -> float:
-    return textstat.textstat.difficult_words(text)
+@langkit_udf
+def difficult_words(text):
+    result = []
+    for input in text:
+        result.append(textstat.textstat.difficult_words(input))
+    return result
 
 
 def init():
     diagnostic_logger.info("Initialized textstat metrics.")
+    for udf, schema_name in _udfs_to_register:
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf(
+                [column],
+                udf_name=f"{column}.{udf.__name__}",
+                schema_name=schema_name
+            )(udf)

@@ -4,8 +4,7 @@ from typing import Optional
 
 from sentence_transformers import util
 from torch import Tensor
-from whylogs.core.datatypes import String
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
 
@@ -19,6 +18,36 @@ lang_config = LangKitConfig()
 
 _jailbreak_embeddings = None
 _refusal_embeddings = None
+
+
+def jailbreak_similarity(text):
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+    result = []
+    for input in text[index]:
+        similarities = []
+        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
+        for embedding in _jailbreak_embeddings:
+            similarity = get_embeddings_similarity(text_embedding, embedding)
+            similarities.append(similarity)
+        result.append(max(similarities) if similarities else None)
+    return result
+
+
+def refusal_similarity(text):
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+    result = []
+    for input in text[index]:
+        similarities = []
+        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
+        for embedding in _refusal_embeddings:
+            similarity = get_embeddings_similarity(text_embedding, embedding)
+            similarities.append(similarity)
+        result.append(max(similarities) if similarities else None)
+    return result
 
 
 def register_theme_udfs():
@@ -35,36 +64,16 @@ def register_theme_udfs():
     ]
 
     if "jailbreaks" in _theme_groups:
-        register_metric_udf(col_type=String)(jailbreak_similarity)
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf([column], udf_name=f"{column}.jailbreak_similarity")(jailbreak_similarity)
     else:
         diagnostic_logger.info("No jailbreaks found in theme groups file")
 
     if "refusals" in _theme_groups:
-        register_metric_udf(col_type=String)(refusal_similarity)
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf([column], udf_name=f"{column}.refusal_similarity")(refusal_similarity)
     else:
         diagnostic_logger.info("No refusals found in theme groups file")
-
-
-def jailbreak_similarity(text: str) -> Optional[float]:
-    if _transformer_model is None:
-        raise ValueError("Must initialize a transformer before calling encode!")
-    similarities = []
-    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
-    for embedding in _jailbreak_embeddings:
-        similarity = get_embeddings_similarity(text_embedding, embedding)
-        similarities.append(similarity)
-    return max(similarities) if similarities else None
-
-
-def refusal_similarity(text: str) -> Optional[float]:
-    if _transformer_model is None:
-        raise ValueError("Must initialize a transformer before calling encode!")
-    similarities = []
-    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
-    for embedding in _refusal_embeddings:
-        similarity = get_embeddings_similarity(text_embedding, embedding)
-        similarities.append(similarity)
-    return max(similarities) if similarities else None
 
 
 def load_themes(json_path: str, encoding="utf-8"):

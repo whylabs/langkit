@@ -5,7 +5,7 @@ import tempfile
 import pandas as pd
 import pytest
 import whylogs as why
-from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
+from whylogs.experimental.core.udf_schema import udf_schema
 from langkit.regexes import pattern_loader
 
 
@@ -99,9 +99,19 @@ def test_ptt(ptt_df, user_defined_json):
                 file.write(user_json)
             regexes.init(pattern_file_path=os.path.join(temp_dir, json_filename))
 
-    result = why.log(ptt_df, schema=udf_metric_schema())
+    from whylogs.core.resolvers import MetricSpec, ResolverSpec
+    from whylogs.core.metrics import StandardMetric
+    from whylogs.core.datatypes import String
+    from whylogs.core.resolvers import STANDARD_RESOLVER
+    resolvers = STANDARD_RESOLVER + [ResolverSpec(column_name="input.has_patterns", metrics=[MetricSpec(StandardMetric.frequent_items.value)])]
+    print("udf output:")
+    udf_out, _ = udf_schema(types={"input": str, "input.has_patterns": str}, resolvers=resolvers).apply_udfs(ptt_df)
+    print(udf_out["input.has_patterns"])
+    result = why.log(ptt_df, schema=udf_schema(types={"input": str, "input.has_patterns": str}))
+    print("result view")
+    print(result.view().get_column("input.has_patterns").get_metric_names())
     fi_input_list = result.view().to_pandas()[
-        "udf/has_patterns:frequent_items/frequent_strings"
+        "frequent_items/frequent_strings"
     ]["input"]
     if not user_defined_json:
         group_names = {
