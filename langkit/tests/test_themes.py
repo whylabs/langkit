@@ -1,7 +1,7 @@
 import pytest
 import whylogs as why
 from whylogs.core.metrics import MetricConfig
-from whylogs.experimental.core.metrics.udf_metric import udf_metric_schema
+from whylogs.experimental.core.udf_schema import udf_schema
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_theme(interactions):
     from langkit import themes
 
     themes.init()
-    schema = udf_metric_schema(default_config=MetricConfig(fi_disabled=True))
+    schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
         assert (
@@ -43,16 +43,16 @@ def test_theme(interactions):
         )
         jail_median = (
             result.view()
-            .get_columns()["prompt"]
-            .get_metrics()[-1]
-            .to_summary_dict()["jailbreak_similarity:distribution/median"]
+            .get_column("prompt.jailbreak_similarity")
+            .get_metric("distribution")
+            .to_summary_dict()["median"]
         )
 
         refusal_median = (
             result.view()
-            .get_columns()["response"]
-            .get_metrics()[-1]
-            .to_summary_dict()["refusal_similarity:distribution/median"]
+            .get_columns()["response.refusal_similarity"]
+            .get_metric("distribution")
+            .to_summary_dict()["median"]
         )
         if i == 2:
             assert jail_median <= 0.11
@@ -87,5 +87,6 @@ def test_themes_with_json_string():
     schema = udf_schema()
 
     prof = why.log({"prompt": "hello"}, schema=schema).view()
-    udf_keys = prof.get_column("prompt").get_metric("udf").to_summary_dict().keys()
-    assert not any([x.startswith("jailbreak_similarity") for x in udf_keys])
+    for column in prof.get_columns().keys():
+        if column.startswith("prompt"):
+            assert not column.endswith("jailbreak_similarity")

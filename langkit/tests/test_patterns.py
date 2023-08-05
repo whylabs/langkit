@@ -96,7 +96,7 @@ def test_ptt(ptt_df, user_defined_json):
             json_path = os.path.join(temp_dir, json_filename)
             with open(json_path, "w") as file:
                 file.write(user_json)
-            regexes.init(pattern_file_path=os.path.join(temp_dir, json_filename))
+            regexes.init(pattern_file_path=json_path)
     else:
         regexes.init()
 

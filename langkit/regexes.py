@@ -4,28 +4,12 @@ from logging import getLogger
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
-from whylogs.core.datatypes import TypeMapper, DataType, String
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from whylogs.core.stubs import pd
-from typing import Any, List, Optional, Type
+from typing import Optional
 
 diagnostic_logger = getLogger(__name__)
-
-
-class AllString(TypeMapper):
-    """Map a dtype (Pandas) or a Python type to a data type."""
-
-    def __init__(self, custom_types: Optional[List[Type[DataType]]] = None):
-        """
-
-        Args:
-            custom_types: List of additional DataType classes that you want to extend.
-        """
-        pass
-
-    def __call__(self, dtype_or_type: Any) -> DataType:
-        return String()
 
 
 class PatternLoader:
@@ -79,13 +63,18 @@ def has_patterns(text):
         index = (
             text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
         )
-        for group in regex_groups:
-            for expression in group["expressions"]:
-                for input in text[index]:
+        for input in text[index]:
+            matched = None
+            for group in regex_groups:
+                for expression in group["expressions"]:
                     if expression.search(input):
-                        result.append(group["name"])
-                    else:
-                        result.append(None)
+                        matched = matched or group["name"]
+                        break
+                if matched is not None:
+                    break
+
+            result.append(matched)
+
     return result
 
 

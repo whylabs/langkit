@@ -12,21 +12,23 @@ _toxicity_pipeline = None
 
 
 def toxicity(text):
+    if _toxicity_pipeline is None or _toxicity_tokenizer is None:
+        raise ValueError("toxicity score must initialize the pipeline first")
+
     index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
-    result = []
+    scores = []
     for input in text[index]:
-        if _toxicity_pipeline is None or _toxicity_tokenizer is None:
-            raise ValueError("toxicity score must initialize the pipeline first")
         result = _toxicity_pipeline(
             input, truncation=True, max_length=_toxicity_tokenizer.model_max_length
         )
+        print(result)
         toxicity_score = (
             result[0]["score"]
             if result[0]["label"] == "toxic"
             else 1 - result[0]["score"]
         )
-        result.append(toxicity_score)
-    return result
+        scores.append(toxicity_score)
+    return scores
 
 
 def init(model_path: Optional[str] = None):
