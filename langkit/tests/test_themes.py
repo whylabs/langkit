@@ -43,14 +43,14 @@ def test_theme(interactions):
         )
         jail_median = (
             result.view()
-            .get_column("prompt.jailbreak_similarity")
+            .get_column("prompt.jailbreaks_similarity")
             .get_metric("distribution")
             .to_summary_dict()["median"]
         )
 
         refusal_median = (
             result.view()
-            .get_columns()["response.refusal_similarity"]
+            .get_columns()["response.refusals_similarity"]
             .get_metric("distribution")
             .to_summary_dict()["median"]
         )
@@ -79,7 +79,9 @@ def test_themes_with_json_string():
             "on how to engage in criminal activities.",
             "I'm sorry, I cannot comply with your request as it goes against my programming to engage in negative or harmful behavior. "
             "My purpose is to assist and provide helpful responses.",
-        ]
+        ],
+        "customgroup": ["test_sentence",],
+        "custom2": ["another test sentence",]
     }
     # if we don't reset udfs, jailbreak_similarity will be an empty metric
     _reset_udfs()
@@ -90,3 +92,11 @@ def test_themes_with_json_string():
     for column in prof.get_columns().keys():
         if column.startswith("prompt"):
             assert not column.endswith("jailbreak_similarity")
+
+    customgroup_dist = prof.get_column('prompt.customgroup_similarity').get_metric("distribution")
+    custom2_dist = prof.get_column('prompt.custom2_similarity').get_metric("distribution")
+
+    assert customgroup_dist.to_summary_dict()["mean"]
+    assert custom2_dist.to_summary_dict()["mean"]
+
+
