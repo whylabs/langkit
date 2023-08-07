@@ -21,7 +21,6 @@ def toxicity(text):
         result = _toxicity_pipeline(
             input, truncation=True, max_length=_toxicity_tokenizer.model_max_length
         )
-        print(result)
         toxicity_score = (
             result[0]["score"]
             if result[0]["label"] == "toxic"
