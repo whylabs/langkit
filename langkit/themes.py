@@ -21,11 +21,14 @@ _jailbreak_embeddings = None
 _refusal_embeddings = None
 _embeddings_map = {}
 
+
 def create_similarity_function(group):
     def group_similarity(text):
         if _transformer_model is None:
             raise ValueError("Must initialize a transformer before calling encode!")
-        index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+        index = (
+            text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+        )
         result = []
         for input in text[index]:
             similarities = []
@@ -35,7 +38,9 @@ def create_similarity_function(group):
                 similarities.append(similarity)
             result.append(max(similarities) if similarities else None)
         return result
+
     return group_similarity
+
 
 def _map_embeddings():
     global _embeddings_map
@@ -44,6 +49,7 @@ def _map_embeddings():
             _transformer_model.encode(s, convert_to_tensor=True)
             for s in _theme_groups.get(group, [])
         ]
+
 
 def register_theme_udfs():
     global _jailbreak_embeddings
@@ -56,6 +62,7 @@ def register_theme_udfs():
             register_dataset_udf([column], udf_name=f"{column}.{group}_similarity")(
                 create_similarity_function(group)
             )
+
 
 def load_themes(json_path: str, encoding="utf-8"):
     try:
