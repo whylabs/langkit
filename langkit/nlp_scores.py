@@ -36,7 +36,7 @@ def register_score_udfs():
 
                 @register_dataset_udf(
                     [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.rouge_socre",
+                    udf_name=f"{lang_config.response_column}.rouge_score",
                 )
                 def rouge_score(text):
                     result = []
