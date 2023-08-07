@@ -19,7 +19,7 @@ def register_score_udfs():
 
                 @register_dataset_udf(
                     [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.bleu_socre",
+                    udf_name=f"{lang_config.response_column}.bleu_score",
                 )
                 def bleu_score(text):
                     result = []
