@@ -55,7 +55,7 @@ def register_score_udfs():
 
                 @register_dataset_udf(
                     [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.meteor_socre",
+                    udf_name=f"{lang_config.response_column}.meteor_score",
                 )
                 def meteor_score(text):
                     result = []
