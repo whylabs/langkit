@@ -16,6 +16,8 @@ diagnostic_logger = getLogger(__name__)
 _transformer_model = None
 _theme_groups = None
 lang_config = LangKitConfig()
+_prompt = lang_config.prompt_column
+_response = lang_config.response_column
 
 _jailbreak_embeddings = None
 _refusal_embeddings = None
@@ -65,18 +67,16 @@ def register_theme_udfs():
     ]
 
     if "jailbreaks" in _theme_groups:
-        for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf([column], udf_name=f"{column}.jailbreak_similarity")(
-                jailbreak_similarity
-            )
+        register_dataset_udf([_prompt], udf_name=f"{_prompt}.jailbreak_similarity")(
+            jailbreak_similarity
+        )
     else:
         diagnostic_logger.info("No jailbreaks found in theme groups file")
 
     if "refusals" in _theme_groups:
-        for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf([column], udf_name=f"{column}.refusal_similarity")(
-                refusal_similarity
-            )
+        register_dataset_udf([_response], udf_name=f"{_response}.refusal_similarity")(
+            refusal_similarity
+        )
     else:
         diagnostic_logger.info("No refusals found in theme groups file")
 
