@@ -7,6 +7,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 @pytest.mark.load
 def test_sentiment():
     import langkit.sentiment
+
     langkit.sentiment.init()
     df = pd.DataFrame(
         {
