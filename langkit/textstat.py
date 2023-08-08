@@ -12,8 +12,8 @@ diagnostic_logger = getLogger(__name__)
 
 # score metrics
 
-# (stat name, schema name)
-_udfs_to_register: List[Tuple[str, str]] = [
+# (stat name, schema name[, udf name])
+_udfs_to_register: List[Union[Tuple[str, str], Tuple[str, str, str]]] = [
     ("flesch_kincaid_grade", "text_standard_component"),
     ("flesch_reading_ease", ""),
     ("smog_index", "text_standard_component"),
@@ -22,7 +22,7 @@ _udfs_to_register: List[Tuple[str, str]] = [
     ("dale_chall_readability_score", "text_standard_component"),
     ("linsear_write_formula", "text_standard_component"),
     ("gunning_fog", "text_standard_component"),
-    ("text_standard", ""),
+    ("text_standard", "", "aggregate_reading_level"),
     ("fernandez_huerta", "es"),
     ("szigriszt_pazos", "es"),
     ("gutierrez_polini", "es"),
@@ -33,10 +33,10 @@ _udfs_to_register: List[Tuple[str, str]] = [
     ("syllable_count", ""),
     ("lexicon_count", ""),
     ("sentence_count", ""),
-    ("char_count", ""),
+    ("char_count", "", "character_count"),
     ("letter_count", ""),
-    ("polysyllabcount", ""),
-    ("monosyllabcount", ""),
+    ("polysyllabcount", "", "polysyllable_count"),
+    ("monosyllabcount", "", "monosyllable_count"),
     ("difficult_words", ""),
 ]
 
@@ -60,11 +60,16 @@ def wrapper(
 
 def init():
     diagnostic_logger.info("Initialized textstat metrics.")
-    for udf, schema_name in _udfs_to_register:
+
+    def unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, str]:
+        return t if len(t) == 3 else (t[0], t[1], t[0])
+
+    for t in _udfs_to_register:
+        stat_name, schema_name, udf = unpack(t)
         for column in [lang_config.prompt_column, lang_config.response_column]:
             register_dataset_udf(
                 [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-            )(wrapper(udf))
+            )(wrapper(stat_name))
 
 
 init()

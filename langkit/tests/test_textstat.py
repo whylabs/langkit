@@ -4,6 +4,13 @@ import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 
 
+def _unpack(tuples):
+    return [
+        (t[2], t[1]) if len(t) == 3 else (t[0], t[1])
+        for t in tuples
+    ]
+
+
 def test_textstat():
     df = pd.DataFrame(
         {
@@ -19,11 +26,12 @@ def test_textstat():
             ],
         }
     )
-    schema_names = set([s for _, s in ts._udfs_to_register])
+    udf_list = _unpack(ts._udfs_to_register)
+    schema_names = set([s for _, s in udf_list])
     for schema_name in schema_names:
         schema = udf_schema(schema_name=schema_name)
         view = why.log(df, schema=schema).view()
-        for stat, stat_schema in ts._udfs_to_register:
+        for stat, stat_schema in udf_list:
             for column in ["prompt", "response"]:
                 if stat_schema in {"", schema_name}:
                     dist = (
