@@ -25,7 +25,7 @@ def prompt_sentiment(text):
 
 
 @register_dataset_udf([_response], udf_name=f"{_response}.sentiment_nltk")
-def prompt_response(text):
+def response_sentiment(text):
     return [sentiment_nltk(t) for t in text[_response]]
 
 
