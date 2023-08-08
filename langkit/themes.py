@@ -4,7 +4,6 @@ from typing import Optional
 
 from sentence_transformers import util
 from torch import Tensor
-from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
@@ -26,9 +25,8 @@ _refusal_embeddings = None
 def jailbreak_similarity(text):
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
-    index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
     result = []
-    for input in text[index]:
+    for input in text[_prompt]:
         similarities = []
         text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
         for embedding in _jailbreak_embeddings:
@@ -41,9 +39,8 @@ def jailbreak_similarity(text):
 def refusal_similarity(text):
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
-    index = text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
     result = []
-    for input in text[index]:
+    for input in text[_response]:
         similarities = []
         text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
         for embedding in _refusal_embeddings:

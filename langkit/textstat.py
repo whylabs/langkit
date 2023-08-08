@@ -42,18 +42,12 @@ _udfs_to_register: List[Union[Tuple[str, str], Tuple[str, str, str]]] = [
 
 
 def wrapper(
-    stat_name: str,
+    stat_name: str, column: str
 ) -> Callable[[Union[pd.DataFrame, Dict[str, List]]], Union[pd.Series, List]]:
     stat = textstat.textstat.__getattribute__(stat_name)
 
     def wrappee(text: Union[pd.DataFrame, Dict[str, List]]) -> Union[pd.Series, List]:
-        result = []
-        index = (
-            text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
-        )
-        for input in text[index]:
-            result.append(stat(input))
-        return result
+        return [stat(input) for input in text[column]]
 
     return wrappee
 
@@ -69,7 +63,7 @@ def init():
         for column in [lang_config.prompt_column, lang_config.response_column]:
             register_dataset_udf(
                 [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-            )(wrapper(stat_name))
+            )(wrapper(stat_name, column))
 
 
 init()
