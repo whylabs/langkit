@@ -5,10 +5,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 
 
 def _unpack(tuples):
-    return [
-        (t[2], t[1]) if len(t) == 3 else (t[0], t[1])
-        for t in tuples
-    ]
+    return [(t[2], t[1]) if len(t) == 3 else (t[0], t[1]) for t in tuples]
 
 
 def test_textstat():

@@ -5,6 +5,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 
 
 def test_sentiment():
+    langkit.sentiment.init()
     df = pd.DataFrame(
         {
             "prompt": [

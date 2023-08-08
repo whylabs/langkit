@@ -62,7 +62,7 @@ def init():
     diagnostic_logger.info("Initialized textstat metrics.")
 
     def unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, str]:
-        return t if len(t) == 3 else (t[0], t[1], t[0])
+        return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
 
     for t in _udfs_to_register:
         stat_name, schema_name, udf = unpack(t)

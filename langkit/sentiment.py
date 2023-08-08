@@ -1,6 +1,5 @@
 from typing import Optional
 
-from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
 
@@ -26,7 +25,7 @@ def prompt_sentiment(text):
 
 
 @register_dataset_udf([_response], udf_name=f"{_response}.sentiment_nltk")
-def prompt_sentiment(text):
+def prompt_response(text):
     return [sentiment_nltk(t) for t in text[_response]]
 
 
