@@ -2,27 +2,14 @@ import json
 import re
 from logging import getLogger
 
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
-from whylogs.core.datatypes import TypeMapper, DataType, String
-from typing import Any, List, Optional, Type
+from whylogs.core.metrics.metrics import FrequentItemsMetric
+from whylogs.core.resolvers import MetricSpec
+from whylogs.core.stubs import pd
+from typing import Optional
 
 diagnostic_logger = getLogger(__name__)
-
-
-class AllString(TypeMapper):
-    """Map a dtype (Pandas) or a Python type to a data type."""
-
-    def __init__(self, custom_types: Optional[List[Type[DataType]]] = None):
-        """
-
-        Args:
-            custom_types: List of additional DataType classes that you want to extend.
-        """
-        pass
-
-    def __call__(self, dtype_or_type: Any) -> DataType:
-        return String()
 
 
 class PatternLoader:
@@ -69,18 +56,26 @@ class PatternLoader:
 pattern_loader = PatternLoader()
 
 
-def has_patterns(text: str) -> Optional[str]:
+def has_patterns(text):
     regex_groups = pattern_loader.get_regex_groups()
+    result = []
     if regex_groups:
-        for group in regex_groups:
-            for expression in group["expressions"]:
-                if expression.search(text):
-                    return group["name"]
-    return None
+        index = (
+            text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
+        )
+        for input in text[index]:
+            matched = None
+            for group in regex_groups:
+                for expression in group["expressions"]:
+                    if expression.search(input):
+                        matched = matched or group["name"]
+                        break
+                if matched is not None:
+                    break
 
+            result.append(matched)
 
-if pattern_loader.get_regex_groups() is not None:
-    register_metric_udf(col_type=String, type_mapper=AllString())(has_patterns)
+    return result
 
 
 def init(
@@ -95,3 +90,11 @@ def init(
     else:
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
+
+    if pattern_loader.get_regex_groups() is not None:
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf(
+                [column],
+                udf_name=f"{column}.has_patterns",
+                metrics=[MetricSpec(FrequentItemsMetric)],
+            )(has_patterns)
