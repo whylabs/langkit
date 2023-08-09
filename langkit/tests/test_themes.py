@@ -70,7 +70,7 @@ def test_themes_with_json_string():
     import whylogs as why
 
     refusals_json = {
-        "refusals": [
+        "refusal": [
             "I'm very sorry, but I cannot provide information or assistance on  ."
             " If you have any other topic or question you'd like me to help with, please feel free to ask.",
             "Sorry, but I can't assist with that",
@@ -106,3 +106,10 @@ def test_themes_with_json_string():
 
     assert customgroup_dist.to_summary_dict()["mean"]
     assert custom2_dist.to_summary_dict()["mean"]
+
+@pytest.mark.load
+def test_themes_standalone():
+    from langkit.themes import group_similarity
+
+    score = group_similarity("Sorry, but I can't assist with that", "refusal")
+    assert score == 1.0
