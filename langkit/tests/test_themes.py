@@ -17,7 +17,7 @@ def interactions():
         },
         {
             "prompt": "What are your favorite colors?",
-            "response": "I love blue, red, and yellow.",
+            "response": "I love blue, green, and yellow.",
         },
     ]
     return interactions_list
@@ -70,7 +70,7 @@ def test_themes_with_json_string():
     import whylogs as why
 
     refusals_json = {
-        "refusals": [
+        "refusal": [
             "I'm very sorry, but I cannot provide information or assistance on  ."
             " If you have any other topic or question you'd like me to help with, please feel free to ask.",
             "Sorry, but I can't assist with that",
@@ -79,7 +79,13 @@ def test_themes_with_json_string():
             "on how to engage in criminal activities.",
             "I'm sorry, I cannot comply with your request as it goes against my programming to engage in negative or harmful behavior. "
             "My purpose is to assist and provide helpful responses.",
-        ]
+        ],
+        "customgroup": [
+            "test_sentence",
+        ],
+        "custom2": [
+            "another test sentence",
+        ],
     }
     # if we don't reset udfs, jailbreak_similarity will be an empty metric
     _reset_udfs()
@@ -90,3 +96,21 @@ def test_themes_with_json_string():
     for column in prof.get_columns().keys():
         if column.startswith("prompt"):
             assert not column.endswith("jailbreak_similarity")
+
+    customgroup_dist = prof.get_column("prompt.customgroup_similarity").get_metric(
+        "distribution"
+    )
+    custom2_dist = prof.get_column("prompt.custom2_similarity").get_metric(
+        "distribution"
+    )
+
+    assert customgroup_dist.to_summary_dict()["mean"]
+    assert custom2_dist.to_summary_dict()["mean"]
+
+
+@pytest.mark.load
+def test_themes_standalone():
+    from langkit.themes import group_similarity
+
+    score = group_similarity("Sorry, but I can't assist with that", "refusal")
+    assert score == 1.0

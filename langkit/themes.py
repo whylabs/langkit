@@ -1,6 +1,6 @@
 import json
 from logging import getLogger
-from typing import Optional
+from typing import Optional, Dict, List
 
 from sentence_transformers import util
 from torch import Tensor
@@ -18,64 +18,53 @@ lang_config = LangKitConfig()
 _prompt = lang_config.prompt_column
 _response = lang_config.response_column
 
-_jailbreak_embeddings = None
-_refusal_embeddings = None
+_embeddings_map: Dict[str, List] = {}
 
 
-def jailbreak_similarity(text):
+def create_similarity_function(group: str, column: str):
+    def similarity_by_group(text):
+        result = []
+        for input in text[column]:
+            score = group_similarity(input, group)
+            result.append(score)
+        return result
+
+    return similarity_by_group
+
+
+def group_similarity(text: str, group):
+    similarities: List[float] = []
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
-    result = []
-    for input in text[_prompt]:
-        similarities = []
-        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
-        for embedding in _jailbreak_embeddings:
-            similarity = get_embeddings_similarity(text_embedding, embedding)
-            similarities.append(similarity)
-        result.append(max(similarities) if similarities else None)
-    return result
+
+    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
+    for embedding in _embeddings_map.get(group, []):
+        similarity = get_embeddings_similarity(text_embedding, embedding)
+        similarities.append(similarity)
+    return max(similarities) if similarities else None
 
 
-def refusal_similarity(text):
-    if _transformer_model is None:
-        raise ValueError("Must initialize a transformer before calling encode!")
-    result = []
-    for input in text[_response]:
-        similarities = []
-        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
-        for embedding in _refusal_embeddings:
-            similarity = get_embeddings_similarity(text_embedding, embedding)
-            similarities.append(similarity)
-        result.append(max(similarities) if similarities else None)
-    return result
+def _map_embeddings():
+    global _embeddings_map
+    for group in _theme_groups:
+        _embeddings_map[group] = [
+            _transformer_model.encode(s, convert_to_tensor=True)
+            for s in _theme_groups.get(group, [])
+        ]
 
 
 def register_theme_udfs():
-    global _jailbreak_embeddings
-    global _refusal_embeddings
+    _map_embeddings()
 
-    _jailbreak_embeddings = [
-        _transformer_model.encode(s, convert_to_tensor=True)
-        for s in _theme_groups.get("jailbreaks", [])
-    ]
-    _refusal_embeddings = [
-        _transformer_model.encode(s, convert_to_tensor=True)
-        for s in _theme_groups.get("refusals", [])
-    ]
-
-    if "jailbreaks" in _theme_groups:
-        register_dataset_udf([_prompt], udf_name=f"{_prompt}.jailbreak_similarity")(
-            jailbreak_similarity
-        )
-    else:
-        diagnostic_logger.info("No jailbreaks found in theme groups file")
-
-    if "refusals" in _theme_groups:
-        register_dataset_udf([_response], udf_name=f"{_response}.refusal_similarity")(
-            refusal_similarity
-        )
-    else:
-        diagnostic_logger.info("No refusals found in theme groups file")
+    for group in _theme_groups:
+        for column in [_prompt, _response]:
+            if group == "jailbreak" and column == _response:
+                continue
+            if group == "refusal" and column == _prompt:
+                continue
+            register_dataset_udf([column], udf_name=f"{column}.{group}_similarity")(
+                create_similarity_function(group, column)
+            )
 
 
 def load_themes(json_path: str, encoding="utf-8"):
