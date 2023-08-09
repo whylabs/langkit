@@ -1,15 +1,22 @@
 from dataclasses import dataclass, field
 
-import pkg_resources
+import importlib.resources as resources
+
+
+def _resource_filename(file_name):
+    with resources.path(__package__, file_name) as path:
+        return str(path)
 
 
 @dataclass
 class LangKitConfig:
-    pattern_file_path: str = pkg_resources.resource_filename(
-        __name__, "pattern_groups.json"
+    pattern_file_path: str = field(
+        default_factory=lambda: _resource_filename("pattern_groups.json")
+    )
+    theme_file_path: str = field(
+        default_factory=lambda: _resource_filename("themes.json")
     )
     transformer_name: str = "sentence-transformers/all-MiniLM-L6-v2"
-    theme_file_path: str = pkg_resources.resource_filename(__name__, "themes.json")
     prompt_column: str = "prompt"
     response_column: str = "response"
     topics: list = field(
@@ -45,3 +52,5 @@ def package_version(package: str = __package__) -> str:
 
 
 __version__ = package_version()
+
+__ALL__ = [__version__, LangKitConfig]
