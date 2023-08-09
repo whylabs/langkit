@@ -1,4 +1,4 @@
-from whylogs.experimental.core.metrics.udf_metric import register_metric_udf
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 import evaluate
 from . import LangKitConfig
 from logging import getLogger
@@ -17,31 +17,55 @@ def register_score_udfs():
             if "bleu" in score:
                 bleu = evaluate.load("bleu")
 
-                @register_metric_udf(col_name=lang_config.response_column)
-                def bleu_score(text: str) -> float:
-                    return bleu.compute(predictions=[text], references=[_corpus])[
-                        "bleu"
-                    ]
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.bleu_score",
+                )
+                def bleu_score(text):
+                    result = []
+                    for response in text[lang_config.response_column]:
+                        result.append(
+                            bleu.compute(predictions=[response], references=[_corpus])[
+                                "bleu"
+                            ]
+                        )
+                    return result
 
             if "rouge" in score:
                 rouge = evaluate.load("rouge")
 
-                @register_metric_udf(col_name=lang_config.response_column)
-                def rouge_score(text: str) -> float:
-                    return rouge.compute(
-                        predictions=[text],
-                        references=[_corpus],
-                        rouge_types=[_rouge_type],
-                    )[_rouge_type]
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.rouge_score",
+                )
+                def rouge_score(text):
+                    result = []
+                    for response in text[lang_config.response_column]:
+                        result.append(
+                            rouge.compute(
+                                predictions=[text],
+                                references=[_corpus],
+                                rouge_types=[_rouge_type],
+                            )[_rouge_type]
+                        )
+                    return result
 
             if "meteor" in score:
                 meteor = evaluate.load("meteor")
 
-                @register_metric_udf(col_name=lang_config.response_column)
-                def meteor_score(text: str) -> float:
-                    return meteor.compute(predictions=[text], references=[_corpus])[
-                        "meteor"
-                    ]
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.meteor_score",
+                )
+                def meteor_score(text):
+                    result = []
+                    for response in text[lang_config.response_column]:
+                        result.append(
+                            meteor.compute(predictions=[text], references=[_corpus])[
+                                "meteor"
+                            ]
+                        )
+                    return result
 
     else:
         diagnostic_logger.warning(

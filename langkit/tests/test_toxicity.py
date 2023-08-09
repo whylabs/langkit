@@ -9,13 +9,13 @@ def test_toxicity():
 
     text_schema = udf_schema()
     profile = why.log(
-        {"input": "I like you. I love you."}, schema=text_schema
+        {"prompt": "I like you. I love you."}, schema=text_schema
     ).profile()
     mean_score = (
         profile.view()
-        .get_column("input")
-        .get_metrics()[-1]
-        .to_summary_dict()["toxicity:distribution/mean"]
+        .get_column("prompt.toxicity")
+        .get_metric("distribution")
+        .to_summary_dict()["mean"]
     )
     assert mean_score < 0.1
 
