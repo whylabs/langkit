@@ -107,6 +107,7 @@ def test_themes_with_json_string():
     assert customgroup_dist.to_summary_dict()["mean"]
     assert custom2_dist.to_summary_dict()["mean"]
 
+
 @pytest.mark.load
 def test_themes_standalone():
     from langkit.themes import group_similarity
