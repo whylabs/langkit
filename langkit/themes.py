@@ -16,6 +16,8 @@ diagnostic_logger = getLogger(__name__)
 _transformer_model = None
 _theme_groups = None
 lang_config = LangKitConfig()
+_prompt = lang_config.prompt_column
+_response = lang_config.response_column
 
 _jailbreak_embeddings = None
 _refusal_embeddings = None
@@ -51,6 +53,34 @@ def _map_embeddings():
         ]
 
 
+def jailbreak_similarity(text):
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    result = []
+    for input in text[_prompt]:
+        similarities = []
+        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
+        for embedding in _jailbreak_embeddings:
+            similarity = get_embeddings_similarity(text_embedding, embedding)
+            similarities.append(similarity)
+        result.append(max(similarities) if similarities else None)
+    return result
+
+
+def refusal_similarity(text):
+    if _transformer_model is None:
+        raise ValueError("Must initialize a transformer before calling encode!")
+    result = []
+    for input in text[_response]:
+        similarities = []
+        text_embedding = _transformer_model.encode(input, convert_to_tensor=True)
+        for embedding in _refusal_embeddings:
+            similarity = get_embeddings_similarity(text_embedding, embedding)
+            similarities.append(similarity)
+        result.append(max(similarities) if similarities else None)
+    return result
+
+
 def register_theme_udfs():
     global _jailbreak_embeddings
     global _refusal_embeddings
@@ -58,11 +88,14 @@ def register_theme_udfs():
     _map_embeddings()
 
     for group in _theme_groups:
-        for column in [lang_config.prompt_column, lang_config.response_column]:
+        for column in [_prompt, _response]:
+            if group == "jailbreak" and column == _prompt:
+                continue
+            if group == "refusal" and column == _response:
+                continue
             register_dataset_udf([column], udf_name=f"{column}.{group}_similarity")(
                 create_similarity_function(group)
             )
-
 
 def load_themes(json_path: str, encoding="utf-8"):
     try:

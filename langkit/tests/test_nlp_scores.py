@@ -16,7 +16,7 @@ def test_bleu_score():
     ).profile()
     max_score = (
         profile.view()
-        .get_column("bleu_score")
+        .get_column("response.bleu_score")
         .get_metric("distribution")
         .to_summary_dict()["max"]
     )

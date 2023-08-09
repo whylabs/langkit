@@ -17,7 +17,10 @@ def register_score_udfs():
             if "bleu" in score:
                 bleu = evaluate.load("bleu")
 
-                @register_dataset_udf([lang_config.response_column])
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.bleu_score",
+                )
                 def bleu_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
@@ -31,7 +34,10 @@ def register_score_udfs():
             if "rouge" in score:
                 rouge = evaluate.load("rouge")
 
-                @register_dataset_udf([lang_config.response_column])
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.rouge_score",
+                )
                 def rouge_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
@@ -47,7 +53,10 @@ def register_score_udfs():
             if "meteor" in score:
                 meteor = evaluate.load("meteor")
 
-                @register_dataset_udf([lang_config.response_column])
+                @register_dataset_udf(
+                    [lang_config.response_column],
+                    udf_name=f"{lang_config.response_column}.meteor_score",
+                )
                 def meteor_score(text):
                     result = []
                     for response in text[lang_config.response_column]:
