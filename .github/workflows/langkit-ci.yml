@@ -9,7 +9,7 @@ on:
 
 jobs:
   python-ci:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
@@ -17,20 +17,29 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: 1.4.1
-      - name: Set up python with poetry cache
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
-          cache: poetry
-      - run: echo 'python ${{ matrix.python-version }} poetry cache hit ${{ steps.setup-python.outputs.cache-hit }}'
-
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.0.0
+        with:
+          poetry-version: 1.5.1
+      - uses: actions/cache@v3
+        id: poetry-cache
+        name: Cache dependencies based on poetry.lock file
+        with:
+          path: ./.venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: check poetry env
+        run: poetry env info
       - name: Install dependencies
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
         run: poetry install
+      - name: Log cache hit
+        if: steps.poetry-cache.outputs.cache-hit == 'true'
+        run: echo 'poetry cache hit, skipping poetry install'
       - name: Configure whylogs
         run: mkdir ~/.whylogs && echo \"\" >> ~/.whylogs/disable_telemetry
       - name: Run pre-commit checks
