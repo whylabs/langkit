@@ -26,12 +26,17 @@ jobs:
         with:
           poetry-version: 1.5.1
       - uses: actions/cache@v3
+        id: poetry-cache
         name: Cache dependencies based on poetry.lock file
         with:
           path: ./.venv
-          key: venv-${{ hashFiles('poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Install dependencies
+        if: steps.poetry-cache.outputs.cache-hit != 'true'
         run: poetry install
+      - name: Log cache hit
+        if: steps.poetry-cache.outputs.cache-hit == 'true'
+        run: echo 'poetry cache hit, skipping poetry install'
       - name: Configure whylogs
         run: mkdir ~/.whylogs && echo \"\" >> ~/.whylogs/disable_telemetry
       - name: Run pre-commit checks
