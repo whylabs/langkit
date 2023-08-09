@@ -17,7 +17,7 @@ def interactions():
         },
         {
             "prompt": "What are your favorite colors?",
-            "response": "I love blue, red, and yellow.",
+            "response": "I love blue, green, and yellow.",
         },
     ]
     return interactions_list
