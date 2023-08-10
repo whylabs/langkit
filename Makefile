@@ -3,7 +3,6 @@
 
 install:
 	poetry install -E all
-	poetry run pip3 install torch torchvision torchaudio
 
 test:
 	poetry run pytest langkit/tests
