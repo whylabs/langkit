@@ -13,7 +13,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.4.1
+          poetry-version: 1.5.1
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -51,7 +51,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.4.1
+          poetry-version: 1.5.1
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -75,7 +75,7 @@ jobs:
           committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           signoff: false
-          branch: update_release_version
+          branch: update_release_version_${{ env.VERSION }}
           base: main
           delete-branch: true
           title: "Bump version to ${{ env.VERSION }}"
