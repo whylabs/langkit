@@ -113,4 +113,4 @@ def test_themes_standalone():
     from langkit.themes import group_similarity
 
     score = group_similarity("Sorry, but I can't assist with that", "refusal")
-    assert score == 1.0
+    assert score == pytest.approx(1.0)
