@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import lang_config, prompt_column
+from . import prompt_column
 
 _prompt = prompt_column
 

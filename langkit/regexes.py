@@ -97,16 +97,15 @@ def _register_udfs():
 
 
 def init(
-    pattern_file_path: Optional[str] = None, lang_config: Optional[LangKitConfig] = None
+    pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
 ):
-    if lang_config is None:
-        lang_config = LangKitConfig()
+    config = config or lang_config
     if pattern_file_path:
-        pattern_file_path = pattern_file_path
-        pattern_loader.set_config(lang_config)
+        config.pattern_file_path = pattern_file_path
+        pattern_loader.set_config(config)
         pattern_loader.update_patterns()
     else:
-        pattern_loader.set_config(lang_config)
+        pattern_loader.set_config(config)
         pattern_loader.update_patterns()
 
     _register_udfs()

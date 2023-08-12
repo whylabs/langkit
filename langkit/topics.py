@@ -4,7 +4,7 @@ from typing import List, Optional
 from transformers import (
     pipeline,
 )
-from . import lang_config
+from . import lang_config, prompt_column, response_column
 
 
 _topics = lang_config.topics
@@ -26,7 +26,7 @@ def init(topics: Optional[List] = None):
     global _topics
     if topics:
         _topics = topics
-    for column in [lang_config.prompt_column, lang_config.response_column]:
+    for column in [prompt_column, response_column]:
         register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
             closest_topic
         )

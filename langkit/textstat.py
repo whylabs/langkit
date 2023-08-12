@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Tuple, Union
 import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import lang_config, prompt_column, response_column
+from . import prompt_column, response_column
 
 
 diagnostic_logger = getLogger(__name__)
