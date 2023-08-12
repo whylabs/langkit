@@ -1,9 +1,9 @@
 from typing import Optional
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
+from . import lang_config
 
-lang_config = LangKitConfig()
+
 _prompt = lang_config.prompt_column
 _response = lang_config.response_column
 

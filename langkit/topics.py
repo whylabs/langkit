@@ -4,9 +4,9 @@ from typing import List, Optional
 from transformers import (
     pipeline,
 )
-from . import LangKitConfig
+from . import lang_config
 
-lang_config = LangKitConfig()
+
 _topics = lang_config.topics
 
 model_path = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
