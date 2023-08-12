@@ -86,8 +86,8 @@ def _register_udfs():
     if _registered:
         return
 
-    _registered = True
     if pattern_loader.get_regex_groups() is not None:
+        _registered = True
         for column in [lang_config.prompt_column, lang_config.response_column]:
             register_dataset_udf(
                 [column],
