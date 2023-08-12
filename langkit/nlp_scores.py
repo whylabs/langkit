@@ -1,6 +1,6 @@
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 import evaluate
-from . import lang_config
+from . import lang_config, response_column
 from logging import getLogger
 
 
@@ -26,12 +26,12 @@ def _register_score_udfs():
                 _bleu_registered = True
 
                 @register_dataset_udf(
-                    [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.bleu_score",
+                    [response_column],
+                    udf_name=f"{response_column}.bleu_score",
                 )
                 def bleu_score(text):
                     result = []
-                    for response in text[lang_config.response_column]:
+                    for response in text[response_column]:
                         result.append(
                             bleu.compute(predictions=[response], references=[_corpus])[
                                 "bleu"
@@ -44,12 +44,12 @@ def _register_score_udfs():
                 _rouge_registered = True
 
                 @register_dataset_udf(
-                    [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.rouge_score",
+                    [response_column],
+                    udf_name=f"{response_column}.rouge_score",
                 )
                 def rouge_score(text):
                     result = []
-                    for response in text[lang_config.response_column]:
+                    for response in text[response_column]:
                         result.append(
                             rouge.compute(
                                 predictions=[text],
@@ -64,12 +64,12 @@ def _register_score_udfs():
                 _meteor_registered = True
 
                 @register_dataset_udf(
-                    [lang_config.response_column],
-                    udf_name=f"{lang_config.response_column}.meteor_score",
+                    [response_column],
+                    udf_name=f"{response_column}.meteor_score",
                 )
                 def meteor_score(text):
                     result = []
-                    for response in text[lang_config.response_column]:
+                    for response in text[response_column]:
                         result.append(
                             meteor.compute(predictions=[text], references=[_corpus])[
                                 "meteor"

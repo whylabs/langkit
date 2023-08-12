@@ -3,7 +3,7 @@ import re
 from logging import getLogger
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config
+from . import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from whylogs.core.stubs import pd
@@ -88,7 +88,7 @@ def _register_udfs():
 
     if pattern_loader.get_regex_groups() is not None:
         _registered = True
-        for column in [lang_config.prompt_column, lang_config.response_column]:
+        for column in [prompt_column, response_column]:
             register_dataset_udf(
                 [column],
                 udf_name=f"{column}.has_patterns",
@@ -102,7 +102,7 @@ def init(
     if lang_config is None:
         lang_config = LangKitConfig()
     if pattern_file_path:
-        lang_config.pattern_file_path = pattern_file_path
+        pattern_file_path = pattern_file_path
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
     else:
