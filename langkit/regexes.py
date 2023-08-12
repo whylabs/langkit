@@ -78,6 +78,24 @@ def has_patterns(text):
     return result
 
 
+_registered = False
+
+
+def _register_udfs():
+    global _registered
+    if _registered:
+        return
+
+    _registered = True
+    if pattern_loader.get_regex_groups() is not None:
+        for column in [lang_config.prompt_column, lang_config.response_column]:
+            register_dataset_udf(
+                [column],
+                udf_name=f"{column}.has_patterns",
+                metrics=[MetricSpec(FrequentItemsMetric)],
+            )(has_patterns)
+
+
 def init(
     pattern_file_path: Optional[str] = None, lang_config: Optional[LangKitConfig] = None
 ):
@@ -91,13 +109,7 @@ def init(
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
 
+    _register_udfs()
+    
 
 init()
-
-if pattern_loader.get_regex_groups() is not None:
-    for column in [lang_config.prompt_column, lang_config.response_column]:
-        register_dataset_udf(
-            [column],
-            udf_name=f"{column}.has_patterns",
-            metrics=[MetricSpec(FrequentItemsMetric)],
-        )(has_patterns)
