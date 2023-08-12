@@ -3,9 +3,8 @@ from typing import Callable, Dict, List, Tuple, Union
 import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
+from . import lang_config
 
-lang_config = LangKitConfig()
 
 diagnostic_logger = getLogger(__name__)
 
@@ -53,17 +52,23 @@ def wrapper(
 
 
 def init():
-    diagnostic_logger.info("Initialized textstat metrics.")
-
-    def unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, str]:
-        return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
-
-    for t in _udfs_to_register:
-        stat_name, schema_name, udf = unpack(t)
-        for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf(
-                [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-            )(wrapper(stat_name, column))
+    pass
 
 
 init()
+
+
+def _unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, str]:
+    return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
+
+
+for t in _udfs_to_register:
+    stat_name, schema_name, udf = _unpack(t)
+    for column in [lang_config.prompt_column, lang_config.response_column]:
+        register_dataset_udf(
+            [column], udf_name=f"{column}.{udf}", schema_name=schema_name
+        )(wrapper(stat_name, column))
+
+diagnostic_logger.info("Initialized textstat metrics.")
+
+

@@ -3,7 +3,7 @@ import re
 from logging import getLogger
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
+from . import LangKitConfig, lang_config
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from whylogs.core.stubs import pd
@@ -13,8 +13,8 @@ diagnostic_logger = getLogger(__name__)
 
 
 class PatternLoader:
-    def __init__(self):
-        self.config: LangKitConfig = LangKitConfig()
+    def __init__(self, config: Optional[LangKitConfig] = None):
+        self.config = config or lang_config
         self.regex_groups = self.load_patterns()
 
     def load_patterns(self):
@@ -91,10 +91,13 @@ def init(
         pattern_loader.set_config(lang_config)
         pattern_loader.update_patterns()
 
-    if pattern_loader.get_regex_groups() is not None:
-        for column in [lang_config.prompt_column, lang_config.response_column]:
-            register_dataset_udf(
-                [column],
-                udf_name=f"{column}.has_patterns",
-                metrics=[MetricSpec(FrequentItemsMetric)],
-            )(has_patterns)
+
+init()
+
+if pattern_loader.get_regex_groups() is not None:
+    for column in [lang_config.prompt_column, lang_config.response_column]:
+        register_dataset_udf(
+            [column],
+            udf_name=f"{column}.has_patterns",
+            metrics=[MetricSpec(FrequentItemsMetric)],
+        )(has_patterns)

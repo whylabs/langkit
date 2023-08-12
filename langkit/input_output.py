@@ -6,9 +6,11 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
 
-from . import LangKitConfig
+from . import lang_config
 
-lang_config = LangKitConfig()
+_prompt = lang_config.prompt_column
+_response = lang_config.response_column
+
 _transformer_model = None
 _transformer_name = None
 
@@ -26,7 +28,7 @@ def init(transformer_name: Optional[str] = None):
 init()
 
 
-@register_dataset_udf(["prompt", "response"], "response.relevance_to_prompt")
+@register_dataset_udf([_prompt, _response], f"{_response}.relevance_to_prompt")
 def similarity_MiniLM_L6_v2(text):
     if _transformer_model is None:
         raise ValueError(

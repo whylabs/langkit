@@ -1,9 +1,8 @@
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
+from . import lang_config
 
-lang_config = LangKitConfig()
 _prompt = lang_config.prompt_column
 
 _model_path = "JasperLS/gelectra-base-injection"
