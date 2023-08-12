@@ -110,6 +110,6 @@ def init(
         pattern_loader.update_patterns()
 
     _register_udfs()
-    
+
 
 init()
