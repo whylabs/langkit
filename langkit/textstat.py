@@ -70,5 +70,3 @@ for t in _udfs_to_register:
         )(wrapper(stat_name, column))
 
 diagnostic_logger.info("Initialized textstat metrics.")
-
-
