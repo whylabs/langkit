@@ -53,11 +53,11 @@ def prompt_response_similarity(text):
     for x, y in zip(text["prompt"], text["response"]):
         try:
             if not isinstance(_transformer_model,CustomEncoder):
-                embedding_1 = _transformer_model.encode(x, convert_to_tensor=True)
-                embedding_2 = _transformer_model.encode(y, convert_to_tensor=True)
+                embedding_1 = _transformer_model.encode([x], convert_to_tensor=True)
+                embedding_2 = _transformer_model.encode([y], convert_to_tensor=True)
             else:
-                embedding_1 = _transformer_model.encode(x)
-                embedding_2 = _transformer_model.encode(y)
+                embedding_1 = _transformer_model.encode([x])
+                embedding_2 = _transformer_model.encode([y])
             if tf and isinstance(embedding_1, tf.Tensor) and isinstance(embedding_2,tf.Tensor):
                 embedding_1 = embedding_1.numpy()
                 embedding_2 = embedding_2.numpy()
