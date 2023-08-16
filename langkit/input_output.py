@@ -8,6 +8,11 @@ from langkit.transformer import load_model
 
 from . import LangKitConfig
 
+try:
+    import tensorflow as tf
+except ImportError:
+    tf = None
+
 lang_config = LangKitConfig()
 _transformer_model = None
 _transformer_name = None
@@ -53,11 +58,14 @@ def prompt_response_similarity(text):
             else:
                 embedding_1 = _transformer_model.encode(x)
                 embedding_2 = _transformer_model.encode(y)
+            if tf and isinstance(embedding_1, tf.Tensor) and isinstance(embedding_2,tf.Tensor):
+                embedding_1 = embedding_1.numpy()
+                embedding_2 = embedding_2.numpy()
             similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
             series_result.append(similarity.item())
         except Exception as e:
             diagnostic_logger.warning(
-                f"pandas {text} caused similarity_MiniLM_L6_v2 to encounter error: {e}"
+                f"prompt_response_similarity encountered error {e} for text: {text}"
             )
             series_result.append(None)
     return series_result
