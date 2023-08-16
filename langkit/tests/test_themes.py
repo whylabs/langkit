@@ -2,6 +2,7 @@ import pytest
 import whylogs as why
 from whylogs.core.metrics import MetricConfig
 from whylogs.experimental.core.udf_schema import udf_schema
+from typing import List
 
 
 @pytest.fixture
@@ -21,6 +22,43 @@ def interactions():
         },
     ]
     return interactions_list
+
+
+def test_init_call():
+    from langkit import themes
+
+    with pytest.raises(ValueError):
+        themes.init(
+            transformer_name="sentence-transformers/all-MiniLM-L6-v2",
+            custom_encoder=lambda x: [[0.2, 0.2] for _ in x],
+        )
+
+
+def test_theme_custom(interactions):
+    from langkit import themes
+
+    def embed(texts: List[str]):
+        return [[0.2, 0.2] for _ in texts]
+
+    themes.init(custom_encoder=embed)
+    schema = udf_schema()
+    for i, interaction in enumerate(interactions):
+        result = why.log(interaction, schema=schema)
+        jail_median = (
+            result.view()
+            .get_column("prompt.jailbreak_similarity")
+            .get_metric("distribution")
+            .to_summary_dict()["median"]
+        )
+
+        refusal_median = (
+            result.view()
+            .get_columns()["response.refusal_similarity"]
+            .get_metric("distribution")
+            .to_summary_dict()["median"]
+        )
+        assert jail_median == pytest.approx(1.0)
+        assert refusal_median == pytest.approx(1.0)
 
 
 @pytest.mark.load
