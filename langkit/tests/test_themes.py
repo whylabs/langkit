@@ -23,6 +23,7 @@ def interactions():
     ]
     return interactions_list
 
+
 @pytest.mark.load
 def test_init_call():
     from langkit import themes
@@ -32,6 +33,7 @@ def test_init_call():
             transformer_name="sentence-transformers/all-MiniLM-L6-v2",
             custom_encoder=lambda x: [[0.2, 0.2] for _ in x],
         )
+
 
 @pytest.mark.load
 def test_theme_custom(interactions):
