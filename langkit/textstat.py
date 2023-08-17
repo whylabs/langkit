@@ -66,6 +66,7 @@ _registered = False
 
 
 if not _registered:
+    _registered = True
     for t in _udfs_to_register:
         stat_name, schema_name, udf = _unpack(t)
         for column in [lang_config.prompt_column, lang_config.response_column]:
