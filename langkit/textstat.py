@@ -62,11 +62,16 @@ def _unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, 
     return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
 
 
-for t in _udfs_to_register:
-    stat_name, schema_name, udf = _unpack(t)
-    for column in [prompt_column, response_column]:
-        register_dataset_udf(
-            [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-        )(wrapper(stat_name, column))
+_registered = False
 
-diagnostic_logger.info("Initialized textstat metrics.")
+
+if not _registered:
+    _registered = True
+    for t in _udfs_to_register:
+        stat_name, schema_name, udf = _unpack(t)
+        for column in [prompt_column, response_column]:
+            register_dataset_udf(
+                [column], udf_name=f"{column}.{udf}", schema_name=schema_name
+            )(wrapper(stat_name, column))
+
+    diagnostic_logger.info("Initialized textstat metrics.")
