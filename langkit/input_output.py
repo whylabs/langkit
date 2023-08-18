@@ -6,10 +6,10 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
 
-from . import lang_config
+from . import lang_config, prompt_column, response_column
 
-_prompt = lang_config.prompt_column
-_response = lang_config.response_column
+_prompt = prompt_column
+_response = response_column
 
 _transformer_model = None
 _transformer_name = None

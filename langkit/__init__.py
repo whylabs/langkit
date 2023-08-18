@@ -17,8 +17,6 @@ class LangKitConfig:
         default_factory=lambda: _resource_filename("themes.json")
     )
     transformer_name: str = "sentence-transformers/all-MiniLM-L6-v2"
-    prompt_column: str = "prompt"
-    response_column: str = "response"
     topics: list = field(
         default_factory=lambda: [
             "law",
@@ -39,6 +37,8 @@ class LangKitConfig:
     reference_corpus: str = ""
 
 
+prompt_column: str = "prompt"
+response_column: str = "response"
 lang_config = LangKitConfig()
 
 

@@ -8,14 +8,14 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import load_model
 
-from . import lang_config
+from . import lang_config, prompt_column, response_column
 
 diagnostic_logger = getLogger(__name__)
 
 _transformer_model = None
 _theme_groups = None
-_prompt = lang_config.prompt_column
-_response = lang_config.response_column
+_prompt = prompt_column
+_response = response_column
 
 _embeddings_map: Dict[str, List] = {}
 

@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Tuple, Union
 import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import lang_config
+from . import prompt_column, response_column
 
 
 diagnostic_logger = getLogger(__name__)
@@ -69,7 +69,7 @@ if not _registered:
     _registered = True
     for t in _udfs_to_register:
         stat_name, schema_name, udf = _unpack(t)
-        for column in [lang_config.prompt_column, lang_config.response_column]:
+        for column in [prompt_column, response_column]:
             register_dataset_udf(
                 [column], udf_name=f"{column}.{udf}", schema_name=schema_name
             )(wrapper(stat_name, column))
