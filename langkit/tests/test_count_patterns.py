@@ -49,7 +49,6 @@ user_json = """
 """
 
 
-
 @pytest.mark.parametrize("user_defined_json", [False, True])
 def test_count_patterns(ptt_df, user_defined_json):
     from langkit import count_regexes
@@ -79,4 +78,7 @@ def test_count_patterns(ptt_df, user_defined_json):
         group_names = {"custom_group"}
 
     for group in group_names:
-        assert "distribution" in view.get_column(f"prompt.{group}_count").get_metric_names()
+        assert (
+            "distribution"
+            in view.get_column(f"prompt.{group}_count").get_metric_names()
+        )
