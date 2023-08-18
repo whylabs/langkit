@@ -23,7 +23,9 @@ def test_textstat():
             ],
         }
     )
-    udf_list = _unpack(ts._udfs_to_register)
+    udf_list = _unpack(ts._udfs_to_register) + [
+        ("aggregate_reading_level", ""),
+    ]
     schema_names = set([s for _, s in udf_list])
     for schema_name in schema_names:
         schema = udf_schema(schema_name=schema_name)

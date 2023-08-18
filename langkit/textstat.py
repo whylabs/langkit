@@ -51,6 +51,17 @@ def wrapper(
     return wrappee
 
 
+def aggregate_wrapper(
+    column: str,
+) -> Callable[[Union[pd.DataFrame, Dict[str, List]]], Union[pd.Series, List]]:
+    stat = textstat.textstat.text_standard
+
+    def wrappee(text: Union[pd.DataFrame, Dict[str, List]]) -> Union[pd.Series, List]:
+        return [stat(input, float_output=True) for input in text[column]]
+
+    return wrappee
+
+
 def init():
     pass
 
@@ -73,5 +84,9 @@ if not _registered:
             register_dataset_udf(
                 [column], udf_name=f"{column}.{udf}", schema_name=schema_name
             )(wrapper(stat_name, column))
+    for column in [prompt_column, response_column]:
+        register_dataset_udf([column], udf_name=f"{column}.aggregate_reading_level")(
+            aggregate_wrapper(column)
+        )
 
     diagnostic_logger.info("Initialized textstat metrics.")
