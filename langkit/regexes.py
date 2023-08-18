@@ -1,5 +1,3 @@
-import json
-import re
 from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader

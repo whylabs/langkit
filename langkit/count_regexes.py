@@ -1,12 +1,8 @@
-import json
-import re
 from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig
-from whylogs.core.metrics.metrics import FrequentItemsMetric
-from whylogs.core.resolvers import MetricSpec
 from whylogs.core.stubs import pd
 from typing import Dict, List, Optional, Set, Union
 
@@ -26,7 +22,6 @@ def count_patterns(group, text: str) -> int:
 
 
 def wrapper(pattern_group, column):
-
     def wrappee(text: Union[pd.DataFrame, Dict[str, List]]) -> Union[pd.Series, List]:
         return [count_patterns(pattern_group, input) for input in text[column]]
 
@@ -39,8 +34,11 @@ _registered: Set[str] = set()
 def _unregister():
     # WARNING: UNSUPPORTED HEINOUS EVIL
     from whylogs.experimental.core.udf_schema import _multicolumn_udfs
+
     global _multicolumn_udfs, _registered
-    _multicolumn_udfs[""] = [u for u in _multicolumn_udfs[""] if list(u.udfs.keys())[0] in _registered]
+    _multicolumn_udfs[""] = [
+        u for u in _multicolumn_udfs[""] if list(u.udfs.keys())[0] in _registered
+    ]
     _registered = set()
 
 
