@@ -88,6 +88,6 @@ if not _registered:
     for column in [prompt_column, response_column]:
         register_dataset_udf(
             [column], udf_name=f"{column}.aggregate_reading_level"
-        )(aggregate_wrapper(column)
+        )(aggregate_wrapper(column))
 
     diagnostic_logger.info("Initialized textstat metrics.")
