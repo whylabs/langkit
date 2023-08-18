@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from typing import Optional, Callable, Union, List
+from typing import Optional, Callable, Union, List, Any
 from torch import Tensor
 import numpy as np
 
@@ -7,7 +7,6 @@ try:
     import tensorflow as tf
 except ImportError:
     tf = None
-    tf.Tensor = None
 
 
 class CustomEncoder:
@@ -19,9 +18,7 @@ class Encoder:
     def __init__(
         self,
         transformer_name: Optional[str],
-        custom_encoder: Optional[
-            Callable[[List[str]], Union[List, Tensor, np.ndarray, tf.Tensor]]
-        ],
+        custom_encoder: Optional[Callable[[List[str]], Any]],
     ):
         """
         Args:

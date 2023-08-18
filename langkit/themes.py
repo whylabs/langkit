@@ -110,6 +110,7 @@ def init(
         _theme_groups = load_themes(theme_file_path)
     _register_theme_udfs()
 
+
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")

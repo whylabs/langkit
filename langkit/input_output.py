@@ -10,8 +10,6 @@ _prompt = prompt_column
 _response = response_column
 
 
-
-
 _transformer_model = None
 
 diagnostic_logger = getLogger(__name__)
