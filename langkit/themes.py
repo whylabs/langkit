@@ -1,12 +1,12 @@
 import json
 from logging import getLogger
-from typing import Optional, Dict, List
+from typing import Callable, Optional, Dict, List
 
 from sentence_transformers import util
 from torch import Tensor
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 
-from langkit.transformer import load_model
+from langkit.transformer import Encoder
 
 from . import lang_config, prompt_column, response_column
 
@@ -36,7 +36,7 @@ def group_similarity(text: str, group):
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
 
-    text_embedding = _transformer_model.encode(text, convert_to_tensor=True)
+    text_embedding = _transformer_model.encode(text)
     for embedding in _embeddings_map.get(group, []):
         similarity = get_embeddings_similarity(text_embedding, embedding)
         similarities.append(similarity)
@@ -47,8 +47,7 @@ def _map_embeddings():
     global _embeddings_map
     for group in _theme_groups:
         _embeddings_map[group] = [
-            _transformer_model.encode(s, convert_to_tensor=True)
-            for s in _theme_groups.get(group, [])
+            _transformer_model.encode(s) for s in _theme_groups.get(group, [])
         ]
 
 
@@ -91,13 +90,15 @@ def load_themes(json_path: str, encoding="utf-8"):
 
 def init(
     transformer_name: Optional[str] = None,
+    custom_encoder: Optional[Callable] = None,
     theme_file_path: Optional[str] = None,
     theme_json: Optional[str] = None,
 ):
     global _transformer_model
     global _theme_groups
-    if transformer_name is None:
+    if not transformer_name and not custom_encoder:
         transformer_name = lang_config.transformer_name
+    _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")
     if theme_file_path is None:
@@ -107,15 +108,13 @@ def init(
             _theme_groups = load_themes(lang_config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
-
-    _transformer_model = load_model(transformer_name)
     _register_theme_udfs()
 
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
     if _transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
-    embedding = _transformer_model.encode(text, convert_to_tensor=True)
+    embedding = _transformer_model.encode(text)
     similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
     return similarity.item()
 

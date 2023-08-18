@@ -2,6 +2,7 @@ import pytest
 import whylogs as why
 from whylogs.core.metrics import MetricConfig
 from whylogs.experimental.core.udf_schema import udf_schema
+from typing import List
 
 
 @pytest.fixture
@@ -34,10 +35,44 @@ def texty(d):
 
 
 @pytest.mark.load
+def test_init_call():
+    from langkit import input_output
+
+    with pytest.raises(ValueError):
+        input_output.init(
+            transformer_name="sentence-transformers/all-MiniLM-L6-v2",
+            custom_encoder=lambda x: [[0.2, 0.2] for _ in x],
+        )
+
+
+@pytest.mark.load
+def test_custom_encoder():
+    from langkit import input_output
+
+    def embed(texts: List[str]):
+        return [[0.2, 0.2] for _ in texts]
+
+    interaction = {
+        "prompt": "What?",
+        "response": "blue",
+    }
+    input_output.init(custom_encoder=embed)
+    schema = udf_schema()
+    result = why.log(interaction, schema=schema)
+    dist_metric = (
+        result.view()
+        .get_column("response.relevance_to_prompt")
+        .get_metric("distribution")
+    )
+    assert dist_metric.to_summary_dict()["mean"] == pytest.approx(1.0)
+
+
+@pytest.mark.load
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
     from langkit import input_output as lkio  # noqa
 
+    lkio.init()
     schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
