@@ -2,7 +2,7 @@ import json
 import re
 from logging import getLogger
 
-from . import LangKitConfig
+from . import LangKitConfig, lang_config
 
 
 diagnostic_logger = getLogger(__name__)
@@ -10,7 +10,7 @@ diagnostic_logger = getLogger(__name__)
 
 class PatternLoader:
     def __init__(self):
-        self.config: LangKitConfig = LangKitConfig()
+        self.config: LangKitConfig = lang_config
         self.regex_groups = self.load_patterns()
 
     def load_patterns(self):

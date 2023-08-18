@@ -60,11 +60,9 @@ def init(
     config = config or lang_config
     if pattern_file_path:
         config.pattern_file_path = pattern_file_path
-        pattern_loader.set_config(config)
-        pattern_loader.update_patterns()
-    else:
-        pattern_loader.set_config(config)
-        pattern_loader.update_patterns()
+
+    pattern_loader.set_config(config)
+    pattern_loader.update_patterns()
 
     _register_udfs()
 

@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
+from langkit import LangKitConfig
 
 
 TEST_LOGGER = getLogger(__name__)
@@ -59,9 +60,9 @@ def test_count_patterns(ptt_df, user_defined_json):
             json_path = os.path.join(temp_dir, json_filename)
             with open(json_path, "w") as file:
                 file.write(user_json)
-            count_regexes.init(pattern_file_path=json_path)
+            count_regexes.init(pattern_file_path=json_path, config=LangKitConfig())
     else:
-        count_regexes.init()
+        count_regexes.init(config=LangKitConfig())
 
     result = why.log(ptt_df, schema=udf_schema())
     view = result.view()
