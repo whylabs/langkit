@@ -4,9 +4,9 @@ from typing import List, Optional
 from transformers import (
     pipeline,
 )
-from . import LangKitConfig
+from . import lang_config, prompt_column, response_column
 
-lang_config = LangKitConfig()
+
 _topics = lang_config.topics
 
 model_path = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
@@ -26,7 +26,7 @@ def init(topics: Optional[List] = None):
     global _topics
     if topics:
         _topics = topics
-    for column in [lang_config.prompt_column, lang_config.response_column]:
+    for column in [prompt_column, response_column]:
         register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
             closest_topic
         )

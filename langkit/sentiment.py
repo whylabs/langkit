@@ -1,11 +1,11 @@
 from typing import Optional
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
+from . import prompt_column, response_column
 
-lang_config = LangKitConfig()
-_prompt = lang_config.prompt_column
-_response = lang_config.response_column
+
+_prompt = prompt_column
+_response = response_column
 _lexicon = "vader_lexicon"
 _sentiment_analyzer = None
 _nltk_downloaded = False

@@ -3,11 +3,13 @@ from typing import Callable, Optional
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig
-
+from . import lang_config, prompt_column, response_column
 from langkit.transformer import Encoder
 
-lang_config = LangKitConfig()
+_prompt = prompt_column
+_response = response_column
+
+
 
 
 _transformer_model = None
@@ -27,7 +29,7 @@ def init(
 init()
 
 
-@register_dataset_udf(["prompt", "response"], "response.relevance_to_prompt")
+@register_dataset_udf([_prompt, _response], f"{_response}.relevance_to_{_prompt}")
 def prompt_response_similarity(text):
     global _transformer_model
 

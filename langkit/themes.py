@@ -8,15 +8,14 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import Encoder
 
-from . import LangKitConfig
+from . import lang_config, prompt_column, response_column
 
 diagnostic_logger = getLogger(__name__)
 
 _transformer_model = None
 _theme_groups = None
-lang_config = LangKitConfig()
-_prompt = lang_config.prompt_column
-_response = lang_config.response_column
+_prompt = prompt_column
+_response = response_column
 
 _embeddings_map: Dict[str, List] = {}
 
@@ -52,7 +51,11 @@ def _map_embeddings():
         ]
 
 
-def register_theme_udfs():
+_registered = set()
+
+
+def _register_theme_udfs():
+    global _registered
     _map_embeddings()
 
     for group in _theme_groups:
@@ -61,9 +64,12 @@ def register_theme_udfs():
                 continue
             if group == "refusal" and column == _prompt:
                 continue
-            register_dataset_udf([column], udf_name=f"{column}.{group}_similarity")(
-                create_similarity_function(group, column)
-            )
+            udf_name = f"{column}.{group}_similarity"
+            if udf_name not in _registered:
+                _registered.add(udf_name)
+                register_dataset_udf([column], udf_name=udf_name)(
+                    create_similarity_function(group, column)
+                )
 
 
 def load_themes(json_path: str, encoding="utf-8"):
@@ -102,8 +108,7 @@ def init(
             _theme_groups = load_themes(lang_config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
-    register_theme_udfs()
-
+    _register_theme_udfs()
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
     if _transformer_model is None:
