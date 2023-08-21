@@ -12,10 +12,10 @@ clean:
 	rm -rf ./dist/langkit*.tar.gz
 
 test:
-	poetry run pytest langkit/tests -o log_level=INFO -o log_cli=true
+	poetry run pytest langkit/tests -o log_level=WARN -o log_cli=true
 
 load-test:
-	poetry run pytest langkit/tests --load
+	poetry run pytest langkit/tests -o log_level=WARN -o log_cli=true --load
 
 pre-commit:
 	poetry run pre-commit run --all-files

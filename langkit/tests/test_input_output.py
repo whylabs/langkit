@@ -71,6 +71,13 @@ def test_custom_encoder():
 def test_similarity(interactions):
     # default input col is "prompt" and output col is "response".
     from langkit import input_output as lkio  # noqa
+    from whylogs.experimental.core.udf_schema import logger as uslog
+
+    iolog = lkio.diagnostic_logger
+    old_uslevel = uslog.getEffectiveLevel()
+    old_iolevel = iolog.getEffectiveLevel()
+    uslog.setLevel("CRITICAL")  # intentionally feeding bad input, so be quiet about it
+    iolog.setLevel("CRITICAL")
 
     lkio.init()
     schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
@@ -100,3 +107,6 @@ def test_similarity(interactions):
             )
         else:
             assert column_name not in result.view().get_columns()
+
+    iolog.setLevel(old_iolevel)
+    uslog.setLevel(old_uslevel)
