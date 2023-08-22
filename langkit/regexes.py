@@ -5,7 +5,6 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
-from whylogs.core.stubs import pd
 from typing import Optional
 
 diagnostic_logger = getLogger(__name__)
@@ -16,24 +15,24 @@ pattern_loader = PatternLoader()
 
 def has_patterns(text):
     regex_groups = pattern_loader.get_regex_groups()
-    result = []
     if regex_groups:
-        index = (
-            text.columns[0] if isinstance(text, pd.DataFrame) else list(text.keys())[0]
-        )
-        for input in text[index]:
-            matched = None
-            for group in regex_groups:
-                for expression in group["expressions"]:
-                    if expression.search(input):
-                        matched = matched or group["name"]
-                        break
-                if matched is not None:
+        matched = None
+        for group in regex_groups:
+            for expression in group["expressions"]:
+                if expression.search(text):
+                    matched = matched or group["name"]
                     break
+            if matched is not None:
+                break
 
-            result.append(matched)
+        return matched
 
-    return result
+
+def _wrapper(column):
+    def wrappee(text):
+        return [has_patterns(input) for input in text[column]]
+
+    return wrappee
 
 
 _registered = False
@@ -51,7 +50,7 @@ def _register_udfs():
                 [column],
                 udf_name=f"{column}.has_patterns",
                 metrics=[MetricSpec(FrequentItemsMetric)],
-            )(has_patterns)
+            )(_wrapper(column))
 
 
 def init(
