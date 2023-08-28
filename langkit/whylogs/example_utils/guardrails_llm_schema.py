@@ -20,6 +20,9 @@ from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.validators import ConditionValidator
 from whylogs.core.metrics import MetricConfig
 from typing import TypedDict
+from whylogs.core.segmentation_partition import segment_on_column
+from .guardrails_example_utils import get_prompt, get_response
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 
 class MessageMetadata(TypedDict, total=False):
@@ -34,22 +37,27 @@ moderation_queue: Dict[Any, MessageMetadata] = {}
 
 
 # Toxic Response Validator
-def build_toxic_response_validator():
+def build_toxic_response_validator(threshold=0.8):
     """
     This function builds a validator that checks if the response of a message is toxic or not.
     The validator will trigger the action flag_toxic_response if the condition fails.
 
     """
 
-    def nontoxic_condition(msg) -> bool:
-        score = toxicity.toxicity(msg)
-        return score <= 0.8
+    def nontoxic_condition(score) -> bool:
+        return score <= threshold
 
-    def flag_toxic_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+    def flag_toxic_response(
+        val_name: str, cond_name: str, value: Any, m_id=None
+    ) -> None:
         global moderation_queue
+        # if id is not passed, do nothing
+        if m_id is None:
+            return
         message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
         message_metadata["toxic_response"] = True
-        message_metadata["response"] = value
+        message_metadata["response"] = get_response(m_id)
+        message_metadata["toxicity"] = value
         moderation_queue[m_id] = message_metadata
 
     nontoxic_response_condition = {
@@ -68,21 +76,21 @@ def build_toxic_response_validator():
 # Toxic Prompt Validator
 
 
-def build_toxic_prompt_validator():
+def build_toxic_prompt_validator(threshold=0.8):
     """
     This function builds a validator that checks if the prompt is toxic or not.
     The validator will trigger the action flag_toxic_prompt if the condition fails.
     """
 
-    def nontoxic_condition(msg) -> bool:
-        score = toxicity.toxicity(msg)
-        return score <= 0.8
+    def nontoxic_condition(score) -> bool:
+        return score <= threshold
 
     def flag_toxic_prompt(val_name: str, cond_name: str, value: Any, m_id) -> None:
         global moderation_queue
         message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
         message_metadata["toxic_prompt"] = True
-        message_metadata["prompt"] = value
+        message_metadata["toxicity"] = value
+        message_metadata["prompt"] = get_prompt(m_id)
 
         moderation_queue[m_id] = message_metadata
 
@@ -105,15 +113,20 @@ def build_patterns_response_validator():
     The validator will trigger the action flag_patterns_response if the condition fails.
     """
 
-    def no_patterns_condition(msg) -> bool:
-        pattern = regexes.has_patterns(msg)
+    def no_patterns_condition(pattern) -> bool:
         return not bool(pattern)
 
-    def flag_patterns_response(val_name: str, cond_name: str, value: Any, m_id) -> None:
+    def flag_patterns_response(
+        val_name: str, cond_name: str, value: Any, m_id=None
+    ) -> None:
         global moderation_queue
+        # if id is not passed, do nothing
+        if m_id is None:
+            return
         message_metadata: MessageMetadata = moderation_queue.get(m_id, {})
         message_metadata["patterns_in_response"] = True
-        message_metadata["response"] = value
+        message_metadata["pattern"] = value
+        message_metadata["response"] = get_response(m_id)
 
         moderation_queue[m_id] = message_metadata
 
@@ -167,19 +180,34 @@ def get_llm_logger_with_validators(identity_column="m_id"):
     Args:
         identity_column: The column that will be used as the identity column for the logger. The validators will use this id to flag the messages.
     """
-
-    toxic_prompt_validator = build_toxic_prompt_validator()
-    toxic_response_validator = build_toxic_response_validator()
+    toxic_threshold = 0.8
+    toxic_prompt_validator = build_toxic_prompt_validator(threshold=toxic_threshold)
+    toxic_response_validator = build_toxic_response_validator(threshold=toxic_threshold)
     patterns_response_validator = build_patterns_response_validator()
     validators = {
-        "response": [toxic_response_validator, patterns_response_validator],
-        "prompt": [toxic_prompt_validator],
+        "response.toxicity": [toxic_response_validator],
+        "response.has_patterns": [patterns_response_validator],
+        "prompt.toxicity": [toxic_prompt_validator],
     }
 
     condition_count_config = MetricConfig(identity_column=identity_column)
+    column_segments = segment_on_column("blocked")
+
+    @register_dataset_udf(["prompt"], "blocked")
+    def prompt_blocked(text):
+        return [str(toxicity.toxicity(msg) > toxic_threshold) for msg in text["prompt"]]
+
+    @register_dataset_udf(["response"], "blocked")
+    def response_blocked(text):
+        cond = lambda msg: str(
+            toxicity.toxicity(msg) > toxic_threshold or bool(regexes.has_patterns(msg))
+        )
+        return [cond(msg) for msg in text["response"]]
 
     llm_schema = udf_schema(
-        validators=validators, default_config=condition_count_config
+        validators=validators,
+        default_config=condition_count_config,
+        segments=column_segments,
     )
 
     logger = why.logger(
