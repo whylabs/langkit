@@ -7,13 +7,14 @@ Whenever a condition fails to be met, an action is triggered that will update th
 The logger will also generate statistical profiles every 5 minutes and send them to WhyLabs for observability.
 
 """
+
 from langkit import regexes
 from langkit import sentiment  # noqa
 from langkit import textstat  # noqa
 from langkit import themes  # noqa
 from langkit import toxicity
 from whylogs.core.relations import Predicate
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from whylogs.core.metrics.condition_count_metric import Condition
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
@@ -31,6 +32,8 @@ class MessageMetadata(TypedDict, total=False):
     patterns_in_response: bool
     prompt: str
     response: str
+    toxicity: Optional[float]
+    pattern: Optional[str]
 
 
 moderation_queue: Dict[Any, MessageMetadata] = {}
@@ -199,10 +202,12 @@ def get_llm_logger_with_validators(identity_column="m_id"):
 
     @register_dataset_udf(["response"], "blocked")
     def response_blocked(text):
-        cond = lambda msg: str(
-            toxicity.toxicity(msg) > toxic_threshold or bool(regexes.has_patterns(msg))
-        )
-        return [cond(msg) for msg in text["response"]]
+        def is_blocked(msg):
+            return toxicity.toxicity(msg) > toxic_threshold or bool(
+                regexes.has_patterns(msg)
+            )
+
+        return [str(is_blocked(msg)) for msg in text["response"]]
 
     llm_schema = udf_schema(
         validators=validators,
