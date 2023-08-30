@@ -78,7 +78,7 @@ def _register_score_udfs():
                     return result
 
     else:
-        diagnostic_logger.warning(
+        diagnostic_logger.info(
             "No reference corpus provided for NLP scores. Skipping NLP scores."
         )
 
