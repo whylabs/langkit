@@ -1,12 +1,15 @@
+from copy import deepcopy
+from typing import List, Optional, Set
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 import evaluate
-from . import lang_config, response_column
+from . import LangKitConfig, lang_config, response_column
 from logging import getLogger
 
 
-_corpus = lang_config.reference_corpus
-_scores = lang_config.nlp_scores
-_rouge_type = "rouge1"
+_corpus: str = lang_config.reference_corpus
+_scores: List[str] = lang_config.nlp_scores
+_rouge_type: str = lang_config.rouge_type
+
 
 diagnostic_logger = getLogger(__name__)
 
@@ -83,16 +86,19 @@ def _register_score_udfs():
         )
 
 
-def init(corpus=None, scores=[], rouge_type=None):
+def init(
+    corpus: Optional[str] = None,
+    scores: Set[str] = {},
+    rouge_type: str = "",
+    config: Optional[LangKitConfig] = None
+):
+    config = config or deepcopy(lang_config)
     global _corpus
     global _scores
     global _rouge_type
-    if corpus:
-        _corpus = corpus
-    if scores:
-        _scores = scores
-    if rouge_type:
-        _rouge_type = rouge_type
+    _corpus = corpus or config.reference_corpus
+    _scores = list(scores or config.nlp_scores)
+    _rouge_type = rouge_type or config.rouge_type
 
     _register_score_udfs()
 

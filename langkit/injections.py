@@ -1,25 +1,25 @@
+from copy import deepcopy
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import prompt_column
+from . import LangKitConfig, lang_config, prompt_column, response_column
 
 _prompt = prompt_column
 
-_model_path = "JasperLS/gelectra-base-injection"
 _tokenizer = None
 _text_classification_pipeline = None
 
 
-def init(model_path: Optional[str] = None):
+def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
         TextClassificationPipeline,
     )
+    config = config or deepcopy(lang_config)
+    model_path = model_path or config.injections_model_path
 
     global _tokenizer, _text_classification_pipeline
-    if model_path is None:
-        model_path = _model_path
     _tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
     _text_classification_pipeline = TextClassificationPipeline(

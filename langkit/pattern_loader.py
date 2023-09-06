@@ -1,6 +1,8 @@
 import json
 import re
+from copy import deepcopy
 from logging import getLogger
+from typing import Optional
 
 from . import LangKitConfig, lang_config
 
@@ -9,8 +11,8 @@ diagnostic_logger = getLogger(__name__)
 
 
 class PatternLoader:
-    def __init__(self):
-        self.config: LangKitConfig = lang_config
+    def __init__(self, config: Optional[LangKitConfig] = None):
+        self.config: LangKitConfig = config or deepcopy(lang_config)
         self.regex_groups = self.load_patterns()
 
     def load_patterns(self):
