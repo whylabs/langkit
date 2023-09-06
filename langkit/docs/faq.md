@@ -22,6 +22,6 @@ Additionally, as long as the model exists within the `sentence-transformers` lib
 
 ---
 
-Q: Can I use my own set of theme groups in the `themes` module?
+**Q**: Can I use my own set of theme groups in the `themes` module?
 
-A: Yes. You simply need to call `themes.init(theme_json=my_custom_themes)`, where `my_custom_themes` is your JSON formatted string.
+**A**: Yes. You simply need to call `themes.init(theme_json=my_custom_themes)`, where `my_custom_themes` is your JSON formatted string.
