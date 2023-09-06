@@ -1,6 +1,5 @@
 from copy import deepcopy
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from whylogs.core.stubs import pd
 from typing import Callable, List, Optional
 from transformers import (
     pipeline,
@@ -25,14 +24,14 @@ def _wrapper(column: str) -> Callable:
 def init(
     topics: Optional[List[str]] = None,
     model_path: Optional[str] = None,
-    topic_classifier: Optioanl[str] = None,
+    topic_classifier: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
 ):
     config = config or deepcopy(lang_config)
     global _topics, _classifier
     _topics = topics or config.topics
-    topic_classifier = totpic_classifier or lang_config.topic_classifier
-    model_path = model_path or lang_kiet.topic_model_path
+    topic_classifier = topic_classifier or lang_config.topic_classifier
+    model_path = model_path or config.topic_model_path
     _classifier = pipeline(topic_classifier, model=model_path)
     for column in [prompt_column, response_column]:
         register_dataset_udf([column], udf_name=f"{column}.closest_topic")(

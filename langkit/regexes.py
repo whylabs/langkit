@@ -8,8 +8,7 @@ from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from typing import Optional
 
-diagnostic_logger = getLogger(__name__
-)
+diagnostic_logger = getLogger(__name__)
 
 pattern_loader = PatternLoader()
 

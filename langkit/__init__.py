@@ -41,7 +41,7 @@ class LangKitConfig:
     sentiment_lexicon: str = "vader_lexicon"
     topic_model_path: str = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
     topic_classifier: str = "zero-shot-classification"
-    toxicity_model_path : str = "martin-ha/toxic-comment-model"
+    toxicity_model_path: str = "martin-ha/toxic-comment-model"
 
 
 prompt_column: str = "prompt"

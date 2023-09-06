@@ -1,11 +1,11 @@
+from . import LangKitConfig
 from logging import getLogger
-form typing import Optional
+from typing import Optional
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.schema import DeclarativeSchema
 
 diagnostic_logger = getLogger(__name__)
 
-from . import LangKitConfig
 try:
     from langkit import regexes
     from langkit import sentiment

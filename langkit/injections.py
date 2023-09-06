@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config, prompt_column, response_column
+from . import LangKitConfig, lang_config, prompt_column
 
 _prompt = prompt_column
 
@@ -16,6 +16,7 @@ def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = Non
         AutoTokenizer,
         TextClassificationPipeline,
     )
+
     config = config or deepcopy(lang_config)
     model_path = model_path or config.injections_model_path
 

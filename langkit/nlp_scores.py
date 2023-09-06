@@ -88,9 +88,9 @@ def _register_score_udfs():
 
 def init(
     corpus: Optional[str] = None,
-    scores: Set[str] = {},
+    scores: Set[str] = set(),
     rouge_type: str = "",
-    config: Optional[LangKitConfig] = None
+    config: Optional[LangKitConfig] = None,
 ):
     config = config or deepcopy(lang_config)
     global _corpus
