@@ -180,7 +180,7 @@ def validate_prompt(m_id):
 def get_llm_logger_with_validators(identity_column="m_id", toxicity_threshold=0.8):
     """
     This function returns a whylogs logger with validators for content moderation.
-    The logger will create profiles every 30 minutes and send them to WhyLabs for observability.
+    The logger will create profiles every 5 minutes and send them to WhyLabs for observability.
     Every logged prompt and response will be validated by the validators.
 
     Args:
@@ -223,7 +223,7 @@ def get_llm_logger_with_validators(identity_column="m_id", toxicity_threshold=0.
     )
 
     logger = why.logger(
-        mode="rolling", interval=30, when="M", base_name="langkit", schema=llm_schema
+        mode="rolling", interval=5, when="M", base_name="langkit", schema=llm_schema
     )
     logger.append_writer("whylabs")
 
