@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.18"
+version = "0.0.19"
 description = "A collection of text metric udfs for whylogs profiling and monitoring in WhyLabs"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 license = "Apache-2.0"
