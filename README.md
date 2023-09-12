@@ -63,3 +63,7 @@ More examples are available [here](https://github.com/whylabs/langkit/tree/main/
 ## Modules 📦
 
 You can have more information about the different modules and their metrics [here](https://github.com/whylabs/langkit/blob/main/langkit/docs/modules.md).
+
+## Frequently Asked Questions
+
+You can check some frequently asked questions on our [FAQs section](https://github.com/whylabs/langkit/blob/main/langkit/docs/faq.md)
