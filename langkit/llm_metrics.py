@@ -1,4 +1,6 @@
+from . import LangKitConfig
 from logging import getLogger
+from typing import Optional
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.schema import DeclarativeSchema
 
@@ -17,13 +19,13 @@ except ImportError:
     )
 
 
-def init() -> DeclarativeSchema:
-    regexes.init()
-    sentiment.init()
-    textstat.init()
-    themes.init()
-    toxicity.init()
-    input_output.init()
+def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
+    regexes.init(config=config)
+    sentiment.init(config=config)
+    textstat.init(config=config)
+    themes.init(config=config)
+    toxicity.init(config=config)
+    input_output.init(config=config)
 
     text_schema = udf_schema()
     return text_schema

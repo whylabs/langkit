@@ -1,13 +1,12 @@
+from copy import deepcopy
 from typing import Optional
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import prompt_column, response_column
+from . import LangKitConfig, lang_config, prompt_column, response_column
 
 
 _prompt = prompt_column
 _response = response_column
-
-_toxicity_model_path = "martin-ha/toxic-comment-model"
 _toxicity_tokenizer = None
 _toxicity_pipeline = None
 
@@ -34,16 +33,16 @@ def response_toxicity(text):
     return [toxicity(t) for t in text[_response]]
 
 
-def init(model_path: Optional[str] = None):
+def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
         TextClassificationPipeline,
     )
 
+    config = config or deepcopy(lang_config)
+    model_path = model_path or config.toxicity_model_path
     global _toxicity_tokenizer, _toxicity_pipeline
-    if model_path is None:
-        model_path = _toxicity_model_path
     _toxicity_tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
     _toxicity_pipeline = TextClassificationPipeline(
