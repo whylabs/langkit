@@ -35,6 +35,10 @@ class LangKitConfig:
         ]
     )
     reference_corpus: str = ""
+    injections_base_url = (
+        "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
+    )
+    data_folder: str = "langkit_data"
 
 
 prompt_column: str = "prompt"
