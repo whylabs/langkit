@@ -24,6 +24,7 @@ def texts():
     ]
 
 
+@pytest.mark.load
 def test_download_embeddings():
     from langkit.injections import download_embeddings
 
