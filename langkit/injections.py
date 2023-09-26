@@ -22,7 +22,12 @@ def download_embeddings(url):
     array = np.load(data)
     return array
 
-def init(transformer_name: Optional[str] = None, version: Optional[str] = None, config: Optional[LangKitConfig] = None):
+
+def init(
+    transformer_name: Optional[str] = None,
+    version: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+):
     config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
