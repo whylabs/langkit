@@ -19,7 +19,8 @@ from whylogs.core.metrics.condition_count_metric import Condition
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.validators import ConditionValidator
-from whylogs.core.metrics import MetricConfig
+from whylogs.core.metrics import MetricConfig, FrequentItemsMetric
+from whylabs.core.resolvers import MetricSpec
 from typing import TypedDict
 from whylogs.core.segmentation_partition import segment_on_column
 from langkit.whylogs.example_utils.guardrails_openai_example_utils import (
@@ -221,6 +222,7 @@ def get_llm_logger_with_validators(identity_column="m_id", toxicity_threshold=0.
         default_config=condition_count_config,
         segments=column_segments,
     )
+    llm_schema.add_resolver_spec("blocked", metrics=[MetricSpec(FrequentItemsMetric)])
 
     logger = why.logger(
         mode="rolling", interval=5, when="M", base_name="langkit", schema=llm_schema

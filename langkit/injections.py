@@ -1,7 +1,8 @@
+from copy import deepcopy
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import prompt_column, lang_config
+from . import LangKitConfig, lang_config, prompt_column
 from sentence_transformers import SentenceTransformer
 import requests
 from io import BytesIO
@@ -21,8 +22,8 @@ def download_embeddings(url):
     array = np.load(data)
     return array
 
-
-def init(transformer_name: Optional[str] = None, version: Optional[str] = None):
+def init(transformer_name: Optional[str] = None, version: Optional[str] = None, config: Optional[LangKitConfig] = None):
+    config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
     if not transformer_name:
@@ -32,7 +33,7 @@ def init(transformer_name: Optional[str] = None, version: Optional[str] = None):
     _transformer_model = SentenceTransformer(transformer_name)
 
     path = f"index_embeddings_{transformer_name}_harm_{version}.npy"
-    embeddings_url = lang_config.injections_base_url + path
+    embeddings_url = config.injections_base_url + path
     embeddings_path = os.path.join(_get_data_home(), path)
 
     try:

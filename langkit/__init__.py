@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import List
 
 import importlib.resources as resources
 
@@ -17,7 +18,7 @@ class LangKitConfig:
         default_factory=lambda: _resource_filename("themes.json")
     )
     transformer_name: str = "sentence-transformers/all-MiniLM-L6-v2"
-    topics: list = field(
+    topics: List[str] = field(
         default_factory=lambda: [
             "law",
             "finance",
@@ -39,6 +40,11 @@ class LangKitConfig:
         "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
     )
     data_folder: str = "langkit_data"
+    rouge_type: str = "rouge1"
+    sentiment_lexicon: str = "vader_lexicon"
+    topic_model_path: str = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    topic_classifier: str = "zero-shot-classification"
+    toxicity_model_path: str = "martin-ha/toxic-comment-model"
 
 
 prompt_column: str = "prompt"

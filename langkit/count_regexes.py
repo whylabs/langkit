@@ -1,3 +1,4 @@
+from copy import deepcopy
 from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader
@@ -61,11 +62,12 @@ def _register_udfs():
 def init(
     pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
 ):
-    config = config or lang_config
+    config = deepcopy(config or lang_config)
     if pattern_file_path:
         config.pattern_file_path = pattern_file_path
 
-    pattern_loader.set_config(config)
+    global pattern_loader
+    pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
     _register_udfs()

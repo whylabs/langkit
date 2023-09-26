@@ -1,19 +1,23 @@
-# Modules List
-
-|             **Module**              |                             **Description**                              | **Target**          |            **Notes**             |
-| :---------------------------------: | :----------------------------------------------------------------------: | ------------------- | :------------------------------: |
-|      [Injections](#injections)      |  Semantic Similarity from known prompt injections and harmful behaviors  | Prompt              |                                  |
-|    [Input/Output](#inputoutput)     |             Semantic similarity between prompt and response              | Prompt and Response |        Default llm metric        |
-|         [Regexes](#regexes)         |             Regex pattern matching for sensitive information             | Any string column   | Default llm metric, light-weight |
-|       [Sentiment](#sentiment)       |                            Sentiment Analysis                            | Any string column   |        Default llm metric        |
-| [Text Statistics](#text-statistics) |         Text quality, readability, complexity, and grade level.          | Any string column   | Default llm metric, light-weight |
-|          [Themes](#themes)          |       Semantic similarity between customizable groups of examples        | Any string column   |        Default llm metric        |
-|          [Topics](#topics)          | Text classification into predefined topics - law, finance, medical, etc. | Any string column   |                                  |
-|        [Toxicity](#toxicity)        |                 Toxicity, harmfulness and offensiveness                  | Any string column   |        Default llm metric        |
-
 ## Injections
 
 The `injections` module will return the maximum similarity score between the target and a group of known jailbreak attempts and harmful behaviors, which is stored as a vector db using the FAISS package. It will be applied to column named `prompt`, and it will create a new column named `injection`.
+=======
+# Metrics List
+
+|        **Metric Namespace**         |                                                      **Metrics**                                                      |                               **Description**                               |                **Target**                |                              **Notes**                               |     |
+| :---------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------: | :--------------------------------------: | :------------------------------------------------------------------: | :-: |
+|      [Injections](#injections)      |                                                       injection                                                       |     Semantic Similarity from known prompt injections and harmful behaviors  |                  Prompt                  |                                                                      |     |
+|    [Input/Output](#inputoutput)     |                                             response.relevance_to_prompt                                              |               Semantic similarity between prompt and response               |           Prompt and Response            |               Default llm metric, Customizable Encoder               |     |
+|         [Regexes](#regexes)         |                                                     has_patterns                                                      |              Regex pattern matching for sensitive information               |           Prompt and Response            |     Default llm metric, light-weight, Customizable Regex Groups      |     |
+|       [Sentiment](#sentiment)       |                                                    sentiment_nltk                                                     |                             Sentiment Analysis                              |           Prompt and Response            |                          Default llm metric                          |     |
+| [Text Statistics](#text-statistics) | automated_readability_index,flesch_kincaid_grade, flesch_reading_ease, smog_index, syllable_count, lexicon_count, ... |           Text quality, readability, complexity, and grade level.           |           Prompt and Response            |                   Default llm metric, light-weight                   |     |
+|          [Themes](#themes)          |                                       jailbreak_similarity, refusal_similarity                                        | Semantic similarity between customizable groups of examples                 | Prompt(jailbreak) and Response(refusals) | Default llm metric, Customizable Encoder, Customizable Themes Groups |     |
+|          [Topics](#topics)          |                                                        topics                                                         |  Text classification into predefined topics - law, finance, medical, etc.   |           Prompt and Response            |                                                                      |     |
+|        [Toxicity](#toxicity)        |                                                       toxicity                                                        |                   Toxicity, harmfulness and offensiveness                   |           Prompt and Response            |                          Default llm metric                          |     |
+
+## Injections
+
+The `injections` namespace will return the maximum similarity score between the target and a group of known jailbreak attempts and harmful behaviors, which is stored as a vector db using the FAISS package. It will be applied to column named `prompt`, and it will create a new column named `injection`.
 
 ### Usage
 
@@ -34,7 +38,7 @@ This metric is similar to the `jailbreak_similarity` from `themes` module. The d
 
 ## Input/Output
 
-The `input_output` module will compute similarity scores between two columns called `prompt` and `response`. It will create a new column named `response.relevance_to_prompt`
+The `input_output` namespace will compute similarity scores between two columns called `prompt` and `response`. It will create a new column named `response.relevance_to_prompt`
 
 ### Usage
 
@@ -56,7 +60,7 @@ The similarity score is computed by calculating the cosine similarity between em
 
 ## Regexes
 
-The `regexes` module will search for groups of regexes patterns. It will be applied to any columns of type `String`.
+The `regexes` namespace will search for groups of regexes patterns. It will be applied to any columns of type `String`.
 
 ### Usage
 
@@ -86,7 +90,7 @@ regexes.init(pattern_file_path="path/to/pattern_groups.json")
 
 ## Sentiment
 
-The `sentiment` module will compute sentiment scores for each value in every column of type `String`. It will create a new udf submetric called `sentiment_nltk`.
+The `sentiment` namespace will compute sentiment scores for each value in every column of type `String`. It will create a new udf submetric called `sentiment_nltk`.
 
 ### Usage
 
@@ -105,7 +109,7 @@ The `sentiment_nltk` will contain metrics related to the compound sentiment scor
 
 ## Text Statistics
 
-The `textstat` module will compute various text statistics for each value in every column of type `String`, using the `textstat` python package. It will create several udf submetrics related to the text's quality, such as readability, complexity, and grade scores.
+The `textstat` namespace will compute various text statistics for each value in every column of type `String`, using the `textstat` python package. It will create several udf submetrics related to the text's quality, such as readability, complexity, and grade scores.
 
 ### Usage
 
@@ -212,7 +216,7 @@ This method returns the number of words with one syllable present in the input t
 
 ## Themes
 
-The `themes` module will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
+The `themes` namespace will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
 
 The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
 
@@ -248,7 +252,7 @@ This group gathers a set of known LLM refusal examples.
 
 ## Topics
 
-The `topics` module will utilize the [`MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7`](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) model to classify the input text into one of the defined topics, default topics include: `law`, `finance`, `medical`, `education`, `politics`, `support`. It will create a new udf submetric called `closest_topic` with the highest scored label.
+The `topics` namespace will utilize the [`MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7`](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) model to classify the input text into one of the defined topics, default topics include: `law`, `finance`, `medical`, `education`, `politics`, `support`. It will create a new udf submetric called `closest_topic` with the highest scored label.
 
 ### Usage
 
@@ -263,7 +267,7 @@ profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profi
 
 ### Configuration
 
-Users can define their own topics by specifying a list of candidate labels to the init method of the module:
+Users can define their own topics by specifying a list of candidate labels to the init method of the namespace:
 
 ```python
 from langkit import topics
@@ -272,7 +276,7 @@ topics.init(topics=["romance", "scifi", "horror"])
 
 ## Toxicity
 
-The `toxicity` module will compute toxicity scores for each value in every column of type `String`. It will create a new udf submetric called `toxicity`.
+The `toxicity` namespace will compute toxicity scores for each value in every column of type `String`. It will create a new udf submetric called `toxicity`.
 
 ### Usage
 

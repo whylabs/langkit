@@ -1,4 +1,5 @@
 import json
+from copy import deepcopy
 from logging import getLogger
 from typing import Callable, Optional, Dict, List
 
@@ -8,7 +9,7 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 
 from langkit.transformer import Encoder
 
-from . import lang_config, prompt_column, response_column
+from . import LangKitConfig, lang_config, prompt_column, response_column
 
 diagnostic_logger = getLogger(__name__)
 
@@ -93,11 +94,13 @@ def init(
     custom_encoder: Optional[Callable] = None,
     theme_file_path: Optional[str] = None,
     theme_json: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
 ):
+    config = config or deepcopy(lang_config)
     global _transformer_model
     global _theme_groups
     if not transformer_name and not custom_encoder:
-        transformer_name = lang_config.transformer_name
+        transformer_name = config.transformer_name
     _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")
@@ -105,7 +108,7 @@ def init(
         if theme_json:
             _theme_groups = json.loads(theme_json)
         else:
-            _theme_groups = load_themes(lang_config.theme_file_path)
+            _theme_groups = load_themes(config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
     _register_theme_udfs()
