@@ -1,15 +1,15 @@
 # Modules List
 
-|             **Module**              |                               **Description**                               | **Target**          |            **Notes**             |
-| :---------------------------------: | :-------------------------------------------------------------------------: | ------------------- | :------------------------------: |
-|      [Injections](#injections)      |                   Semantic Similarity from known prompt injections and harmful behaviors                    | Prompt              |                                  |
-|    [Input/Output](#inputoutput)     |               Semantic similarity between prompt and response               | Prompt and Response |        Default llm metric        |
-|         [Regexes](#regexes)         |              Regex pattern matching for sensitive information               | Any string column   | Default llm metric, light-weight |
-|       [Sentiment](#sentiment)       |                             Sentiment Analysis                              | Any string column   |        Default llm metric        |
-| [Text Statistics](#text-statistics) |           Text quality, readability, complexity, and grade level.           | Any string column   | Default llm metric, light-weight |
-|          [Themes](#themes)          | Semantic similarity between customizable groups of examples | Any string column   |        Default llm metric        |
-|          [Topics](#topics)          |  Text classification into predefined topics - law, finance, medical, etc.   | Any string column   |                                  |
-|        [Toxicity](#toxicity)        |                   Toxicity, harmfulness and offensiveness                   | Any string column   |        Default llm metric        |
+|             **Module**              |                             **Description**                              | **Target**          |            **Notes**             |
+| :---------------------------------: | :----------------------------------------------------------------------: | ------------------- | :------------------------------: |
+|      [Injections](#injections)      |  Semantic Similarity from known prompt injections and harmful behaviors  | Prompt              |                                  |
+|    [Input/Output](#inputoutput)     |             Semantic similarity between prompt and response              | Prompt and Response |        Default llm metric        |
+|         [Regexes](#regexes)         |             Regex pattern matching for sensitive information             | Any string column   | Default llm metric, light-weight |
+|       [Sentiment](#sentiment)       |                            Sentiment Analysis                            | Any string column   |        Default llm metric        |
+| [Text Statistics](#text-statistics) |         Text quality, readability, complexity, and grade level.          | Any string column   | Default llm metric, light-weight |
+|          [Themes](#themes)          |       Semantic similarity between customizable groups of examples        | Any string column   |        Default llm metric        |
+|          [Topics](#topics)          | Text classification into predefined topics - law, finance, medical, etc. | Any string column   |                                  |
+|        [Toxicity](#toxicity)        |                 Toxicity, harmfulness and offensiveness                  | Any string column   |        Default llm metric        |
 
 ## Injections
 

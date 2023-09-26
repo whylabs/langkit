@@ -72,8 +72,12 @@ def init(transformer_name: Optional[str] = None, version: Optional[str] = None):
 def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global _transformer_model
     global _index_embeddings
+    if _transformer_model is None:
+        raise ValueError("Injections - transformer model not initialized")
     embeddings = _transformer_model.encode(prompt[_prompt])
     faiss.normalize_L2(embeddings)
+    if _index_embeddings is None:
+        raise ValueError("Injections - index embeddings not initialized")
     dists, _ = _index_embeddings.search(x=embeddings, k=1)
     return dists.flatten().tolist()
 
