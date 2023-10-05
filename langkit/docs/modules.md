@@ -70,7 +70,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
 text_schema = udf_schema()
 
-profile = why.log({"input":"address: 123 Main St."}, schema=text_schema).profile()
+profile = why.log({"prompt":"address: 123 Main St."}, schema=text_schema).profile()
 ```
 
 ### `has_patterns`
@@ -100,7 +100,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
 text_schema = udf_schema()
 
-profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).profile()
 ```
 
 ### `sentiment_nltk`
@@ -119,7 +119,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
 text_schema = udf_schema()
 
-profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).profile()
 ```
 
 ### `flesch_kincaid_grade`
@@ -262,7 +262,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
 text_schema = udf_schema()
 
-profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).profile()
 ```
 
 ### Configuration
@@ -286,7 +286,7 @@ from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
 text_schema = udf_schema()
 
-profile = why.log({"input":"I like you. I love you."}, schema=text_schema).profile()
+profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).profile()
 ```
 
 ### `toxicity`
