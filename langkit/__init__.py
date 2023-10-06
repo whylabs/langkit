@@ -36,7 +36,10 @@ class LangKitConfig:
         ]
     )
     reference_corpus: str = ""
-    injections_model_path: str = "JasperLS/gelectra-base-injection"
+    injections_base_url = (
+        "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
+    )
+    data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
     sentiment_lexicon: str = "vader_lexicon"
     topic_model_path: str = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
