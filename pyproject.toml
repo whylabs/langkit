@@ -21,7 +21,7 @@ numpy = [
   { version = "*", python = "<3.11", optional = true },
   { version = ">=1.23.2", python = ">=3.11", optional = true }
 ]
-xformers = {version = "*", platform="!macos", python=">=3.8.0,<4", optional = true}
+xformers = {version = "*", python=">=3.8.0,<4", optional = true}
 datasets = {version ="^2.12.0", optional = true}
 openai = {version ="^0.27.6", optional = true}
 nltk = {version ="^3.8.1", optional = true}
