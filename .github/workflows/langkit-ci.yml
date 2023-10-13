@@ -31,12 +31,12 @@ jobs:
         name: Cache dependencies based on poetry.lock file
         with:
           path: ./.venv
-          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-all-${{ hashFiles('**/poetry.lock') }}
       - name: check poetry env
         run: poetry env info
       - name: Install dependencies
         if: steps.poetry-cache.outputs.cache-hit != 'true'
-        run: poetry install
+        run: make install
       - name: Log cache hit
         if: steps.poetry-cache.outputs.cache-hit == 'true'
         run: echo 'poetry cache hit, skipping poetry install'
