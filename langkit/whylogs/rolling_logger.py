@@ -1,9 +1,10 @@
+from typing import Any
 import whylogs as why
 from langkit import llm_metrics
 
 
 class RollingLogger:
-    def __init__(self):
+    def __init__(self, **kwargs: Any):
         llm_schema = llm_metrics.init()
         self.logger = why.logger(
             mode="rolling",
@@ -12,7 +13,7 @@ class RollingLogger:
             base_name="langkit",
             schema=llm_schema,
         )
-        self.logger.append_writer("whylabs")
+        self.logger.append_writer(name="whylabs", **kwargs)
 
     def log(self, dict):
         self.logger.log(dict)
