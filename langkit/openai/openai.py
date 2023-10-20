@@ -19,14 +19,21 @@ class ChatLog:
         response: str,
         errors: Optional[str] = None,
         messages: Optional[List[Dict[str, str]]] = None,
+        total_tokens: Optional[int] = None,
     ):
         self.prompt = prompt
         self.response = response
         self.errors = errors
         self.messages = messages
+        self.total_tokens = total_tokens
 
     def to_dict(self):
-        return {"prompt": self.prompt, "response": self.response, "errors": self.errors}
+        return {
+            "prompt": self.prompt,
+            "response": self.response,
+            "errors": self.errors,
+            "total_tokens": self.total_tokens,
+        }
 
 
 @dataclass
@@ -84,7 +91,16 @@ class OpenAIDavinci(LLMInvocationParams):
                                 )
                             },
                         )
-                    ]
+                    ],
+                    "usage": type(
+                        "usage",
+                        (),
+                        {
+                            "prompt_tokens": text_completion_respone.usage.prompt_tokens,
+                            "completion_tokens": text_completion_respone.usage.completion_tokens,
+                            "total_tokens": text_completion_respone.usage.total_tokens,
+                        },
+                    ),
                 },
             )
             return response
@@ -206,7 +222,12 @@ class Conversation:
                 {"role": "assistant", "content": choice.message.content}
             )
 
-        return ChatLog(prompt, result, messages=self.messages)
+        return ChatLog(
+            prompt,
+            result,
+            messages=self.messages,
+            total_tokens=response.usage.total_tokens,
+        )
 
 
 # this is just for demonstration purposes

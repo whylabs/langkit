@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import List, Optional
 from langkit.eval_llm.base_llm import LLMConfig
 from langkit.eval_llm import get_llm
@@ -16,6 +17,26 @@ _response = response_column
 diagnostic_logger = getLogger(__name__)
 
 embeddings_encoder = Encoder(lang_config.transformer_name, custom_encoder=None)
+
+
+@dataclass
+class ConsistencyResult:
+    llm_score: float
+    semantic_score: float
+    final_score: float
+    total_tokens: int
+    samples: List[str]
+    response: str
+
+    def to_summary_dict(self):
+        return {
+            "llm_score": self.llm_score,
+            "semantic_score": self.semantic_score,
+            "final_score": self.final_score,
+            "total_tokens": self.total_tokens,
+            "samples": self.samples,
+            "response": self.response,
+        }
 
 
 class ConsistencyCheker:
@@ -37,11 +58,12 @@ class ConsistencyCheker:
             "minor inaccurate": 0.5,
             "accurate": 0.0,
         }
-        score = categories.get(result.lower(), None)
+        score = categories.get(result.lower().strip(), None)
         if not score:
             diagnostic_logger.info(
                 f"Invalid result from consistency checker: {result}. Valid results are {categories.keys()}"
             )
+            score = 0.0
         return score
 
     def get_samples(self, prompt):
@@ -80,6 +102,7 @@ class ConsistencyCheker:
 
     def llm_consistency_check(self, response, additional_samples):
         llm_scores = []
+        total_tokens = 0
         for sample in additional_samples:
             prompt = f"Context: {sample.response}\n\nPassage: {response}\n\nIs the passage supported by the context above? Answer between: Accurate, Minor Inaccurate, Major Inaccurate "
             result: ChatLog = Conversation(self.consistency_checker_llm).send_prompt(
@@ -87,13 +110,41 @@ class ConsistencyCheker:
             )
             llm_score = self.convert_score(result.response)
             llm_scores.append(llm_score)
+            total_tokens += result.total_tokens
         final_score = sum(llm_scores) / len(llm_scores)
-        return final_score
+        return (final_score, total_tokens)
 
-    def consistency_check(self, response, additional_samples: List[ChatLog]):
-        llm_score = self.llm_consistency_check(response, additional_samples)
+    def consistency_check(
+        self, prompt: str, response: Optional[str] = None
+    ) -> ConsistencyResult:
+        total_tokens = 0
+
+        if not response:
+            result: ChatLog = Conversation(self.llm).send_prompt(prompt)
+            total_tokens += result.total_tokens
+            if result.response:
+                response = result.response
+            else:
+                raise Exception(f"Error generating response: {result.error}")
+
+        additional_samples: List[ChatLog] = self.get_samples(prompt)
+        total_tokens += sum([sample.total_tokens for sample in additional_samples])
+
+        llm_score, tokens_usage = self.llm_consistency_check(
+            response, additional_samples
+        )
+        total_tokens += tokens_usage
+
         semantic_score = self.semantic_similarity(response, additional_samples)
-        return (llm_score + semantic_score) / 2
+        result = ConsistencyResult(
+            llm_score=llm_score,
+            semantic_score=semantic_score,
+            final_score=(llm_score + semantic_score) / 2,
+            total_tokens=total_tokens,
+            samples=[sample.response for sample in additional_samples],
+            response=response,
+        )
+        return result
 
 
 checker: Optional[ConsistencyCheker] = None
@@ -108,7 +159,10 @@ def init(llm: LLMInvocationParams, num_samples=1):
 def response_consistency(text):
     series_result = []
     for prompt, response in zip(text[_prompt], text[_response]):
-        additional_samples = checker.get_samples(prompt)
-        result = checker.consistency_check(response, additional_samples)
-        series_result.append(result)
+        result: ConsistencyResult = checker.consistency_check(prompt, response)
+        series_result.append(result.final_score)
     return series_result
+
+
+def consistency_check(prompt: str, response: Optional[str] = None):
+    return checker.consistency_check(prompt, response).to_summary_dict()
