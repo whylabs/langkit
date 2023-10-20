@@ -50,6 +50,12 @@ class LLMInvocationParams:
             "Use a subclass that overrides the `completion` method."
         )
 
+    def copy(self) -> "LLMInvocationParams":
+        raise NotImplementedError(
+            "Base class LLMInvocationParams copy function called!"
+            "Use a subclass that overrides the `copy` method."
+        )
+
 
 @dataclass
 class OpenAIDavinci(LLMInvocationParams):
@@ -65,12 +71,10 @@ class OpenAIDavinci(LLMInvocationParams):
         last_message = messages[-1]
         if "content" in last_message:
             params = asdict(self)
-            print(f"params are: {params}")
             text_completion_respone = openai.Completion.create(
                 prompt=last_message["content"], **params
             )
             content = text_completion_respone.choices[0].text
-            print(type(content))
             response = type(
                 "ChatCompletions",
                 (),
@@ -109,7 +113,7 @@ class OpenAIDavinci(LLMInvocationParams):
                 f"last message must exist and contain a content key but got {last_message}"
             )
 
-    def copy(self):
+    def copy(self) -> LLMInvocationParams:
         return OpenAIDavinci(
             model=self.model,
             temperature=self.temperature,
@@ -135,7 +139,7 @@ class OpenAIDefault(LLMInvocationParams):
         openai.ChatCompletion.create
         return openai.ChatCompletion.create(messages=messages, **params)
 
-    def copy(self):
+    def copy(self) -> LLMInvocationParams:
         return OpenAIDefault(
             model=self.model,
             temperature=self.temperature,
@@ -160,7 +164,7 @@ class OpenAIGPT4(LLMInvocationParams):
         print(f"params are: {params}")
         return openai.ChatCompletion.create(messages=messages, **params)
 
-    def copy(self):
+    def copy(self) -> LLMInvocationParams:
         return OpenAIGPT4(
             model=self.model,
             temperature=self.temperature,
