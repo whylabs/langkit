@@ -20,7 +20,7 @@ import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.validators import ConditionValidator
 from whylogs.core.metrics import MetricConfig, FrequentItemsMetric
-from whylabs.core.resolvers import MetricSpec
+from whylogs.core.resolvers import MetricSpec
 from typing import TypedDict
 from whylogs.core.segmentation_partition import segment_on_column
 from langkit.whylogs.example_utils.guardrails_openai_example_utils import (
