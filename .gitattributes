@@ -1,2 +1,0 @@
-langkit/examples/local_dataset.json filter=lfs diff=lfs merge=lfs -text
-langkit/examples/Choosing_an_LLM.ipynb filter=lfs diff=lfs merge=lfs -text
