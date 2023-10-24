@@ -243,6 +243,9 @@ checker: Optional[ConsistencyCheker] = None
 
 def init(llm: LLMInvocationParams, num_samples=1):
     global checker
+    import nltk
+
+    nltk.download("punkt")
     diagnostic_logger.info(
         "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
     )
