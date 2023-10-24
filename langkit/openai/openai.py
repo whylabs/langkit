@@ -21,14 +21,21 @@ class ChatLog:
         response: str,
         errors: Optional[str] = None,
         messages: Optional[List[Dict[str, str]]] = None,
+        total_tokens: Optional[int] = None,
     ):
         self.prompt = prompt
         self.response = response
         self.errors = errors
         self.messages = messages
+        self.total_tokens = total_tokens
 
     def to_dict(self):
-        return {"prompt": self.prompt, "response": self.response, "errors": self.errors}
+        return {
+            "prompt": self.prompt,
+            "response": self.response,
+            "errors": self.errors,
+            "total_tokens": self.total_tokens,
+        }
 
 
 @dataclass
@@ -43,6 +50,12 @@ class LLMInvocationParams:
         raise NotImplementedError(
             "Base class LLMInvocationParams completion function called!"
             "Use a subclass that overrides the `completion` method."
+        )
+
+    def copy(self) -> "LLMInvocationParams":
+        raise NotImplementedError(
+            "Base class LLMInvocationParams copy function called!"
+            "Use a subclass that overrides the `copy` method."
         )
 
 
@@ -89,10 +102,28 @@ class OpenAIDavinci(LLMInvocationParams):
                             )
                         },
                     )
-                ]
+                ],
+                "usage": type(
+                    "usage",
+                    (),
+                    {
+                        "prompt_tokens": text_completion_respone.usage.prompt_tokens,
+                        "completion_tokens": text_completion_respone.usage.completion_tokens,
+                        "total_tokens": text_completion_respone.usage.total_tokens,
+                    },
+                ),
             },
         )
         return response
+
+    def copy(self) -> LLMInvocationParams:
+        return OpenAIDavinci(
+            model=self.model,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            frequency_penalty=self.frequency_penalty,
+            presence_penalty=self.presence_penalty,
+        )
 
 
 @dataclass
@@ -110,6 +141,15 @@ class OpenAIDefault(LLMInvocationParams):
         openai.ChatCompletion.create
         return openai.ChatCompletion.create(messages=messages, **params)
 
+    def copy(self) -> LLMInvocationParams:
+        return OpenAIDefault(
+            model=self.model,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            frequency_penalty=self.frequency_penalty,
+            presence_penalty=self.presence_penalty,
+        )
+
 
 @dataclass
 class OpenAIGPT4(LLMInvocationParams):
@@ -124,6 +164,15 @@ class OpenAIGPT4(LLMInvocationParams):
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
         return openai.ChatCompletion.create(messages=messages, **params)
+
+    def copy(self) -> LLMInvocationParams:
+        return OpenAIGPT4(
+            model=self.model,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            frequency_penalty=self.frequency_penalty,
+            presence_penalty=self.presence_penalty,
+        )
 
 
 @dataclass
@@ -161,14 +210,19 @@ class Conversation:
                 {"role": "assistant", "content": choice.message.content}
             )
 
-        return ChatLog(prompt, result, messages=self.messages)
+        return ChatLog(
+            prompt,
+            result,
+            messages=self.messages,
+            total_tokens=response.usage.total_tokens,
+        )
 
 
 # this is just for demonstration purposes
 def send_prompt(prompt: str) -> ChatLog:
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model=_openai_llm_model,
             messages=[
                 {
                     "role": "system",
