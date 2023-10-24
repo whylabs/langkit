@@ -243,8 +243,8 @@ checker: Optional[ConsistencyCheker] = None
 
 def init(llm: LLMInvocationParams, num_samples=1):
     global checker
-    diagnostic_logger.warning(
-        "Warning: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
+    diagnostic_logger.info(
+        "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
     )
     checker = ConsistencyCheker(llm, num_samples, embeddings_encoder)
 
