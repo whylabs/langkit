@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from logging import getLogger
+from typing import List, Optional
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import lang_config, prompt_column, response_column
 from nltk.tokenize import sent_tokenize
@@ -248,7 +249,7 @@ def init(llm: LLMInvocationParams, num_samples=1):
     checker = ConsistencyCheker(llm, num_samples, embeddings_encoder)
 
 
-@register_dataset_udf([_prompt, _response], f"{_response}.consistency")
+@register_dataset_udf([_prompt, _response], f"{_response}.hallucination")
 def response_hallucination(text):
     series_result = []
     for prompt, response in zip(text[_prompt], text[_response]):

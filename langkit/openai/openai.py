@@ -74,7 +74,6 @@ class OpenAIDavinci(LLMInvocationParams):
             text_completion_respone = openai.Completion.create(
                 prompt=last_message["content"], **params
             )
-            content = text_completion_respone.choices[0].text
             response = type(
                 "ChatCompletions",
                 (),
@@ -176,7 +175,6 @@ class OpenAIGPT4(LLMInvocationParams):
 class Conversation:
     invocation_params: LLMInvocationParams
     messages: List[Dict[str, str]] = field(default_factory=list)
-    k = 3
 
     def __post_init__(self) -> None:
         if len(self.messages) == 0:
