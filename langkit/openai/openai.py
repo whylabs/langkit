@@ -3,6 +3,7 @@ import os
 from typing import Dict, List, Optional
 import openai
 
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 _openai_llm_model = os.getenv("LANGKIT_OPENAI_LLM_MODEL_NAME") or "gpt-3.5-turbo"
 _llm_model_temperature = 0.9
@@ -10,6 +11,7 @@ _llm_model_max_tokens = 1024
 _llm_model_frequency_penalty = 0
 _llm_model_presence_penalty = 0.6
 _llm_model_system_message = "The following is a conversation with an AI assistant."
+_llm_concatenate_history = True
 
 
 class ChatLog:
@@ -38,7 +40,7 @@ class ChatLog:
 
 @dataclass
 class LLMInvocationParams:
-    model: str = field(default="Not Set!")
+    model: str = field(default_factory=lambda: _openai_llm_model)
     temperature: float = field(default=0)
     max_tokens: int = field(default=0)
     frequency_penalty: float = field(default=0)
@@ -69,48 +71,50 @@ class OpenAIDavinci(LLMInvocationParams):
 
     def completion(self, messages: List[Dict[str, str]]):
         last_message = messages[-1]
-        if "content" in last_message:
-            params = asdict(self)
-            text_completion_respone = openai.Completion.create(
-                prompt=last_message["content"], **params
-            )
-            response = type(
-                "ChatCompletions",
-                (),
-                {
-                    "choices": [
-                        type(
-                            "choice",
-                            (),
-                            {
-                                "message": type(
-                                    "message",
-                                    (),
-                                    {
-                                        "content": text_completion_respone.choices[
-                                            0
-                                        ].text
-                                    },
-                                )
-                            },
-                        )
-                    ],
-                    "usage": type(
-                        "usage",
-                        (),
-                        {
-                            "prompt_tokens": text_completion_respone.usage.prompt_tokens,
-                            "completion_tokens": text_completion_respone.usage.completion_tokens,
-                            "total_tokens": text_completion_respone.usage.total_tokens,
-                        },
-                    ),
-                },
-            )
-            return response
+        prompt = ""
+        if _llm_concatenate_history:
+            for row in messages:
+                content = row["content"]
+                prompt += f"content: {content}\n"
+            prompt += "content: "
+        elif "content" in last_message:
+            prompt = last_message["content"]
         else:
             raise ValueError(
                 f"last message must exist and contain a content key but got {last_message}"
             )
+        params = asdict(self)
+        text_completion_respone = openai.Completion.create(prompt=prompt, **params)
+        content = text_completion_respone.choices[0].text
+        response = type(
+            "ChatCompletions",
+            (),
+            {
+                "choices": [
+                    type(
+                        "choice",
+                        (),
+                        {
+                            "message": type(
+                                "message",
+                                (),
+                                {"content": text_completion_respone.choices[0].text},
+                            )
+                        },
+                    )
+                ],
+                "usage": type(
+                    "usage",
+                    (),
+                    {
+                        "prompt_tokens": text_completion_respone.usage.prompt_tokens,
+                        "completion_tokens": text_completion_respone.usage.completion_tokens,
+                        "total_tokens": text_completion_respone.usage.total_tokens,
+                    },
+                ),
+            },
+        )
+        return response
 
     def copy(self) -> LLMInvocationParams:
         return OpenAIDavinci(
@@ -184,22 +188,6 @@ class Conversation:
                     "content": _llm_model_system_message,
                 }
             )
-
-    def add_prompt_message(self, prompt: str) -> None:
-        self.messages.append(
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        )
-
-    def add_response_message(self, response: str) -> None:
-        self.messages.append(
-            {
-                "role": "assistant",
-                "content": response,
-            }
-        )
 
     def send_prompt(self, prompt: str) -> ChatLog:
         self.messages.append(
