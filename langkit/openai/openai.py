@@ -135,7 +135,6 @@ class OpenAIDefault(LLMInvocationParams):
 
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
-        print(f"params are: {params}")
         openai.ChatCompletion.create
         return openai.ChatCompletion.create(messages=messages, **params)
 
@@ -161,7 +160,6 @@ class OpenAIGPT4(LLMInvocationParams):
 
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
-        print(f"params are: {params}")
         return openai.ChatCompletion.create(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
