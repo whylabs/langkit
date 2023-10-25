@@ -51,7 +51,7 @@ def test_injections(texts):
         diagnostic_logger.info(profile.view().get_column("prompt").to_summary_dict())
         mean_score = (
             profile.view()
-            .get_column("injection")
+            .get_column("prompt.injection")
             .get_metric("distribution")
             .to_summary_dict()["mean"]
         )
@@ -64,7 +64,7 @@ def test_injections(texts):
     ).profile()
     mean_score = (
         profile.view()
-        .get_column("injection")
+        .get_column("prompt.injection")
         .get_metric("distribution")
         .to_summary_dict()["mean"]
     )
