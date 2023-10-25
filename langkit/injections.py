@@ -74,7 +74,7 @@ def init(
         )
 
 
-@register_dataset_udf([_prompt])
+@register_dataset_udf([_prompt], f"{_prompt}.injection")
 def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global _transformer_model
     global _index_embeddings
