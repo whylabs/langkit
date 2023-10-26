@@ -31,8 +31,8 @@ LangKit modules contain UDFs that automatically wire into the collection of UDFs
 from whylogs.experimental.core.metrics.udf_metric import generate_udf_schema
 from whylogs.core.schema import DeclarativeSchema
 import whylogs as why
-from langkit.sentiment import *
-from langkit.textstat import *
+from langkit import sentiment
+from langkit import textstat
 
 text_schema = DeclarativeSchema(generate_udf_schema())
 results = why.log({"prompt": "hello!", "response": "world!"}, schema=text_schema)
