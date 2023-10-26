@@ -238,7 +238,7 @@ class ConsistencyChecker:
         return consistency_result
 
 
-checker: Optional[ConsistencyCheker] = None
+checker: Optional[ConsistencyChecker] = None
 
 
 def init(llm: LLMInvocationParams, num_samples=1):
@@ -249,7 +249,7 @@ def init(llm: LLMInvocationParams, num_samples=1):
     diagnostic_logger.info(
         "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
     )
-    checker = ConsistencyCheker(llm, num_samples, embeddings_encoder)
+    checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
 
 
 @register_dataset_udf([_prompt, _response], f"{_response}.hallucination")
