@@ -44,23 +44,26 @@ def _unregister():
     _registered = set()
 
 
-def _register_udfs():
+def _register_udfs(language: str):
     global _registered
     _unregister()
     regex_groups = pattern_loader.get_regex_groups()
     if regex_groups is not None:
         for column in [prompt_column, response_column]:
             for group in regex_groups:
-                udf_name = f"{column}.{group['name']}_count"
+                udf_name = f"{language}.{column}.{group['name']}_count"
                 register_dataset_udf(
                     [column],
                     udf_name=udf_name,
+                    schema_name=language
                 )(wrapper(group, column))
                 _registered.add(udf_name)
 
 
 def init(
-    pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
+    language: str = "en",
+    pattern_file_path: Optional[str] = None,
+    config: Optional[LangKitConfig] = None
 ):
     config = deepcopy(config or lang_config)
     if pattern_file_path:
@@ -70,7 +73,7 @@ def init(
     pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
-    _register_udfs()
+    _register_udfs(language)
 
 
 init()

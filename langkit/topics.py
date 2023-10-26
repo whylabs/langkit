@@ -22,6 +22,7 @@ def _wrapper(column: str) -> Callable:
 
 
 def init(
+    language: str = "en",
     topics: Optional[List[str]] = None,
     model_path: Optional[str] = None,
     topic_classifier: Optional[str] = None,
@@ -34,7 +35,11 @@ def init(
     model_path = model_path or config.topic_model_path
     _classifier = pipeline(topic_classifier, model=model_path)
     for column in [prompt_column, response_column]:
-        register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
+        register_dataset_udf(
+            [column],
+            udf_name=f"{language}.{column}.closest_topic",
+            schema_name=language
+        )(
             _wrapper(column)
         )
 

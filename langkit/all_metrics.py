@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.schema import DeclarativeSchema
 
@@ -13,14 +13,15 @@ from langkit import toxicity
 from langkit import input_output
 
 
-def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
-    injections.init(config=config)
-    topics.init(config=config)
-    regexes.init(config=config)
-    sentiment.init(config=config)
-    textstat.init(config=config)
-    themes.init(config=config)
-    toxicity.init(config=config)
-    input_output.init(config=config)
-    text_schema = udf_schema()
+def init(languages: List[str] = ["en"], config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
+    for language in langauges:
+        injections.init(language, config=config)
+        topics.init(language, config=config)
+        regexes.init(language, config=config)
+        sentiment.init(language, config=config)
+        textstat.init(language, config=config)
+        themes.init(language, config=config)
+        toxicity.init(language, config=config)
+        input_output.init(language, config=config)
+    text_schema = udf_schema(chained_schemas=languages)
     return text_schema

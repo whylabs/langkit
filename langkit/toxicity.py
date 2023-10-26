@@ -23,17 +23,15 @@ def toxicity(text: str) -> float:
     )
 
 
-@register_dataset_udf([_prompt], f"{_prompt}.toxicity")
 def prompt_toxicity(text):
     return [toxicity(t) for t in text[_prompt]]
 
 
-@register_dataset_udf([_response], f"{_response}.toxicity")
 def response_toxicity(text):
     return [toxicity(t) for t in text[_response]]
 
 
-def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
+def init(language: str = "en", model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
@@ -48,6 +46,16 @@ def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = Non
     _toxicity_pipeline = TextClassificationPipeline(
         model=model, tokenizer=_toxicity_tokenizer
     )
+    register_dataset_udf(
+        [_prompt],
+        f"{language}.{_prompt}.toxicity",
+        schema_name=language
+    )(prompt_toxicity)
+    register_dataset_udf(
+        [_response],
+        f"{language}.{_response}.toxicity"
+        schema_name=language
+    )(response_toxicity)
 
 
 init()

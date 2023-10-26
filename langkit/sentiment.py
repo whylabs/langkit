@@ -19,17 +19,15 @@ def sentiment_nltk(text: str) -> float:
     return _sentiment_analyzer.polarity_scores(text)["compound"]
 
 
-@register_dataset_udf([_prompt], udf_name=f"{_prompt}.sentiment_nltk")
 def prompt_sentiment(text):
     return [sentiment_nltk(t) for t in text[_prompt]]
 
 
-@register_dataset_udf([_response], udf_name=f"{_response}.sentiment_nltk")
 def response_sentiment(text):
     return [sentiment_nltk(t) for t in text[_response]]
 
 
-def init(lexicon: Optional[str] = None, config: Optional[LangKitConfig] = None):
+def init(language: str = "en", lexicon: Optional[str] = None, config: Optional[LangKitConfig] = None):
     import nltk
     from nltk.sentiment import SentimentIntensityAnalyzer
 
@@ -41,6 +39,16 @@ def init(lexicon: Optional[str] = None, config: Optional[LangKitConfig] = None):
         _nltk_downloaded = True
 
     _sentiment_analyzer = SentimentIntensityAnalyzer()
+    register_dataset_udf(
+        [_prompt],
+        udf_name=f"{language}.{_prompt}.sentiment_nltk",
+        schema_name=language
+    )(prompt_sentiment)
+    register_dataset_udf(
+        [_response],
+        udf_name=f"{language}.{_response}.sentiment_nltk",
+        schema_name=language
+    )(response_sentiment)
 
 
 init()
