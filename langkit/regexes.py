@@ -38,17 +38,19 @@ def _wrapper(column):
 _registered = False
 
 
-def _register_udfs():
+def _register_udfs(config: Optional[LangKitConfig] = None):
     global _registered
-    if _registered:
+    if _registered and config is None:
         return
-
+    if config is None:
+        config = lang_config
+    pattern_metric_name = config.metric_name_map.get("has_patterns", "has_patterns")
     if pattern_loader.get_regex_groups() is not None:
         _registered = True
         for column in [prompt_column, response_column]:
             register_dataset_udf(
                 [column],
-                udf_name=f"{column}.has_patterns",
+                udf_name=f"{column}.{pattern_metric_name}",
                 metrics=[MetricSpec(FrequentItemsMetric)],
             )(_wrapper(column))
 
@@ -64,7 +66,7 @@ def init(
     pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
-    _register_udfs()
+    _register_udfs(config)
 
 
 init()
