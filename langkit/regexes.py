@@ -38,7 +38,7 @@ def _wrapper(column):
 _registered = False
 
 
-def _register_udfs():
+def _register_udfs(language: str):
     global _registered
     if _registered:
         return
@@ -48,12 +48,14 @@ def _register_udfs():
         for column in [prompt_column, response_column]:
             register_dataset_udf(
                 [column],
-                udf_name=f"{column}.has_patterns",
+                udf_name=f"{language}.{column}.has_patterns",
+                schema_name=language,
                 metrics=[MetricSpec(FrequentItemsMetric)],
             )(_wrapper(column))
 
 
 def init(
+    language: str = "en",
     pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
 ):
     config = deepcopy(config or lang_config)
@@ -64,7 +66,7 @@ def init(
     pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
-    _register_udfs()
+    _register_udfs(language)
 
 
 init()

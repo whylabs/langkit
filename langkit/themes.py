@@ -52,10 +52,10 @@ def _map_embeddings():
         ]
 
 
-_registered = set()
+_registered: Dict[str, Set] = set()
 
 
-def _register_theme_udfs():
+def _register_theme_udfs(language: str):
     global _registered
     _map_embeddings()
 
@@ -65,10 +65,14 @@ def _register_theme_udfs():
                 continue
             if group == "refusal" and column == _prompt:
                 continue
-            udf_name = f"{column}.{group}_similarity"
-            if udf_name not in _registered:
-                _registered.add(udf_name)
-                register_dataset_udf([column], udf_name=udf_name)(
+            udf_name = f"{language}.{column}.{group}_similarity"
+            if udf_name not in _registered.get(language, set()):
+                _registered[language].add(udf_name)  # TODO: use defaultdict
+                register_dataset_udf(
+                    [column],
+                    udf_name=udf_name,
+                    schema_name=language
+                )(
                     create_similarity_function(group, column)
                 )
 
@@ -90,6 +94,7 @@ def load_themes(json_path: str, encoding="utf-8"):
 
 
 def init(
+    language: str = "en",
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     theme_file_path: Optional[str] = None,
@@ -111,7 +116,7 @@ def init(
             _theme_groups = load_themes(config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
-    _register_theme_udfs()
+    _register_theme_udfs(language)
 
 
 def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:

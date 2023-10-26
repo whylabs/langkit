@@ -62,31 +62,36 @@ def aggregate_wrapper(
     return wrappee
 
 
-def init(config: Optional[LangKitConfig] = None):
-    pass
-
-
-init()
-
-
 def _unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, str]:
     return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
 
 
-_registered = False
+_registered: Dict[str, bool] = dict()
 
 
-if not _registered:
-    _registered = True
-    for t in _udfs_to_register:
-        stat_name, schema_name, udf = _unpack(t)
+def init(language: str = "en", config: Optional[LangKitConfig] = None):
+    global _registered
+    if not _registered.get(language, False):
+        _registered[language] = True
+        for t in _udfs_to_register:
+            stat_name, schema_name, udf = _unpack(t)
+            language = schema_name or language  # TODO: double-check this
+            for column in [prompt_column, response_column]:
+                register_dataset_udf(
+                    [column],
+                    udf_name=f"{language}.{column}.{udf}",
+                    schema_name=language
+                )(wrapper(stat_name, column))
         for column in [prompt_column, response_column]:
             register_dataset_udf(
-                [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-            )(wrapper(stat_name, column))
-    for column in [prompt_column, response_column]:
-        register_dataset_udf([column], udf_name=f"{column}.aggregate_reading_level")(
-            aggregate_wrapper(column)
-        )
+                [column],
+                udf_name=f"{language}.{column}.aggregate_reading_level",
+                schema_name=language
+            )(
+                aggregate_wrapper(column)
+            )
 
-    diagnostic_logger.info("Initialized textstat metrics.")
+        diagnostic_logger.info("Initialized textstat metrics.")
+
+
+init()

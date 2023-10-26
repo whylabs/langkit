@@ -16,22 +16,6 @@ _transformer_model = None
 diagnostic_logger = getLogger(__name__)
 
 
-def init(
-    transformer_name: Optional[str] = None,
-    custom_encoder: Optional[Callable] = None,
-    config: Optional[LangKitConfig] = None,
-):
-    config = config or deepcopy(lang_config)
-    global _transformer_model
-    if transformer_name is None and custom_encoder is None:
-        transformer_name = config.transformer_name
-    _transformer_model = Encoder(transformer_name, custom_encoder)
-
-
-init()
-
-
-@register_dataset_udf([_prompt, _response], f"{_response}.relevance_to_{_prompt}")
 def prompt_response_similarity(text):
     global _transformer_model
 
@@ -53,3 +37,25 @@ def prompt_response_similarity(text):
             )
             series_result.append(None)
     return series_result
+
+
+def init(
+    language: str = "en"
+    transformer_name: Optional[str] = None,
+    custom_encoder: Optional[Callable] = None,
+    config: Optional[LangKitConfig] = None,
+):
+    config = config or deepcopy(lang_config)
+    global _transformer_model
+    if transformer_name is None and custom_encoder is None:
+        transformer_name = config.transformer_name
+    _transformer_model = Encoder(transformer_name, custom_encoder)
+    register_dataset_udf(
+        [_prompt, _response],
+        f"{language}.{_response}.relevance_to_{_prompt}",
+        schema_name=language
+    )(prompt_response_similarity)
+
+
+init()
+

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 from whylogs.experimental.core.udf_schema import udf_schema
 from whylogs.core.schema import DeclarativeSchema
 
@@ -7,9 +7,10 @@ from langkit import regexes
 from langkit import textstat
 
 
-def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
-    regexes.init(config=config)
-    textstat.init(config=config)
+def init(languages: List[str] = ["en"], config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
+    for language in languages:
+    regexes.init(language, config=config)
+    textstat.init(language, config=config)
 
-    text_schema = udf_schema()
+    text_schema = udf_schema(chained_schemas=languages)
     return text_schema

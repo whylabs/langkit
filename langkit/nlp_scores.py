@@ -19,7 +19,7 @@ _rouge_registered = False
 _meteor_registered = False
 
 
-def _register_score_udfs():
+def _register_score_udfs(language: str):
     global _bleu_registered, _rouge_registered, _meteor_registered
 
     if _corpus:
@@ -30,7 +30,8 @@ def _register_score_udfs():
 
                 @register_dataset_udf(
                     [response_column],
-                    udf_name=f"{response_column}.bleu_score",
+                    udf_name=f"{language}.{response_column}.bleu_score",
+                    schema_name=language
                 )
                 def bleu_score(text):
                     result = []
@@ -48,7 +49,8 @@ def _register_score_udfs():
 
                 @register_dataset_udf(
                     [response_column],
-                    udf_name=f"{response_column}.rouge_score",
+                    udf_name=f"{language}.{response_column}.rouge_score",
+                    schema_name=language
                 )
                 def rouge_score(text):
                     result = []
@@ -68,7 +70,8 @@ def _register_score_udfs():
 
                 @register_dataset_udf(
                     [response_column],
-                    udf_name=f"{response_column}.meteor_score",
+                    udf_name=f"{language}.{response_column}.meteor_score",
+                    schema_name=language
                 )
                 def meteor_score(text):
                     result = []
@@ -87,6 +90,7 @@ def _register_score_udfs():
 
 
 def init(
+    language: str = "en",
     corpus: Optional[str] = None,
     scores: Set[str] = set(),
     rouge_type: str = "",
@@ -100,7 +104,7 @@ def init(
     _scores = list(scores or config.nlp_scores)
     _rouge_type = rouge_type or config.rouge_type
 
-    _register_score_udfs()
+    _register_score_udfs(language)
 
 
 init()

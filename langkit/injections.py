@@ -23,7 +23,21 @@ def download_embeddings(url):
     return array
 
 
+def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    global _transformer_model
+    global _index_embeddings
+    if _transformer_model is None:
+        raise ValueError("Injections - transformer model not initialized")
+    embeddings = _transformer_model.encode(prompt[_prompt])
+    faiss.normalize_L2(embeddings)
+    if _index_embeddings is None:
+        raise ValueError("Injections - index embeddings not initialized")
+    dists, _ = _index_embeddings.search(x=embeddings, k=1)
+    return dists.flatten().tolist()
+
+
 def init(
+    language: str = "en",
     transformer_name: Optional[str] = None,
     version: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
@@ -73,19 +87,11 @@ def init(
             f"Injections - unable to deserialize index to {embeddings_path}. Error: {deserialization_error}"
         )
 
-
-@register_dataset_udf([_prompt], f"{_prompt}.injection")
-def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
-    global _transformer_model
-    global _index_embeddings
-    if _transformer_model is None:
-        raise ValueError("Injections - transformer model not initialized")
-    embeddings = _transformer_model.encode(prompt[_prompt])
-    faiss.normalize_L2(embeddings)
-    if _index_embeddings is None:
-        raise ValueError("Injections - index embeddings not initialized")
-    dists, _ = _index_embeddings.search(x=embeddings, k=1)
-    return dists.flatten().tolist()
+    register_dataset_udf(
+        [_prompt],
+        udf_name=f"{language}{_prompt}.injection",
+        schema_name=language
+    )(injection)
 
 
 init()
