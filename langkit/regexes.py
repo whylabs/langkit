@@ -38,13 +38,28 @@ def _wrapper(column):
 _registered = False
 
 
+def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
+    from whylogs.experimental.core.udf_schema import _multicolumn_udfs
+
+    global _multicolumn_udfs
+    _multicolumn_udfs[namespace] = [
+        udf
+        for udf in _multicolumn_udfs[namespace]
+        if list(udf.udfs.keys())[0] != old_name
+    ]
+
+
 def _register_udfs(config: Optional[LangKitConfig] = None):
     global _registered
     if _registered and config is None:
         return
     if config is None:
         config = lang_config
-    pattern_metric_name = config.metric_name_map.get("has_patterns", "has_patterns")
+    default_metric_name = "has_patterns"
+    remove_default_name = default_metric_name in config.metric_name_map
+    pattern_metric_name = config.metric_name_map.get(
+        default_metric_name, "has_patterns"
+    )
     if pattern_loader.get_regex_groups() is not None:
         _registered = True
         for column in [prompt_column, response_column]:
@@ -53,6 +68,8 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
                 udf_name=f"{column}.{pattern_metric_name}",
                 metrics=[MetricSpec(FrequentItemsMetric)],
             )(_wrapper(column))
+            if remove_default_name:
+                _unregister_metric_udf(old_name=f"{column}.{default_metric_name}")
 
 
 def init(
