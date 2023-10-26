@@ -6,7 +6,7 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
-from typing import Optional
+from typing import List, Optional
 
 diagnostic_logger = getLogger(__name__)
 
@@ -35,7 +35,7 @@ def _wrapper(column):
     return wrappee
 
 
-_registered = False
+_registered: List[str] = []
 
 
 def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
@@ -58,20 +58,22 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
     if config is None:
         config = lang_config
     default_metric_name = "has_patterns"
-    remove_default_name = default_metric_name in config.metric_name_map
     pattern_metric_name = config.metric_name_map.get(
-        default_metric_name, "has_patterns"
+        default_metric_name, default_metric_name
     )
+    for old in _registered:
+        _unregister_metric_udf(old_name=old)
+    _registered = []
+
     if pattern_loader.get_regex_groups() is not None:
-        _registered = True
         for column in [prompt_column, response_column]:
+            udf_name = f"{column}.{pattern_metric_name}"
             register_dataset_udf(
                 [column],
-                udf_name=f"{column}.{pattern_metric_name}",
+                udf_name=udf_name,
                 metrics=[MetricSpec(FrequentItemsMetric)],
             )(_wrapper(column))
-            if remove_default_name:
-                _unregister_metric_udf(old_name=f"{column}.{default_metric_name}")
+            _registered.append(udf_name)
 
 
 def init(
