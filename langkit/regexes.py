@@ -41,7 +41,9 @@ _registered = False
 def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
     from whylogs.experimental.core.udf_schema import _multicolumn_udfs
 
-    global _multicolumn_udfs
+    if _multicolumn_udfs is None or namespace not in _multicolumn_udfs:
+        return
+
     _multicolumn_udfs[namespace] = [
         udf
         for udf in _multicolumn_udfs[namespace]
