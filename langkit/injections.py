@@ -16,6 +16,20 @@ _index_embeddings = None
 _transformer_model = None
 
 
+@register_dataset_udf([_prompt], f"{_prompt}.injection")
+def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
+    global _transformer_model
+    global _index_embeddings
+    if _transformer_model is None:
+        raise ValueError("Injections - transformer model not initialized")
+    embeddings = _transformer_model.encode(prompt[_prompt])
+    faiss.normalize_L2(embeddings)
+    if _index_embeddings is None:
+        raise ValueError("Injections - index embeddings not initialized")
+    dists, _ = _index_embeddings.search(x=embeddings, k=1)
+    return dists.flatten().tolist()
+
+
 def download_embeddings(url):
     response = requests.get(url)
     data = BytesIO(response.content)
@@ -24,6 +38,7 @@ def download_embeddings(url):
 
 
 def init(
+    language: str = "",
     transformer_name: Optional[str] = None,
     version: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
@@ -31,10 +46,13 @@ def init(
     config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
-    if not transformer_name:
-        transformer_name = "all-MiniLM-L6-v2"
-    if not version:
-        version = "v1"
+    transformer_name = transformer_name or config.injections_transfomer_name
+    version = version or config.injections_version
+
+    if transformer_name is None or version is None:
+        _transformer_model = None
+        return
+
     _transformer_model = SentenceTransformer(transformer_name)
 
     path = f"index_embeddings_{transformer_name}_harm_{version}.npy"
@@ -72,20 +90,6 @@ def init(
         raise ValueError(
             f"Injections - unable to deserialize index to {embeddings_path}. Error: {deserialization_error}"
         )
-
-
-@register_dataset_udf([_prompt], f"{_prompt}.injection")
-def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
-    global _transformer_model
-    global _index_embeddings
-    if _transformer_model is None:
-        raise ValueError("Injections - transformer model not initialized")
-    embeddings = _transformer_model.encode(prompt[_prompt])
-    faiss.normalize_L2(embeddings)
-    if _index_embeddings is None:
-        raise ValueError("Injections - index embeddings not initialized")
-    dists, _ = _index_embeddings.search(x=embeddings, k=1)
-    return dists.flatten().tolist()
 
 
 init()

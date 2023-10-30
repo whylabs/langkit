@@ -90,6 +90,7 @@ def load_themes(json_path: str, encoding="utf-8"):
 
 
 def init(
+    language: str = "",
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     theme_file_path: Optional[str] = None,
@@ -101,6 +102,10 @@ def init(
     global _theme_groups
     if not transformer_name and not custom_encoder:
         transformer_name = config.transformer_name
+    if not transformer_name and not custom_encoder:
+        _transformer_model = None
+        return
+    
     _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")

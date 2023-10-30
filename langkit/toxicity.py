@@ -33,7 +33,11 @@ def response_toxicity(text):
     return [toxicity(t) for t in text[_response]]
 
 
-def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
+def init(
+    language: str = "",
+    model_path: Optional[str] = None,
+    config: Optional[LangKitConfig] = None
+):
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
@@ -43,6 +47,10 @@ def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = Non
     config = config or deepcopy(lang_config)
     model_path = model_path or config.toxicity_model_path
     global _toxicity_tokenizer, _toxicity_pipeline
+    if model_path is None:
+        _toxicity_pipeline = None
+        return
+
     _toxicity_tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
     _toxicity_pipeline = TextClassificationPipeline(
