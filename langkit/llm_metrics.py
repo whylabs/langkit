@@ -1,5 +1,5 @@
 from langkit.metadata import attach_schema_metadata
-from langkit import LangKitConfig
+from langkit import LangKitConfig, multi_lang_config
 from logging import getLogger
 from typing import Optional
 from whylogs.experimental.core.udf_schema import udf_schema
@@ -20,13 +20,15 @@ except ImportError:
     )
 
 
-def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
-    regexes.init(config=config)
-    sentiment.init(config=config)
-    textstat.init(config=config)
-    themes.init(config=config)
-    toxicity.init(config=config)
-    input_output.init(config=config)
+def init(
+    language: Optional[str] = None, config: Optional[LangKitConfig] = None
+) -> DeclarativeSchema:
+    regexes.init(language, config=config or multi_lang_config[language])
+    sentiment.init(language, config=config or multi_lang_config[language])
+    textstat.init(language, config=config or multi_lang_config[language])
+    themes.init(language, config=config or multi_lang_config[language])
+    toxicity.init(language, config=config or multi_lang_config[language])
+    input_output.init(language, config=config or multi_lang_config[language])
 
     text_schema = attach_schema_metadata(udf_schema(), "llm_metrics")
     return text_schema

@@ -1,46 +1,167 @@
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Set
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
+from langkit.whylogs.unreg import unregister_udfs
 
 
-_prompt = prompt_column
-_response = response_column
+_registered: Set[str] = set()
+
+
+_nltk_downloaded = None
+_response_nltk_downloaded = None
 _sentiment_analyzer = None
-_nltk_downloaded = False
+_response_sentiment_analyzer = None
+
+_pipeline = None
+_response_pipeline = None
+
+_initialized = False
 
 
-def sentiment_nltk(text: str) -> float:
-    if _sentiment_analyzer is None:
+def sentiment_nltk(text: str, sentiment_analyzer=None) -> float:
+    if not _initialized:
+        init()
+    sentiment_analyzer = sentiment_analyzer or _sentiment_analyzer
+    if sentiment_analyzer is None:
         raise ValueError(
             "sentiment metrics must initialize sentiment analyzer before evaluation!"
         )
-    return _sentiment_analyzer.polarity_scores(text)["compound"]
+    return sentiment_analyzer.polarity_scores(text)["compound"]
 
 
-@register_dataset_udf([_prompt], udf_name=f"{_prompt}.sentiment_nltk")
-def prompt_sentiment(text):
-    return [sentiment_nltk(t) for t in text[_prompt]]
+_supported_languages = {
+    "ar",
+    "de",
+    "en",
+    "es",
+    "fr",
+    "hi",
+    "id",
+    "it",
+    "ja",
+    "ms",
+    "pt",
+    "zh",
+}
 
 
-@register_dataset_udf([_response], udf_name=f"{_response}.sentiment_nltk")
-def response_sentiment(text):
-    return [sentiment_nltk(t) for t in text[_response]]
+def sentiment_multilingual(text: str, pipeline=None) -> float:
+    if not _initialized:
+        init()
+    pipeline = pipeline or _pipeline
+    if pipeline is None:
+        raise ValueError("sentiment score must initialize the pipeline first")
+
+    result = pipeline(text, return_all_scores=True)
+    positive = [res["score"] for res in result[0] if res["label"] == "positive"][0]
+    negative = [res["score"] for res in result[0] if res["label"] == "negative"][0]
+    return positive - negative
 
 
-def init(lexicon: Optional[str] = None, config: Optional[LangKitConfig] = None):
+def _sentiment_wrapper(sentiment_fn, argument, column):
+    def _wrappee(text):
+        return [sentiment_fn(t, argument) for t in text[column]]
+
+    return _wrappee
+
+
+def configure_nltk(config, lexicon, response_lexicon):
     import nltk
     from nltk.sentiment import SentimentIntensityAnalyzer
 
-    config = config or deepcopy(lang_config)
     lexicon = lexicon or config.sentiment_lexicon
-    global _sentiment_analyzer, _nltk_downloaded
-    if not _nltk_downloaded:
+    global _nltk_downloaded, _sentiment_analyzer
+    if _nltk_downloaded != lexicon:
         nltk.download(lexicon)
-        _nltk_downloaded = True
+        _nltk_downloaded = lexicon
+        _sentiment_analyzer = (
+            SentimentIntensityAnalyzer()
+        )  # TODO: probably need to pass an argument
+    else:
+        _sentiment_analyzer = None
 
-    _sentiment_analyzer = SentimentIntensityAnalyzer()
+    lexicon = response_lexicon or config.response_sentiment_lexicon
+    global _response_nltk_downloaded, _response_sentiment_analyzer
+    if _response_nltk_downloaded != lexicon:
+        nltk.download(lexicon)
+        _response_nltk_downloaded = lexicon
+        _response_sentiment_analyzer = (
+            SentimentIntensityAnalyzer()
+        )  # TODO: needs argument
+    else:
+        _response_sentiment_analyzer = None
 
 
-init()
+def configure_hugging_face(config, sentiment_model_path, response_sentiment_model_path):
+    from transformers import pipeline
+
+    global _pipeline, _response_pipeline
+    model_path = sentiment_model_path or config.sentiment_model_path
+    if model_path:
+        _pipeline = pipeline(model=model_path, top_k=None)
+    else:
+        _pipeline = None
+
+    model_path = response_sentiment_model_path or config.response_sentiment_model_path
+    if model_path:
+        _response_pipeline = pipeline(model=model_path, top_k=None)
+    else:
+        _response_pipeline = None
+
+
+def init(
+    language: Optional[str] = None,
+    lexicon: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    response_lexicon: Optional[str] = None,
+    sentiment_model_path: Optional[str] = None,
+    response_sentiment_model_path: Optional[str] = None,
+):
+    global _initialized
+    _initialized = True
+
+    global _registered
+    unregister_udfs(_registered)
+
+    config = config or deepcopy(lang_config)
+    prompt_languages = {language} if language is not None else config.prompt_languages
+    response_languages = (
+        {language} if language is not None else config.response_languages
+    )
+
+    configure_nltk(config, lexicon, response_lexicon)
+    configure_hugging_face(config, sentiment_model_path, response_sentiment_model_path)
+
+    if prompt_languages is not None and len(prompt_languages) > 0:
+        if prompt_languages.issubset({"", "en"}) and _sentiment_analyzer:
+            register_dataset_udf(
+                [prompt_column], udf_name=f"{prompt_column}.sentiment_nltk"
+            )(_sentiment_wrapper(sentiment_nltk, _sentiment_analyzer, prompt_column))
+            _registered.add(f"{prompt_column}.sentiment_nltk")
+        elif prompt_languages.issubset(_supported_languages) and _pipeline:
+            register_dataset_udf(
+                [prompt_column], udf_name=f"{prompt_column}.sentiment_multi"
+            )(_sentiment_wrapper(sentiment_multilingual, _pipeline, prompt_column))
+            _registered.add(f"{prompt_column}.sentiment_multi")
+
+    if response_languages is not None and len(response_languages) > 0:
+        if response_languages.issubset({"", "en"}) and _response_sentiment_analyzer:
+            register_dataset_udf(
+                [response_column], udf_name=f"{response_column}.sentiment_nltk"
+            )(
+                _sentiment_wrapper(
+                    sentiment_nltk, _response_sentiment_analyzer, response_column
+                )
+            )
+            _registered.add(f"{response_column}.sentiment_nltk")
+        elif response_languages.issubset(_supported_languages) and _response_pipeline:
+            register_dataset_udf(
+                [prompt_column], udf_name=f"{response_column}.sentiment_multi"
+            )(
+                _sentiment_wrapper(
+                    sentiment_multilingual, _response_pipeline, prompt_column
+                )
+            )
+            _registered.add(f"{response_column}.sentiment_multi")

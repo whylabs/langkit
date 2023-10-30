@@ -11,6 +11,7 @@ def test_toxicity():
     from langkit import toxicity  # noqa
     from whylogs.experimental.core.udf_schema import udf_schema
 
+    toxicity.init()
     text_schema = udf_schema()
     profile = why.log(
         {"prompt": "I like you. I love you."}, schema=text_schema
@@ -29,6 +30,7 @@ def test_toxicity_long_response(long_response):
     from langkit import toxicity  # noqa
     from whylogs.experimental.core.udf_schema import udf_schema
 
+    toxicity.init()
     text_schema = udf_schema()
     profile = why.log(long_response, schema=text_schema).profile()
     assert profile
@@ -39,6 +41,7 @@ def test_empty_toxicity():
     from langkit import toxicity  # noqa
     from whylogs.experimental.core.udf_schema import udf_schema
 
+    toxicity.init()
     text_schema = udf_schema()
     test_prompt = "hi."
     test_response = ""

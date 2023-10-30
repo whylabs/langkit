@@ -1,11 +1,12 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, Optional
+from typing import Callable, Optional, Set
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from langkit.transformer import Encoder
+from langkit.whylogs.unreg import unregister_udfs
 
 _prompt = prompt_column
 _response = response_column
@@ -13,26 +14,14 @@ _response = response_column
 
 _transformer_model = None
 
+_initialized = False
+
 diagnostic_logger = getLogger(__name__)
 
 
-def init(
-    transformer_name: Optional[str] = None,
-    custom_encoder: Optional[Callable] = None,
-    config: Optional[LangKitConfig] = None,
-):
-    config = config or deepcopy(lang_config)
-    global _transformer_model
-    if transformer_name is None and custom_encoder is None:
-        transformer_name = config.transformer_name
-    _transformer_model = Encoder(transformer_name, custom_encoder)
-
-
-init()
-
-
-@register_dataset_udf([_prompt, _response], f"{_response}.relevance_to_{_prompt}")
 def prompt_response_similarity(text):
+    if not _initialized:
+        init()
     global _transformer_model
 
     if _transformer_model is None:
@@ -53,3 +42,44 @@ def prompt_response_similarity(text):
             )
             series_result.append(None)
     return series_result
+
+
+_registered: Set[str] = set()
+
+
+def init(
+    language: Optional[str] = None,
+    transformer_name: Optional[str] = None,
+    custom_encoder: Optional[Callable] = None,
+    config: Optional[LangKitConfig] = None,
+):
+    global _initialized
+    _initialized = True
+    global _registered
+    unregister_udfs(_registered)
+    if transformer_name and custom_encoder:
+        raise ValueError(
+            "Only one of transformer_name or encoder can be specified, not both."
+        )
+    config = config or deepcopy(lang_config)
+    global _transformer_model
+    response_transformer_name = (
+        transformer_name or config.response_transformer_name
+    )  # not a bug :)
+    transformer_name = transformer_name or config.transformer_name
+
+    if transformer_name != response_transformer_name:  # can't evaluate across langauges
+        _transformer_model = None
+        return
+
+    if transformer_name is None and custom_encoder is None:  # metric turned off
+        _transformer_model = None
+        return
+
+    transformer_name = None if custom_encoder else transformer_name
+    _transformer_model = Encoder(transformer_name, custom_encoder)
+    register_dataset_udf(
+        [prompt_column, response_column],
+        f"{response_column}.relevance_to_{prompt_column}",
+    )(prompt_response_similarity)
+    _registered.add(f"{response_column}.relevance_to_{prompt_column}")

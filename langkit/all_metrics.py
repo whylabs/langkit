@@ -4,7 +4,7 @@ from whylogs.core.schema import DeclarativeSchema
 
 from langkit.metadata import attach_schema_metadata
 
-from langkit import LangKitConfig
+from langkit import LangKitConfig, multi_lang_config
 from langkit import injections
 from langkit import topics
 from langkit import regexes
@@ -15,14 +15,16 @@ from langkit import toxicity
 from langkit import input_output
 
 
-def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
-    injections.init(config=config)
-    topics.init(config=config)
-    regexes.init(config=config)
-    sentiment.init(config=config)
-    textstat.init(config=config)
-    themes.init(config=config)
-    toxicity.init(config=config)
-    input_output.init(config=config)
+def init(
+    language: Optional[str] = None, config: Optional[LangKitConfig] = None
+) -> DeclarativeSchema:
+    injections.init(language, config=config or multi_lang_config[language])
+    topics.init(language, config=config or multi_lang_config[language])
+    regexes.init(language, config=config or multi_lang_config[language])
+    sentiment.init(language, config=config or multi_lang_config[language])
+    textstat.init(language, config=config or multi_lang_config[language])
+    themes.init(language, config=config or multi_lang_config[language])
+    toxicity.init(language, config=config or multi_lang_config[language])
+    input_output.init(language, config=config or multi_lang_config[language])
     text_schema = attach_schema_metadata(udf_schema(), "all_metrics")
     return text_schema
