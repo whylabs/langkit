@@ -105,7 +105,7 @@ def init(
     if not transformer_name and not custom_encoder:
         _transformer_model = None
         return
-    
+
     _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")

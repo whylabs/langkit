@@ -89,7 +89,8 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
 
 def init(
     language: str = "",
-    pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
+    pattern_file_path: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
 ):
     config = deepcopy(config or lang_config)
     if pattern_file_path:
