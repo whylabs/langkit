@@ -32,21 +32,21 @@ def wrapper(pattern_group, column):
 _registered: Set[str] = set()
 
 
-def _unregister():
+def _unregister(language: str):
     # WARNING: Uses private whylogs internals. Do not copy this code.
     # TODO: Add proper whylogs API to support this.
     from whylogs.experimental.core.udf_schema import _multicolumn_udfs
 
     global _multicolumn_udfs, _registered
-    _multicolumn_udfs[""] = [
-        u for u in _multicolumn_udfs[""] if list(u.udfs.keys())[0] not in _registered
+    _multicolumn_udfs[language] = [
+        u for u in _multicolumn_udfs[language] if list(u.udfs.keys())[0] not in _registered
     ]
     _registered = set()
 
 
-def _register_udfs():
+def _register_udfs(language: str):
     global _registered
-    _unregister()
+    _unregister(language)
     regex_groups = pattern_loader.get_regex_groups()
     if regex_groups is not None:
         for column in [prompt_column, response_column]:
@@ -55,11 +55,13 @@ def _register_udfs():
                 register_dataset_udf(
                     [column],
                     udf_name=udf_name,
+                    schema_name=language,
                 )(wrapper(group, column))
                 _registered.add(udf_name)
 
 
 def init(
+    language: str = "",
     pattern_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
 ):
     config = deepcopy(config or lang_config)
@@ -70,7 +72,7 @@ def init(
     pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
-    _register_udfs()
+    _register_udfs(language)
 
 
 init()

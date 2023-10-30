@@ -62,7 +62,7 @@ def aggregate_wrapper(
     return wrappee
 
 
-def init(config: Optional[LangKitConfig] = None):
+def init(language: str = "", config: Optional[LangKitConfig] = None):
     pass
 
 

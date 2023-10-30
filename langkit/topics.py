@@ -9,11 +9,13 @@ from . import LangKitConfig, lang_config, prompt_column, response_column
 
 _topics: List[str] = lang_config.topics
 
-_model_path: str = lang_config.topic_model_path
-_classifier = pipeline(lang_config.topic_classifier, model=_model_path)
+_model_path: Optional[str] = None
+_classifier = None
 
 
 def closest_topic(text):
+    if _classifier is None:
+        raise ValueError("Topics - classifier model not initialized")
     return _classifier(text, _topics, multi_label=False)["labels"][0]
 
 
@@ -22,6 +24,7 @@ def _wrapper(column: str) -> Callable:
 
 
 def init(
+    language: str = "",
     topics: Optional[List[str]] = None,
     model_path: Optional[str] = None,
     topic_classifier: Optional[str] = None,
@@ -32,6 +35,10 @@ def init(
     _topics = topics or config.topics
     topic_classifier = topic_classifier or lang_config.topic_classifier
     model_path = model_path or config.topic_model_path
+    if not (model_path and topic_classifier):
+        _classifier = None
+        return
+
     _classifier = pipeline(topic_classifier, model=model_path)
     for column in [prompt_column, response_column]:
         register_dataset_udf([column], udf_name=f"{column}.closest_topic")(

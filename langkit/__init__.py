@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import importlib.resources as resources
 
@@ -18,7 +18,7 @@ class LangKitConfig:
     theme_file_path: str = field(
         default_factory=lambda: _resource_filename("themes.json")
     )
-    transformer_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    transformer_name: Optional[str] = "sentence-transformers/all-MiniLM-L6-v2"
     topics: List[str] = field(
         default_factory=lambda: [
             "law",
@@ -36,21 +36,62 @@ class LangKitConfig:
             "meteor",
         ]
     )
-    reference_corpus: str = ""
+    reference_corpus: Optional[str] = ""
     injections_base_url = (
         "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
     )
     data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
-    sentiment_lexicon: str = "vader_lexicon"
-    topic_model_path: str = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
-    topic_classifier: str = "zero-shot-classification"
+    sentiment_lexicon: Optional[str] = "vader_lexicon"
+    topic_model_path: Optional[str] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    topic_classifier: Optional[str] = "zero-shot-classification"
     toxicity_model_path: str = "martin-ha/toxic-comment-model"
+    injections_transformer_name: Optional[str] = "all-MiniLM-L6-v2"
+    injections_version: Optional[str] = "v1"
 
 
 prompt_column: str = "prompt"
 response_column: str = "response"
 lang_config = LangKitConfig()
+
+
+# Override default models/parameters per language
+multi_lang_config: Dict[str, LangKitConfig] = {
+    "": LangKitConfig(),
+    "ar": LangKitConfig(
+        injections_transformer_name=None,
+        reference_corpus=None,
+        sentiment_lexicon=None,
+        topic_model_path=None,
+        toxicity_model_path=None,
+        transformer_name=None,
+    ),
+    "en": LangKitConfig(),
+    "es": LangKitConfig(
+        injections_transformer_name=None,
+        reference_corpus=None,
+        sentiment_lexicon=None,
+        topic_model_path=None,
+        toxicity_model_path=None,
+        transformer_name=None,
+    ),
+    "it": LangKitConfig(
+        injections_transformer_name=None,
+        reference_corpus=None,
+        sentiment_lexicon=None,
+        topic_model_path=None,
+        toxicity_model_path=None,
+        transformer_name=None,
+    ),
+    "pt": LangKitConfig(
+        injections_transformer_name=None,
+        reference_corpus=None,
+        sentiment_lexicon=None,
+        topic_model_path=None,
+        toxicity_model_path="dougtrajano/toxicity-type-detection",
+        transformer_name=None,
+    )
+}
 
 
 def package_version(package: str = __package__) -> str:
