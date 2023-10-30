@@ -36,7 +36,7 @@ def response_toxicity(text):
 def init(
     language: str = "",
     model_path: Optional[str] = None,
-    config: Optional[LangKitConfig] = None
+    config: Optional[LangKitConfig] = None,
 ):
     from transformers import (
         AutoModelForSequenceClassification,

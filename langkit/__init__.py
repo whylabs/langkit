@@ -43,9 +43,11 @@ class LangKitConfig:
     data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
     sentiment_lexicon: Optional[str] = "vader_lexicon"
-    topic_model_path: Optional[str] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    topic_model_path: Optional[
+        str
+    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
     topic_classifier: Optional[str] = "zero-shot-classification"
-    toxicity_model_path: str = "martin-ha/toxic-comment-model"
+    toxicity_model_path: Optional[str] = "martin-ha/toxic-comment-model"
     injections_transformer_name: Optional[str] = "all-MiniLM-L6-v2"
     injections_version: Optional[str] = "v1"
 
@@ -90,7 +92,7 @@ multi_lang_config: Dict[str, LangKitConfig] = {
         topic_model_path=None,
         toxicity_model_path="dougtrajano/toxicity-type-detection",
         transformer_name=None,
-    )
+    ),
 }
 
 

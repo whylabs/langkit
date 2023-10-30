@@ -13,7 +13,9 @@ from langkit import toxicity
 from langkit import input_output
 
 
-def init(language: str = "", config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
+def init(
+    language: str = "", config: Optional[LangKitConfig] = None
+) -> DeclarativeSchema:
     injections.init(language, config=config or multi_lang_config[language])
     topics.init(language, config=config or multi_lang_config[language])
     regexes.init(language, config=config or multi_lang_config[language])

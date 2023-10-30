@@ -46,7 +46,7 @@ def init(
     config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
-    transformer_name = transformer_name or config.injections_transfomer_name
+    transformer_name = transformer_name or config.injections_transformer_name
     version = version or config.injections_version
 
     if transformer_name is None or version is None:

@@ -7,7 +7,9 @@ from langkit import regexes
 from langkit import textstat
 
 
-def init(language: str = "", config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
+def init(
+    language: str = "", config: Optional[LangKitConfig] = None
+) -> DeclarativeSchema:
     regexes.init(language, config=config or multi_lang_config[language])
     textstat.init(language, config=config or multi_lang_config[language])
 

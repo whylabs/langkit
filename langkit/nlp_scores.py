@@ -6,7 +6,7 @@ from . import LangKitConfig, lang_config, response_column
 from logging import getLogger
 
 
-_corpus: str = lang_config.reference_corpus
+_corpus: Optional[str] = lang_config.reference_corpus
 _scores: List[str] = lang_config.nlp_scores
 _rouge_type: str = lang_config.rouge_type
 
@@ -87,7 +87,7 @@ def _register_score_udfs():
 
 
 def init(
-    language: str = None,
+    language: str = "",
     corpus: Optional[str] = None,
     scores: Set[str] = set(),
     rouge_type: str = "",
