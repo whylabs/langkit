@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from logging import getLogger
 from typing import List, Optional
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from langkit import lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from nltk.tokenize import sent_tokenize
 from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from langkit.transformer import Encoder
@@ -238,7 +238,7 @@ class ConsistencyChecker:
 
 def response_hallucination(text):
     series_result = []
-    for prompt, response in zip(text[_prompt], text[_response]):
+    for prompt, response in zip(text[prompt_column], text[response_column]):
         result: ConsistencyResult = checker.consistency_check(prompt, response)
         series_result.append(result.final_score)
     return series_result
@@ -250,11 +250,16 @@ def consistency_check(prompt: str, response: Optional[str] = None):
     else:
         raise Exception("You need to call init() before using this function")
 
-    
+
 checker: Optional[ConsistencyChecker] = None
 
 
-def init(config: Optional[LangKitConfig] = None, llm: LLMInvocationParams, num_samples=1):
+def init(
+    config: Optional[LangKitConfig] = None,
+    llm: LLMInvocationParams = LLMInvocationParams(),
+    num_samples=1,
+):
+    config = config or lang_config
     global checker, embeddings_encoder
     import nltk
 
@@ -264,6 +269,6 @@ def init(config: Optional[LangKitConfig] = None, llm: LLMInvocationParams, num_s
     )
     embeddings_encoder = Encoder(config.response_transformer_name, custom_encoder=None)
     checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
-    register_dataset_udf([prompt_column, response_column], f"{response_column}.hallucination")(
-        response_hallucination
-    )
+    register_dataset_udf(
+        [prompt_column, response_column], f"{response_column}.hallucination"
+    )(response_hallucination)
