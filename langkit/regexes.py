@@ -6,7 +6,7 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 diagnostic_logger = getLogger(__name__)
 
@@ -47,6 +47,8 @@ def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
 
 
 def _register_udfs(config: Optional[LangKitConfig] = None):
+    from whylogs.experimental.core.udf_schema import _resolver_specs
+
     global _registered
     if _registered and config is None:
         return
@@ -56,8 +58,17 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
     pattern_metric_name = config.metric_name_map.get(
         default_metric_name, default_metric_name
     )
+
     for old in _registered:
         _unregister_metric_udf(old_name=old)
+        if (
+            _resolver_specs is not None
+            and isinstance(_resolver_specs, Dict)
+            and isinstance(_resolver_specs[""], List)
+        ):
+            _resolver_specs[""] = [
+                spec for spec in _resolver_specs[""] if spec.column_name != old
+            ]
     _registered = []
 
     if pattern_loader.get_regex_groups() is not None:
