@@ -8,12 +8,10 @@ from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from langkit.transformer import Encoder
 from sentence_transformers import util
 
-_prompt = prompt_column
-_response = response_column
 
 diagnostic_logger = getLogger(__name__)
 
-embeddings_encoder = Encoder(lang_config.transformer_name, custom_encoder=None)
+embeddings_encoder = None
 
 
 @dataclass
@@ -238,21 +236,6 @@ class ConsistencyChecker:
         return consistency_result
 
 
-checker: Optional[ConsistencyChecker] = None
-
-
-def init(llm: LLMInvocationParams, num_samples=1):
-    global checker
-    import nltk
-
-    nltk.download("punkt")
-    diagnostic_logger.info(
-        "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
-    )
-    checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
-
-
-@register_dataset_udf([_prompt, _response], f"{_response}.hallucination")
 def response_hallucination(text):
     series_result = []
     for prompt, response in zip(text[_prompt], text[_response]):
@@ -266,3 +249,21 @@ def consistency_check(prompt: str, response: Optional[str] = None):
         return checker.consistency_check(prompt, response).to_summary_dict()
     else:
         raise Exception("You need to call init() before using this function")
+
+    
+checker: Optional[ConsistencyChecker] = None
+
+
+def init(config: Optional[LangKitConfig] = None, llm: LLMInvocationParams, num_samples=1):
+    global checker, embeddings_encoder
+    import nltk
+
+    nltk.download("punkt")
+    diagnostic_logger.info(
+        "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
+    )
+    embeddings_encoder = Encoder(config.response_transformer_name, custom_encoder=None)
+    checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
+    register_dataset_udf([prompt_column, response_column], f"{response_column}.hallucination")(
+        response_hallucination
+    )
