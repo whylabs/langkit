@@ -165,7 +165,9 @@ def init(
         raise ValueError(
             "Cannot specify both response_theme_file_path and response_theme_json"
         )
-    response_theme_file_path = response_theme_file_path or config.response_theme_file_path
+    response_theme_file_path = (
+        response_theme_file_path or config.response_theme_file_path
+    )
     if response_theme_file_path is None:
         if response_theme_json:
             _response_theme_groups = json.loads(response_theme_json)
