@@ -141,11 +141,13 @@ def init(
 
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")
+
+    theme_file_path = theme_file_path or config.theme_file_path
     if theme_file_path is None:
         if theme_json:
             _theme_groups = json.loads(theme_json)
         else:
-            _theme_groups = load_themes(config.theme_file_path)
+            _transformer_model = None
     else:
         _theme_groups = load_themes(theme_file_path)
 
@@ -163,11 +165,12 @@ def init(
         raise ValueError(
             "Cannot specify both response_theme_file_path and response_theme_json"
         )
+    response_theme_file_path = response_theme_file_path or config.response_theme_file_path
     if response_theme_file_path is None:
         if response_theme_json:
             _response_theme_groups = json.loads(response_theme_json)
         else:
-            _response_theme_groups = load_themes(config.response_theme_file_path)
+            _response_transformer_model = None
     else:
         _response_theme_groups = load_themes(response_theme_file_path)
 

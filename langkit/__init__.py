@@ -59,8 +59,8 @@ class LangKitConfig:
     )
     data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
-    sentiment_lexicon: Optional[str] = "sentiment/vader_lexicon.zip/vader_lexicon/vader_lexicon.txt"
-    response_sentiment_lexicon: Optional[str] = "sentiment/vader_lexicon.zip/vader_lexicon/vader_lexicon.txt"
+    sentiment_lexicon: Optional[str] = "vader_lexicon"
+    response_sentiment_lexicon: Optional[str] = "vader_lexicon"
     topic_model_path: Optional[
         str
     ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
