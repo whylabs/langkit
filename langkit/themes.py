@@ -60,18 +60,21 @@ def _map_embeddings(embeddings_map, theme_groups, transformer_model):
 _registered: Set[str] = set()
 
 
-def _unregister_udf(udf_name: str, namespace: Optional[str] = None, schema_name: str = "") -> None:
+def _unregister_udf(
+    udf_name: str, namespace: Optional[str] = None, schema_name: str = ""
+) -> None:
     import whylogs.experimental.core.udf_schema as us
+
     name = f"{namespace}.{udf_name}" if namespace else udf_name
     if schema_name not in us._multicolumn_udfs:
         return
 
-    found = False
     for spec in us._multicolumn_udfs[schema_name]:
         if name in spec.udfs:
-            found = True
             del spec.udfs[name]
-    us._resolver_specs[schema_name] = list(filter(lambda x: x.column_name != name, us._resolver_specs[schema_name]))
+    us._resolver_specs[schema_name] = list(
+        filter(lambda x: x.column_name != name, us._resolver_specs[schema_name])
+    )
 
 
 def _register_theme_udfs():

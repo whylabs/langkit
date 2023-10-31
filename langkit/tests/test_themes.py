@@ -129,7 +129,10 @@ def test_themes_with_json_string():
     }
     # if we don't reset udfs, jailbreak_similarity will be an empty metric
     _reset_udfs()
-    themes.init(theme_json=json.dumps(refusals_json), response_theme_json=json.dumps(refusals_json))
+    themes.init(
+        theme_json=json.dumps(refusals_json),
+        response_theme_json=json.dumps(refusals_json),
+    )
     schema = udf_schema()
 
     prof = why.log({"prompt": "hello"}, schema=schema).view()
