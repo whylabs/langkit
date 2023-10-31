@@ -38,7 +38,7 @@ def init(
     if _nltk_downloaded != lexicon:
         nltk.download(lexicon)
         _nltk_downloaded = lexicon
-        _sentiment_analyzer = SentimentIntensityAnalyzer(lexicon)
+        _sentiment_analyzer = SentimentIntensityAnalyzer()  # TODO: probably need to pass an argument
         register_dataset_udf(
             [prompt_column], udf_name=f"{prompt_column}.sentiment_nltk"
         )(_sentiment_wrapper(_sentiment_analyzer, prompt_column))
@@ -50,7 +50,7 @@ def init(
     if _response_nltk_downloaded != lexicon:
         nltk.download(lexicon)
         _response_nltk_downloaded = lexicon
-        _response_sentiment_analyzer = SentimentIntensityAnalyzer(lexicon)
+        _response_sentiment_analyzer = SentimentIntensityAnalyzer()  # TODO: needs argument
         register_dataset_udf(
             [response_column], udf_name=f"{response_column}.sentiment_nltk"
         )(_sentiment_wrapper(_response_sentiment_analyzer, response_column))
