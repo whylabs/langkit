@@ -6,6 +6,7 @@
 
 |        **Metric Namespace**         |                                                      **Metrics**                                                      |                             **Description**                              |                **Target**                |                              **Notes**                               |     |
 | :---------------------------------: | :-------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------: | :--------------------------------------: | :------------------------------------------------------------------: | :-: |
+|   [Hallucination](#hallucination)   |                                                response.hallucination                                                 |       Consistency between response and additional response samples       |           Prompt and Response            |                    Requires Additional LLM Calls                     |     |
 |      [Injections](#injections)      |                                                       injection                                                       |  Semantic Similarity from known prompt injections and harmful behaviors  |                  Prompt                  |                                                                      |     |
 |    [Input/Output](#inputoutput)     |                                             response.relevance_to_prompt                                              |             Semantic similarity between prompt and response              |           Prompt and Response            |               Default llm metric, Customizable Encoder               |     |
 |         [Regexes](#regexes)         |                                                     has_patterns                                                      |             Regex pattern matching for sensitive information             |           Prompt and Response            |     Default llm metric, light-weight, Customizable Regex Groups      |     |
@@ -14,6 +15,65 @@
 |          [Themes](#themes)          |                                       jailbreak_similarity, refusal_similarity                                        |       Semantic similarity between customizable groups of examples        | Prompt(jailbreak) and Response(refusals) | Default llm metric, Customizable Encoder, Customizable Themes Groups |     |
 |          [Topics](#topics)          |                                                        topics                                                         | Text classification into predefined topics - law, finance, medical, etc. |           Prompt and Response            |                                                                      |     |
 |        [Toxicity](#toxicity)        |                                                       toxicity                                                        |                 Toxicity, harmfulness and offensiveness                  |           Prompt and Response            |                          Default llm metric                          |     |
+
+## Hallucination
+
+The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times.
+
+Requires additional LLM calls to calculate the consistency score.
+
+### Usage
+
+Usage with whylogs profiling:
+
+```python
+from langkit import response_hallucination
+from langkit.openai import OpenAIDavinci
+import whylogs as why
+from whylogs.experimental.core.udf_schema import udf_schema
+
+# The hallucination module requires initialization
+response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+
+schema = udf_schema()
+profile = why.log(
+    {
+        "prompt": "Where did fortune cookies originate?",
+        "response": "Fortune cookies originated in Egypt. However, some say it's from Russia.",
+    },
+    schema=schema,
+).profile()
+```
+
+Usage as standalone function:
+
+```python
+from langkit import response_hallucination
+from langkit.openai import OpenAIDavinci
+
+
+response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+
+result = response_hallucination.consistency_check(
+    prompt="Who was Philip Hayworth?",
+    response="Philip Hayworth was an English barrister and politician who served as Member of Parliament for Thetford from 1859 to 1868.",
+)
+```
+
+```bash
+{'llm_score': 1.0,
+ 'semantic_score': 0.2514273524284363,
+ 'final_score': 0.6257136762142181,
+ 'total_tokens': 226,
+ 'samples': ["\nPhilip Hayworth was a British soldier and politician who served as Member of Parliament for Lyme Regis in Dorset between 1654 and 1659. He was also a prominent member of Oliver Cromwell's army and helped to bring about the restoration of the monarchy in 1660."],
+ 'response': 'Philip Hayworth was an English barrister and politician who served as Member of Parliament for Thetford from 1859 to 1868.'}
+```
+
+### response.hallucination
+
+`response.hallucination` contains a score between 0 and 1, where 0 means high consistency between response and samples. Conversely, scores towards 1 mean high inconsistency between samples. The score is a combination of semantic similarity-based scores and LLM-based consistency scores.
+
+Currently only supports OpenAI LLMs.
 
 ## Injections
 
