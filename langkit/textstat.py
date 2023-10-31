@@ -3,7 +3,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, prompt_column, response_column
+from . import LangKitConfig, lang_config, prompt_column, response_column
 
 
 diagnostic_logger = getLogger(__name__)
@@ -69,19 +69,24 @@ def _unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, 
 _registered = False
 
 
-def init(language: str = "", config: Optional[LangKitConfig] = None):
+def init(language: Optional[str] = None, config: Optional[LangKitConfig] = None):
+    config = config or lang_config
+    prompt_languages = {language} if language is not None else config.prompt_languages
+    response_languages = {language} if language is not None else config.response_languages
     global _registered
     if not _registered:
         _registered = True
         for t in _udfs_to_register:
             stat_name, schema_name, udf = _unpack(t)
             for column in [prompt_column, response_column]:
-                register_dataset_udf(
-                    [column], udf_name=f"{column}.{udf}", schema_name=schema_name
-                )(wrapper(stat_name, column))
+                if schema_name in (prompt_languages if column == prompt_column else response_languages):
+                    register_dataset_udf(
+                        [column], udf_name=f"{column}.{udf}", schema_name=schema_name
+                    )(wrapper(stat_name, column))
         for column in [prompt_column, response_column]:
-            register_dataset_udf(
-                [column], udf_name=f"{column}.aggregate_reading_level"
-            )(aggregate_wrapper(column))
+            if "en" in (prompt_languages if column == prompt_column else response_languages):
+                register_dataset_udf(
+                    [column], udf_name=f"{column}.aggregate_reading_level"
+                )(aggregate_wrapper(column))
 
         diagnostic_logger.info("Initialized textstat metrics.")

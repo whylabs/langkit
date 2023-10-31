@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import importlib.resources as resources
 
@@ -73,6 +73,8 @@ class LangKitConfig:
     response_toxicity_model_path: Optional[str] = "martin-ha/toxic-comment-model"
     injections_transformer_name: Optional[str] = "all-MiniLM-L6-v2"
     injections_version: Optional[str] = "v1"
+    prompt_languages: Optional[Set[str]] = {"en"}
+    response_languages: Optional[Set[str]] = {"en"}
 
 
 prompt_column: str = "prompt"
@@ -84,6 +86,8 @@ lang_config = LangKitConfig()
 multi_lang_config: Dict[str, LangKitConfig] = {
     "": LangKitConfig(),
     "ar": LangKitConfig(
+        prompt_language={"ar"},
+        response_language={"ar"},
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
@@ -97,6 +101,8 @@ multi_lang_config: Dict[str, LangKitConfig] = {
     ),
     "en": LangKitConfig(),
     "es": LangKitConfig(
+        prompt_language={"es"},
+        response_language={"es"},
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
@@ -109,6 +115,8 @@ multi_lang_config: Dict[str, LangKitConfig] = {
         response_transformer_name=None,
     ),
     "it": LangKitConfig(
+        prompt_language={"it"},
+        response_language={"it"},
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
@@ -121,6 +129,8 @@ multi_lang_config: Dict[str, LangKitConfig] = {
         response_transformer_name=None,
     ),
     "pt": LangKitConfig(
+        prompt_language={"pt"},
+        response_language={"pt"},
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
