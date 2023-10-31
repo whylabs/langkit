@@ -11,6 +11,7 @@ diagnostic_logger = getLogger(__name__)
 
 
 pattern_loader = PatternLoader()
+response_pattern_loader = PatternLoader()
 
 
 def count_patterns(group, text: str) -> int:
@@ -50,31 +51,41 @@ def _register_udfs(language: str):
     _unregister(language)
     regex_groups = pattern_loader.get_regex_groups()
     if regex_groups is not None:
-        for column in [prompt_column, response_column]:
-            for group in regex_groups:
-                udf_name = f"{column}.{group['name']}_count"
-                register_dataset_udf(
-                    [column],
-                    udf_name=udf_name,
-                    schema_name=language,
-                )(wrapper(group, column))
-                _registered.add(udf_name)
+        column = prompt_column
+        for group in regex_groups:
+            udf_name = f"{column}.{group['name']}_count"
+            register_dataset_udf(
+                [column],
+                udf_name=udf_name,
+                schema_name=language,
+            )(wrapper(group, column))
+            _registered.add(udf_name)
+
+    regex_groups = response_pattern_loader.get_regex_groups()
+    if regex_groups is not None:
+        column = response_column
+        for group in regex_groups:
+            udf_name = f"{column}.{group['name']}_count"
+            register_dataset_udf(
+                [column],
+                udf_name=udf_name,
+                schema_name=language,
+            )(wrapper(group, column))
+            _registered.add(udf_name)
 
 
 def init(
     language: str = "",
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
+    response_pattern_file_path: Optional[str] = None,
 ):
     config = deepcopy(config or lang_config)
     if pattern_file_path:
         config.pattern_file_path = pattern_file_path
-
-    global pattern_loader
-    pattern_loader = PatternLoader(config)
-    pattern_loader.update_patterns()
-
+    if response_pattern_file_path:
+        config.response_pattern_file_path = response_pattern_file_path
+    global pattern_loader, response_pattern_loader
+    pattern_loader = PatternLoader(config.pattern_file_path)
+    response_pattern_loader = PatternLoader(config.response_pattern_file_path)
     _register_udfs(language)
-
-
-init()

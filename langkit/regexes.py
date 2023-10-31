@@ -11,26 +11,21 @@ from typing import Dict, List, Optional
 diagnostic_logger = getLogger(__name__)
 
 pattern_loader = PatternLoader()
+response_pattern_loader = PatternLoader()
 
 
-def has_patterns(text):
-    regex_groups = pattern_loader.get_regex_groups()
+def has_patterns(text, regex_groups):
     if regex_groups:
-        matched = None
         for group in regex_groups:
             for expression in group["expressions"]:
                 if expression.search(text):
-                    matched = matched or group["name"]
-                    break
-            if matched is not None:
-                break
-
-        return matched
+                    return group["name"]
+    return None
 
 
-def _wrapper(column):
+def _wrapper(column, groups):
     def wrappee(text):
-        return [has_patterns(input) for input in text[column]]
+        return [has_patterns(input, groups) for input in text[column]]
 
     return wrappee
 
@@ -77,30 +72,40 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
     _registered = []
 
     if pattern_loader.get_regex_groups() is not None:
-        for column in [prompt_column, response_column]:
-            udf_name = f"{column}.{pattern_metric_name}"
-            register_dataset_udf(
-                [column],
-                udf_name=udf_name,
-                metrics=[MetricSpec(FrequentItemsMetric)],
-            )(_wrapper(column))
-            _registered.append(udf_name)
+        column = prompt_column
+        udf_name = f"{column}.{pattern_metric_name}"
+        register_dataset_udf(
+            [column],
+            udf_name=udf_name,
+            metrics=[MetricSpec(FrequentItemsMetric)],
+        )(_wrapper(column, pattern_loader.get_regex_groups()))
+        _registered.append(udf_name)
+
+    if response_pattern_loader.get_regex_groups() is not None:
+        column = response_column
+        udf_name = f"{column}.{pattern_metric_name}"
+        register_dataset_udf(
+            [column],
+            udf_name=udf_name,
+            metrics=[MetricSpec(FrequentItemsMetric)],
+        )(_wrapper(column, response_pattern_loader.get_regex_groups()))
+        _registered.append(udf_name)
 
 
 def init(
     language: str = "",
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
+    response_pattern_file_path: Optional[str] = None,
 ):
     config = deepcopy(config or lang_config)
     if pattern_file_path:
         config.pattern_file_path = pattern_file_path
+    if response_pattern_file_path:
+        config.response_pattern_file_path = response_pattern_file_path
 
-    global pattern_loader
-    pattern_loader = PatternLoader(config)
-    pattern_loader.update_patterns()
+    global pattern_loader, response_pattern_loader
+    pattern_loader = PatternLoader(config.pattern_file_path)
+    response_pattern_loader = PatternLoader(config.response_pattern_file_path)
 
     _register_udfs(config)
-
-
-init()

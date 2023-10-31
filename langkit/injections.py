@@ -11,18 +11,16 @@ import faiss
 from langkit.utils import _get_data_home
 import os
 
-_prompt = prompt_column
 _index_embeddings = None
 _transformer_model = None
 
 
-@register_dataset_udf([_prompt], f"{_prompt}.injection")
 def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global _transformer_model
     global _index_embeddings
     if _transformer_model is None:
         raise ValueError("Injections - transformer model not initialized")
-    embeddings = _transformer_model.encode(prompt[_prompt])
+    embeddings = _transformer_model.encode(prompt[prompt_column])
     faiss.normalize_L2(embeddings)
     if _index_embeddings is None:
         raise ValueError("Injections - index embeddings not initialized")
@@ -90,6 +88,5 @@ def init(
         raise ValueError(
             f"Injections - unable to deserialize index to {embeddings_path}. Error: {deserialization_error}"
         )
-
-
-init()
+    if _index_embeddings and _transformer_model:
+        register_dataset_udf([prompt_column], f"{prompt_column}.injection")(injection)
