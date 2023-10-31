@@ -59,8 +59,8 @@ class LangKitConfig:
     )
     data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
-    sentiment_lexicon: Optional[str] = "vader_lexicon"
-    response_sentiment_lexicon: Optional[str] = "vader_lexicon"
+    sentiment_lexicon: Optional[str] = "sentiment/vader_lexicon.zip/vader_lexicon/vader_lexicon.txt"
+    response_sentiment_lexicon: Optional[str] = "sentiment/vader_lexicon.zip/vader_lexicon/vader_lexicon.txt"
     topic_model_path: Optional[
         str
     ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
@@ -87,6 +87,7 @@ multi_lang_config: Dict[str, LangKitConfig] = {
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
+        response_sentiment_lexicon=None,
         topic_model_path=None,
         response_topic_model_path=None,
         toxicity_model_path=None,
