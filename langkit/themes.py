@@ -1,7 +1,7 @@
 import json
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, Optional, Dict, List
+from typing import Callable, Optional, Dict, List, Set
 
 from sentence_transformers import util
 from torch import Tensor
@@ -15,61 +15,89 @@ diagnostic_logger = getLogger(__name__)
 
 _transformer_model = None
 _theme_groups = None
-_prompt = prompt_column
-_response = response_column
-
 _embeddings_map: Dict[str, List] = {}
 
 
-def create_similarity_function(group: str, column: str):
+_response_transformer_model = None
+_response_theme_groups = None
+_response_embeddings_map: Dict[str, List] = {}
+
+
+def create_similarity_function(
+    group: str, column: str, transformer_model, embeddings_map: Dict[str, List]
+):
     def similarity_by_group(text):
         result = []
         for input in text[column]:
-            score = group_similarity(input, group)
+            score = group_similarity(input, group, transformer_model, embeddings_map)
             result.append(score)
         return result
 
     return similarity_by_group
 
 
-def group_similarity(text: str, group):
+def group_similarity(
+    text: str, group, transformer_model, embeddings_map: Dict[str, List]
+):
     similarities: List[float] = []
-    if _transformer_model is None:
+    if transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
 
-    text_embedding = _transformer_model.encode(text)
-    for embedding in _embeddings_map.get(group, []):
+    text_embedding = transformer_model.encode(text)
+    for embedding in embeddings_map.get(group, []):
         similarity = get_embeddings_similarity(text_embedding, embedding)
         similarities.append(similarity)
     return max(similarities) if similarities else None
 
 
-def _map_embeddings():
-    global _embeddings_map
-    for group in _theme_groups:
-        _embeddings_map[group] = [
-            _transformer_model.encode(s) for s in _theme_groups.get(group, [])
+def _map_embeddings(embeddings_map, theme_groups, transformer_model):
+    for group in theme_groups:
+        embeddings_map[group] = [
+            transformer_model.encode(s) for s in theme_groups.get(group, [])
         ]
 
 
-_registered = set()
+_registered: Set[str] = set()
 
 
 def _register_theme_udfs():
     global _registered
-    _map_embeddings()
 
-    for group in _theme_groups:
-        for column in [_prompt, _response]:
-            if group == "jailbreak" and column == _response:
-                continue
-            if group == "refusal" and column == _prompt:
+    if _transformer_model is not None:
+        _map_embeddings(_embeddings_map, _theme_groups, _transformer_model)
+        for group in _theme_groups:
+            column = prompt_column
+            if group == "refusal":
                 continue
             udf_name = f"{column}.{group}_similarity"
             if udf_name not in _registered:
                 _registered.add(udf_name)
                 register_dataset_udf([column], udf_name=udf_name)(
-                    create_similarity_function(group, column)
+                    create_similarity_function(
+                        group, column, _transformer_model, _embeddings_map
+                    )
+                )
+
+    if _response_transformer_model is not None:
+        _map_embeddings(
+            _response_embeddings_map,
+            _response_theme_groups,
+            _response_transformer_model,
+        )
+        for group in _theme_groups:
+            column = response_column
+            if group == "jailbreak":
+                continue
+            udf_name = f"{column}.{group}_similarity"
+            if udf_name not in _registered:
+                _registered.add(udf_name)
+                register_dataset_udf([column], udf_name=udf_name)(
+                    create_similarity_function(
+                        group,
+                        column,
+                        _response_transformer_model,
+                        _response_embeddings_map,
+                    )
                 )
 
 
@@ -96,6 +124,10 @@ def init(
     theme_file_path: Optional[str] = None,
     theme_json: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
+    response_transformer_name: Optional[str] = None,
+    response_custom_encoder: Optional[Callable] = None,
+    response_theme_file_path: Optional[str] = None,
+    response_theme_json: Optional[str] = None,
 ):
     config = config or deepcopy(lang_config)
     global _transformer_model
@@ -104,7 +136,6 @@ def init(
         transformer_name = config.transformer_name
     if not transformer_name and not custom_encoder:
         _transformer_model = None
-        return
 
     _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
@@ -116,13 +147,38 @@ def init(
             _theme_groups = load_themes(config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
+
+    global _response_transformer_model
+    global _response_theme_groups
+    if not response_transformer_name and not response_custom_encoder:
+        response_transformer_name = config.response_transformer_name
+    if not response_transformer_name and not response_custom_encoder:
+        _response_transformer_model = None
+
+    _response_transformer_model = Encoder(
+        response_transformer_name, response_custom_encoder
+    )
+    if response_theme_file_path is not None and response_theme_json is not None:
+        raise ValueError(
+            "Cannot specify both response_theme_file_path and response_theme_json"
+        )
+    if response_theme_file_path is None:
+        if response_theme_json:
+            _response_theme_groups = json.loads(response_theme_json)
+        else:
+            _response_theme_groups = load_themes(config.response_theme_file_path)
+    else:
+        _response_theme_groups = load_themes(response_theme_file_path)
+
     _register_theme_udfs()
 
 
-def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
-    if _transformer_model is None:
+def get_subject_similarity(
+    text: str, comparison_embedding: Tensor, transformer_model
+) -> float:
+    if transformer_model is None:
         raise ValueError("Must initialize a transformer before calling encode!")
-    embedding = _transformer_model.encode(text)
+    embedding = transformer_model.encode(text)
     similarity = util.pytorch_cos_sim(embedding, comparison_embedding)
     return similarity.item()
 
@@ -130,10 +186,5 @@ def get_subject_similarity(text: str, comparison_embedding: Tensor) -> float:
 def get_embeddings_similarity(
     text_embedding: Tensor, comparison_embedding: Tensor
 ) -> float:
-    if _transformer_model is None:
-        raise ValueError("Must initialize a transformer before calling encode!")
     similarity = util.pytorch_cos_sim(text_embedding, comparison_embedding)
     return similarity.item()
-
-
-init()

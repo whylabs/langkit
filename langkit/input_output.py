@@ -16,7 +16,6 @@ _transformer_model = None
 diagnostic_logger = getLogger(__name__)
 
 
-@register_dataset_udf([_prompt, _response], f"{_response}.relevance_to_{_prompt}")
 def prompt_response_similarity(text):
     global _transformer_model
 
@@ -56,6 +55,7 @@ def init(
         return
 
     _transformer_model = Encoder(transformer_name, custom_encoder)
-
-
-init()
+    register_dataset_udf(
+        [prompt_column, response_column],
+        f"{response_column}.relevance_to_{prompt_column}",
+    )(prompt_response_similarity)

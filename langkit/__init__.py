@@ -14,12 +14,29 @@ class LangKitConfig:
     pattern_file_path: str = field(
         default_factory=lambda: _resource_filename("pattern_groups.json")
     )
+    response_pattern_file_path: Optional[str] = field(
+        default_factory=lambda: _resource_filename("pattern_groups.json")
+    )
     metric_name_map: Dict[str, str] = field(default_factory=dict)
     theme_file_path: str = field(
         default_factory=lambda: _resource_filename("themes.json")
     )
+    response_theme_file_path: str = field(
+        default_factory=lambda: _resource_filename("themes.json")
+    )
     transformer_name: Optional[str] = "sentence-transformers/all-MiniLM-L6-v2"
+    response_transformer_name: Optional[str] = "sentence-transformers/all-MiniLM-L6-v2"
     topics: List[str] = field(
+        default_factory=lambda: [
+            "law",
+            "finance",
+            "medical",
+            "education",
+            "politics",
+            "support",
+        ]
+    )
+    response_topics: List[str] = field(
         default_factory=lambda: [
             "law",
             "finance",
@@ -43,11 +60,17 @@ class LangKitConfig:
     data_folder: str = "langkit_data"
     rouge_type: str = "rouge1"
     sentiment_lexicon: Optional[str] = "vader_lexicon"
+    response_sentiment_lexicon: Optional[str] = "vader_lexicon"
     topic_model_path: Optional[
         str
     ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
+    response_topic_model_path: Optional[
+        str
+    ] = "MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7"
     topic_classifier: Optional[str] = "zero-shot-classification"
+    response_topic_classifier: Optional[str] = "zero-shot-classification"
     toxicity_model_path: Optional[str] = "martin-ha/toxic-comment-model"
+    response_toxicity_model_path: Optional[str] = "martin-ha/toxic-comment-model"
     injections_transformer_name: Optional[str] = "all-MiniLM-L6-v2"
     injections_version: Optional[str] = "v1"
 
@@ -65,33 +88,48 @@ multi_lang_config: Dict[str, LangKitConfig] = {
         reference_corpus=None,
         sentiment_lexicon=None,
         topic_model_path=None,
+        response_topic_model_path=None,
         toxicity_model_path=None,
+        response_toxicity_model_path=None,
         transformer_name=None,
+        response_transformer_name=None,
     ),
     "en": LangKitConfig(),
     "es": LangKitConfig(
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
+        response_sentiment_lexicon=None,
         topic_model_path=None,
+        response_topic_model_path=None,
         toxicity_model_path=None,
+        response_toxicity_model_path=None,
         transformer_name=None,
+        response_transformer_name=None,
     ),
     "it": LangKitConfig(
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
+        response_sentiment_lexicon=None,
         topic_model_path=None,
+        response_topic_model_path=None,
         toxicity_model_path=None,
+        response_toxicity_model_path=None,
         transformer_name=None,
+        response_transformer_name=None,
     ),
     "pt": LangKitConfig(
         injections_transformer_name=None,
         reference_corpus=None,
         sentiment_lexicon=None,
+        response_sentiment_lexicon=None,
         topic_model_path=None,
+        response_topic_model_path=None,
         toxicity_model_path="dougtrajano/toxicity-type-detection",
+        response_toxicity_model_path="dougtrajano/toxicity-type-detection",
         transformer_name=None,
+        response_transformer_name=None,
     ),
 }
 

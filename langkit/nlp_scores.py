@@ -102,6 +102,3 @@ def init(
     _rouge_type = rouge_type or config.rouge_type
 
     _register_score_udfs()
-
-
-init()

@@ -8,19 +8,23 @@ from . import LangKitConfig, lang_config, prompt_column, response_column
 
 
 _topics: List[str] = lang_config.topics
-
 _model_path: Optional[str] = None
 _classifier = None
 
 
-def closest_topic(text):
-    if _classifier is None:
+_response_topics: List[str] = lang_config.response_topics
+_response_model_path: Optional[str] = None
+_response_classifier = None
+
+
+def closest_topic(text, classifier, topics):
+    if classifier is None:
         raise ValueError("Topics - classifier model not initialized")
-    return _classifier(text, _topics, multi_label=False)["labels"][0]
+    return classifier(text, topics, multi_label=False)["labels"][0]
 
 
-def _wrapper(column: str) -> Callable:
-    return lambda text: [closest_topic(t) for t in text[column]]
+def _wrapper(column: str, classifier, topics) -> Callable:
+    return lambda text: [closest_topic(t, classifier, topics) for t in text[column]]
 
 
 def init(
@@ -29,6 +33,9 @@ def init(
     model_path: Optional[str] = None,
     topic_classifier: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
+    response_topics: Optional[List[str]] = None,
+    response_model_path: Optional[str] = None,
+    response_topic_classifier: Optional[str] = None,
 ):
     config = config or deepcopy(lang_config)
     global _topics, _classifier
@@ -37,13 +44,26 @@ def init(
     model_path = model_path or config.topic_model_path
     if not (model_path and topic_classifier):
         _classifier = None
-        return
+    else:
+        _classifier = pipeline(topic_classifier, model=model_path)
 
-    _classifier = pipeline(topic_classifier, model=model_path)
-    for column in [prompt_column, response_column]:
-        register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
-            _wrapper(column)
-        )
+    global _response_topics, _response_classifier
+    _response_topics = response_topics or config.response_topics
+    topic_classifier = (
+        response_topic_classifier or lang_config.response_topic_classifier
+    )
+    model_path = response_model_path or config.response_topic_model_path
+    if not (model_path and topic_classifier):
+        _response_classifier = None
+    else:
+        _response_classifier = pipeline(topic_classifier, model=model_path)
 
+    if _classifier is not None:
+        register_dataset_udf(
+            [prompt_column], udf_name=f"{prompt_column}.closest_topic"
+        )(_wrapper(prompt_column, _classifier, _topics))
 
-init()
+    if _response_classifier is not None:
+        register_dataset_udf(
+            [response_column], udf_name=f"{response_column}.closest_topic"
+        )(_wrapper(response_column, _response_classifier, _response_topics))
