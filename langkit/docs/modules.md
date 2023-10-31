@@ -1,7 +1,3 @@
-## Injections
-
-# The `injections` module will return the maximum similarity score between the target and a group of known jailbreak attempts and harmful behaviors, which is stored as a vector db using the FAISS package. It will be applied to column named `prompt`, and it will create a new column named `injection`.
-
 # Metrics List
 
 |        **Metric Namespace**         |                                                      **Metrics**                                                      |                             **Description**                              |                **Target**                |                              **Notes**                               |     |

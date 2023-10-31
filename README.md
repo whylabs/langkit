@@ -20,7 +20,7 @@ Productionizing language models, including LLMs, comes with a range of risks due
 
 ## Features 🛠️
 
-The currently supported metrics include:
+The out of the box metrics include:
 
 - [Text Quality](https://github.com/whylabs/langkit/blob/main/langkit/docs/features/quality.md)
   - readability score
@@ -32,6 +32,7 @@ The currently supported metrics include:
   - patterns - count of strings matching a user-defined regex pattern group
   - jailbreaks - similarity scores with respect to known jailbreak attempts
   - prompt injection - similarity scores with respect to known prompt injection attacks
+  - hallucinations - consistency check between responses
   - refusals - similarity scores with respect to known LLM refusal of service responses
 - [Sentiment and Toxicity](https://github.com/whylabs/langkit/blob/main/langkit/docs/features/sentiment.md)
   - sentiment analysis
