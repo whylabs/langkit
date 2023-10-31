@@ -70,9 +70,10 @@ def test_theme(interactions):
     from langkit import themes, LangKitConfig
 
     from collections import defaultdict
-    from whylogs.experimental.core.udf_schema import _multicolumn_udfs
-    _multicolumn_udfs = defaultdict(list)
-    assert(len(_multicolumn_udfs.keys()) == 0)
+    import whylogs.experimental.core.udf_schema as foo
+
+    foo._multicolumn_udfs = defaultdict(list)
+    assert len(foo._multicolumn_udfs.keys()) == 0
     themes._transformer_model = None
     themes._theme_groups = None
     themes._embeddings_map = {}
@@ -80,7 +81,7 @@ def test_theme(interactions):
     themes._response_theme_groups = None
     themes._response_embeddings_map = {}
 
-    themes.init()
+    themes.init(config=LangKitConfig())
     schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
@@ -161,7 +162,18 @@ def test_themes_with_json_string():
 
 @pytest.mark.load
 def test_themes_standalone():
-    from langkit.themes import group_similarity, init, _transformer_model, _embeddings_map
+    from langkit.themes import (
+        group_similarity,
+        init,
+        _transformer_model,
+        _embeddings_map,
+    )
+
     init()
-    score = group_similarity("Sorry, but I can't assist with that", "refusal", _transformer_model, _embeddings_map)
+    score = group_similarity(
+        "Sorry, but I can't assist with that",
+        "refusal",
+        _transformer_model,
+        _embeddings_map,
+    )
     assert score == pytest.approx(1.0)
