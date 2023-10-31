@@ -14,9 +14,10 @@
 
 ## Hallucination
 
-The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times.
+The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times. For more information on this approach see [SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection
+for Generative Large Language Models](https://arxiv.org/pdf/2303.08896.pdf)
 
-Requires additional LLM calls to calculate the consistency score.
+> Note: Requires additional LLM calls to calculate the consistency score.
 
 ### Usage
 
@@ -69,7 +70,7 @@ result = response_hallucination.consistency_check(
 
 `response.hallucination` contains a score between 0 and 1, where 0 means high consistency between response and samples. Conversely, scores towards 1 mean high inconsistency between samples. The score is a combination of semantic similarity-based scores and LLM-based consistency scores.
 
-Currently only supports OpenAI LLMs.
+> Currently only supports OpenAI LLMs.
 
 ## Injections
 
