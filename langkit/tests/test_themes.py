@@ -67,21 +67,9 @@ def test_theme_custom(interactions):
 def test_theme(interactions):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
-    from langkit import themes, LangKitConfig
+    from langkit import themes
 
-    from collections import defaultdict
-    import whylogs.experimental.core.udf_schema as foo
-
-    foo._multicolumn_udfs = defaultdict(list)
-    assert len(foo._multicolumn_udfs.keys()) == 0
-    themes._transformer_model = None
-    themes._theme_groups = None
-    themes._embeddings_map = {}
-    themes._response_transformer_model = None
-    themes._response_theme_groups = None
-    themes._response_embeddings_map = {}
-
-    themes.init(config=LangKitConfig())
+    themes.init()
     schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
@@ -145,8 +133,6 @@ def test_themes_with_json_string():
     schema = udf_schema()
 
     prof = why.log({"prompt": "hello"}, schema=schema).view()
-    for column in prof.get_columns().keys():
-        print(column)
     for column in prof.get_columns().keys():
         if column.startswith("prompt"):
             assert not column.endswith("jailbreak_similarity")
