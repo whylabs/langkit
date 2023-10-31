@@ -136,8 +136,9 @@ def init(
         transformer_name = config.transformer_name
     if not transformer_name and not custom_encoder:
         _transformer_model = None
+    else:
+        _transformer_model = Encoder(transformer_name, custom_encoder)
 
-    _transformer_model = Encoder(transformer_name, custom_encoder)
     if theme_file_path is not None and theme_json is not None:
         raise ValueError("Cannot specify both theme_file_path and theme_json")
     if theme_file_path is None:
@@ -154,10 +155,10 @@ def init(
         response_transformer_name = config.response_transformer_name
     if not response_transformer_name and not response_custom_encoder:
         _response_transformer_model = None
-
-    _response_transformer_model = Encoder(
-        response_transformer_name, response_custom_encoder
-    )
+    else:
+        _response_transformer_model = Encoder(
+            response_transformer_name, response_custom_encoder
+        )
     if response_theme_file_path is not None and response_theme_json is not None:
         raise ValueError(
             "Cannot specify both response_theme_file_path and response_theme_json"

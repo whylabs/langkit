@@ -42,6 +42,7 @@ def test_injections(texts):
     from langkit import injections  # noqa
     from whylogs.experimental.core.udf_schema import udf_schema
 
+    injections.init()
     text_schema = udf_schema()
     for text in texts:
         profile = why.log(

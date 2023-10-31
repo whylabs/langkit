@@ -42,7 +42,7 @@ def test_theme_custom(interactions):
     def embed(texts: List[str]):
         return [[0.2, 0.2] for _ in texts]
 
-    themes.init(custom_encoder=embed)
+    themes.init(custom_encoder=embed, response_custom_encoder=embed)
     schema = udf_schema()
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
@@ -67,7 +67,18 @@ def test_theme_custom(interactions):
 def test_theme(interactions):
     # default input col is "prompt" and output col is "response".
     # since our df has different input col name, let's specify it.
-    from langkit import themes
+    from langkit import themes, LangKitConfig
+
+    from collections import defaultdict
+    from whylogs.experimental.core.udf_schema import _multicolumn_udfs
+    _multicolumn_udfs = defaultdict(list)
+    assert(len(_multicolumn_udfs.keys()) == 0)
+    themes._transformer_model = None
+    themes._theme_groups = None
+    themes._embeddings_map = {}
+    themes._response_transformer_model = None
+    themes._response_theme_groups = None
+    themes._response_embeddings_map = {}
 
     themes.init()
     schema = udf_schema(default_config=MetricConfig(fi_disabled=True))
@@ -150,7 +161,7 @@ def test_themes_with_json_string():
 
 @pytest.mark.load
 def test_themes_standalone():
-    from langkit.themes import group_similarity
-
-    score = group_similarity("Sorry, but I can't assist with that", "refusal")
+    from langkit.themes import group_similarity, init, _transformer_model, _embeddings_map
+    init()
+    score = group_similarity("Sorry, but I can't assist with that", "refusal", _transformer_model, _embeddings_map)
     assert score == pytest.approx(1.0)
