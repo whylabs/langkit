@@ -6,9 +6,12 @@ One approach is to measure text similarity between prompts and responses against
 
 Having a prompt injection classifier in place further enhances the security of LLM applications. By detecting and preventing prompt injection attacks, where malicious code or unintended instructions are injected into the prompt, the system can maintain its integrity and protect against unauthorized actions or data leaks. In langkit, prompt injection detection metrics can be computed through the [injections](../modules.md#injections) module.
 
+LLMs are known for their ability to generate non-factual or nonsensical statements, more commonly known as “hallucinations.” This characteristic can undermine trust in many scenarios where factuality is required, such as summarization tasks, generative question answering, and dialogue generations. In langkit, hallucination detection metrics can be computed through the [hallucination](../modules.md#hallucination) module.
+
 Another important aspect of security and privacy monitoring involves checking prompts and responses against regex patterns designed to detect sensitive information. These patterns can help identify and flag data such as credit card numbers, telephone numbers, or other types of personally identifiable information (PII). In langkit, regex pattern matching against pattern groups can be done through the [regexes](../modules.md#regexes) module.
 
 ## Related Modules
 
 - [themes](../modules.md#themes)
 - [injections](../modules.md#injections)
+- [hallucination](../modules.md#hallucination)
