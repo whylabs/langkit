@@ -36,7 +36,7 @@ def download_embeddings(url):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     transformer_name: Optional[str] = None,
     version: Optional[str] = None,
     config: Optional[LangKitConfig] = None,

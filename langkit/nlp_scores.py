@@ -87,7 +87,7 @@ def _register_score_udfs():
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     corpus: Optional[str] = None,
     scores: Set[str] = set(),
     rouge_type: str = "",

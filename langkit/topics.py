@@ -28,7 +28,7 @@ def _wrapper(column: str, classifier, topics) -> Callable:
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     topics: Optional[List[str]] = None,
     model_path: Optional[str] = None,
     topic_classifier: Optional[str] = None,

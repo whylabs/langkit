@@ -27,7 +27,7 @@ def _toxicity_wrapper(column, pipeline, tokenizer):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     model_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_model_path: Optional[str] = None,

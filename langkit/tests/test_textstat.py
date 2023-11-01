@@ -1,4 +1,5 @@
 import pandas as pd
+from langkit import LangKitConfig
 import langkit.textstat as ts
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
@@ -9,6 +10,11 @@ def _unpack(tuples):
 
 
 def test_textstat():
+    config = LangKitConfig(
+        prompt_languages={"", "ar", "en", "es", "it", "text_standard_component"},
+        response_languages={"", "ar", "en", "es", "it", "text_standard_component"},
+    )
+    ts.init(config=config)
     df = pd.DataFrame(
         {
             "prompt": [

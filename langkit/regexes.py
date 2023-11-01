@@ -93,7 +93,7 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_pattern_file_path: Optional[str] = None,

@@ -255,6 +255,7 @@ checker: Optional[ConsistencyChecker] = None
 
 
 def init(
+    language: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     llm: LLMInvocationParams = LLMInvocationParams(),
     num_samples=1,

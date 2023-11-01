@@ -40,20 +40,31 @@ def prompt_response_similarity(text):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     config: Optional[LangKitConfig] = None,
 ):
+    if transformer_name and custom_encoder:
+        raise ValueError(
+            "Only one of transformer_name or encoder can be specified, not both."
+        )
     config = config or deepcopy(lang_config)
     global _transformer_model
-    if transformer_name is None and custom_encoder is None:
-        transformer_name = config.transformer_name
+    response_transformer_name = (
+        transformer_name or config.response_transformer_name
+    )  # not a bug :)
+    transformer_name = transformer_name or config.transformer_name
 
-    if transformer_name is None and custom_encoder is None:
+    if transformer_name != response_transformer_name:  # can't evaluate across langauges
         _transformer_model = None
         return
 
+    if transformer_name is None and custom_encoder is None:  # metric turned off
+        _transformer_model = None
+        return
+
+    transformer_name = None if custom_encoder else transformer_name
     _transformer_model = Encoder(transformer_name, custom_encoder)
     register_dataset_udf(
         [prompt_column, response_column],

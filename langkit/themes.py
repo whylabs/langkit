@@ -137,7 +137,7 @@ def load_themes(json_path: str, encoding="utf-8"):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     theme_file_path: Optional[str] = None,

@@ -75,11 +75,12 @@ def _register_udfs(language: str):
 
 
 def init(
-    language: str = "",
+    language: Optional[str] = None,
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_pattern_file_path: Optional[str] = None,
 ):
+    language = language or ""
     config = deepcopy(config or lang_config)
     if pattern_file_path:
         config.pattern_file_path = pattern_file_path

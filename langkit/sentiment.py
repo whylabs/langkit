@@ -25,6 +25,7 @@ def _sentiment_wrapper(sentiment_analyzer, column):
 
 
 def init(
+    language: Optional[str] = None,
     lexicon: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_lexicon: Optional[str] = None,
