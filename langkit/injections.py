@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Set, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column
@@ -10,6 +10,7 @@ import numpy as np
 import faiss
 from langkit.utils import _get_data_home
 import os
+from langkit.whylogs.unreg import unregister_udfs
 
 _index_embeddings = None
 _transformer_model = None
@@ -35,12 +36,17 @@ def download_embeddings(url):
     return array
 
 
+_registered: Set[str] = set()
+
+
 def init(
     language: Optional[str] = None,
     transformer_name: Optional[str] = None,
     version: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
 ):
+    global _registered
+    unregister_udfs(_registered)
     config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
@@ -90,3 +96,4 @@ def init(
         )
     if _index_embeddings and _transformer_model:
         register_dataset_udf([prompt_column], f"{prompt_column}.injection")(injection)
+        _registered.add(f"{prompt_column}.injection")

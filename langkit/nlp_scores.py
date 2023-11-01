@@ -4,6 +4,7 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 import evaluate
 from . import LangKitConfig, lang_config, response_column
 from logging import getLogger
+from langkit.whylogs.unreg import unregister_udfs
 
 
 _corpus: Optional[str] = lang_config.reference_corpus
@@ -14,19 +15,17 @@ _rouge_type: str = lang_config.rouge_type
 diagnostic_logger = getLogger(__name__)
 
 
-_bleu_registered = False
-_rouge_registered = False
-_meteor_registered = False
+_registered: Set[str] = set()
 
 
 def _register_score_udfs():
-    global _bleu_registered, _rouge_registered, _meteor_registered
-
+    global _registered
+    unregister_udfs(_registered)
     if _corpus:
         for score in _scores:
-            if "bleu" in score and not _bleu_registered:
+            if "bleu" in score:
                 bleu = evaluate.load("bleu")
-                _bleu_registered = True
+                _registered.add(f"{response_column}.bleu_score")
 
                 @register_dataset_udf(
                     [response_column],
@@ -42,9 +41,9 @@ def _register_score_udfs():
                         )
                     return result
 
-            if "rouge" in score and not _rouge_registered:
+            if "rouge" in score:
                 rouge = evaluate.load("rouge")
-                _rouge_registered = True
+                _registered.add(f"{response_column}.rouge_score")
 
                 @register_dataset_udf(
                     [response_column],
@@ -62,9 +61,9 @@ def _register_score_udfs():
                         )
                     return result
 
-            if "meteor" in score and not _meteor_registered:
+            if "meteor" in score:
                 meteor = evaluate.load("meteor")
-                _meteor_registered = True
+                _registered.add(f"{response_column}.meteor_score")
 
                 @register_dataset_udf(
                     [response_column],

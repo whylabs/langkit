@@ -1,8 +1,9 @@
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Set
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit.whylogs.unreg import unregister_udfs
 
 
 _toxicity_tokenizer = None
@@ -26,12 +27,17 @@ def _toxicity_wrapper(column, pipeline, tokenizer):
     return lambda text: [toxicity(t, pipeline, tokenizer) for t in text[column]]
 
 
+_registered: Set[str] = set()
+
+
 def init(
     language: Optional[str] = None,
     model_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_model_path: Optional[str] = None,
 ):
+    global _registered
+    unregister_udfs(_registered)
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
@@ -52,6 +58,7 @@ def init(
         register_dataset_udf([prompt_column], f"{prompt_column}.toxicity")(
             _toxicity_wrapper(prompt_column, _toxicity_pipeline, _toxicity_tokenizer)
         )
+        _registered.add(f"{prompt_column}.toxicity")
 
     model_path = response_model_path or config.response_toxicity_model_path
     global _response_toxicity_tokenizer, _response_toxicity_pipeline
@@ -70,3 +77,4 @@ def init(
                 _response_toxicity_tokenizer,
             )
         )
+        _registered.add(f"{response_column}.toxicity")

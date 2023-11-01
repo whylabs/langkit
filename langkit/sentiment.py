@@ -1,8 +1,9 @@
 from copy import deepcopy
-from typing import Optional
+from typing import Optional, Set
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit.whylogs.unreg import unregister_udfs
 
 
 _nltk_downloaded = None
@@ -24,12 +25,18 @@ def _sentiment_wrapper(sentiment_analyzer, column):
     return _wrappee
 
 
+_registered: Set[str] = set()
+
+
 def init(
     language: Optional[str] = None,
     lexicon: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_lexicon: Optional[str] = None,
 ):
+    global _registered
+    unregister_udfs(_registered)
+
     import nltk
     from nltk.sentiment import SentimentIntensityAnalyzer
 
@@ -45,6 +52,7 @@ def init(
         register_dataset_udf(
             [prompt_column], udf_name=f"{prompt_column}.sentiment_nltk"
         )(_sentiment_wrapper(_sentiment_analyzer, prompt_column))
+        _registered.add(f"{prompt_column}.sentiment_nltk")
     else:
         _sentiment_analyzer = None
 
@@ -59,5 +67,6 @@ def init(
         register_dataset_udf(
             [response_column], udf_name=f"{response_column}.sentiment_nltk"
         )(_sentiment_wrapper(_response_sentiment_analyzer, response_column))
+        _registered.add(f"{response_column}.sentiment_nltk")
     else:
         _sentiment_analyzer = None

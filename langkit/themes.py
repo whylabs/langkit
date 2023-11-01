@@ -10,6 +10,8 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit.transformer import Encoder
 
 from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit.whylogs.unreg import unregister_udfs
+
 
 diagnostic_logger = getLogger(__name__)
 
@@ -60,26 +62,9 @@ def _map_embeddings(embeddings_map, theme_groups, transformer_model):
 _registered: Set[str] = set()
 
 
-def _unregister_udf(
-    udf_name: str, namespace: Optional[str] = None, schema_name: str = ""
-) -> None:
-    import whylogs.experimental.core.udf_schema as us
-
-    name = f"{namespace}.{udf_name}" if namespace else udf_name
-    if schema_name not in us._multicolumn_udfs:
-        return
-
-    for spec in us._multicolumn_udfs[schema_name]:
-        if name in spec.udfs:
-            del spec.udfs[name]
-    us._resolver_specs[schema_name] = list(
-        filter(lambda x: x.column_name != name, us._resolver_specs[schema_name])
-    )
-
-
 def _register_theme_udfs():
     global _registered
-
+    unregister_udfs(_registered)
     if _transformer_model is not None:
         _map_embeddings(_embeddings_map, _theme_groups, _transformer_model)
         for group in _theme_groups:
@@ -87,8 +72,6 @@ def _register_theme_udfs():
             if group == "refusal":
                 continue
             udf_name = f"{column}.{group}_similarity"
-            if udf_name in _registered:
-                _unregister_udf(udf_name)
             _registered.add(udf_name)
             register_dataset_udf([column], udf_name=udf_name)(
                 create_similarity_function(
@@ -107,8 +90,6 @@ def _register_theme_udfs():
             if group == "jailbreak":
                 continue
             udf_name = f"{column}.{group}_similarity"
-            if udf_name in _registered:
-                _unregister_udf(udf_name)
             _registered.add(udf_name)
             register_dataset_udf([column], udf_name=udf_name)(
                 create_similarity_function(

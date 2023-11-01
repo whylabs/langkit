@@ -4,7 +4,7 @@ import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
-from langkit.whylogs.unreg import unregister_udf
+from langkit.whylogs.unreg import unregister_udfs
 
 
 diagnostic_logger = getLogger(__name__)
@@ -81,9 +81,7 @@ def init(language: Optional[str] = None, config: Optional[LangKitConfig] = None)
         {language} if language is not None else config.response_languages
     ) or set()
     global _registered
-    for udf in _registered:
-        unregister_udf(udf)
-    _registered = set()
+    unregister_udfs(_registered)
 
     for t in _udfs_to_register:
         stat_name, schema_name, udf = _unpack(t)

@@ -1,11 +1,12 @@
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, Optional
+from typing import Callable, Optional, Set
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
 from langkit.transformer import Encoder
+from langkit.whylogs.unreg import unregister_udfs
 
 _prompt = prompt_column
 _response = response_column
@@ -39,12 +40,17 @@ def prompt_response_similarity(text):
     return series_result
 
 
+_registered: Set[str] = set()
+
+
 def init(
     language: Optional[str] = None,
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     config: Optional[LangKitConfig] = None,
 ):
+    global _registered
+    unregister_udfs(_registered)
     if transformer_name and custom_encoder:
         raise ValueError(
             "Only one of transformer_name or encoder can be specified, not both."
@@ -70,3 +76,4 @@ def init(
         [prompt_column, response_column],
         f"{response_column}.relevance_to_{prompt_column}",
     )(prompt_response_similarity)
+    _registered.add(f"{response_column}.relevance_to_{prompt_column}")

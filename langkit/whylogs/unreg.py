@@ -1,5 +1,5 @@
 import whylogs.experimental.core.udf_schema as us
-from typing import Optional
+from typing import Optional, Set
 import logging
 
 logger = logging.getLogger(__name__)
@@ -25,3 +25,11 @@ def unregister_udf(
     us._resolver_specs[schema_name] = list(
         filter(lambda x: x.column_name != name, us._resolver_specs[schema_name])
     )
+
+
+def unregister_udfs(
+    udfs: Set[str], namespace: Optional[str] = None, schema_name: str = ""
+) -> None:
+    for udf in udfs:
+        unregister_udf(udf, namespace, schema_name)
+    udfs = set()

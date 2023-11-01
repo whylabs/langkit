@@ -2,10 +2,11 @@ from copy import deepcopy
 from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader
-from whylogs.experimental.core.udf_schema import register_dataset_udf, _multicolumn_udfs
+from whylogs.experimental.core.udf_schema import register_dataset_udf
 from . import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.stubs import pd
 from typing import Dict, List, Optional, Set, Union
+from langkit.whylogs.unreg import unregister_udfs  # replace with whylogs 1.3.12
 
 diagnostic_logger = getLogger(__name__)
 
@@ -33,22 +34,9 @@ def wrapper(pattern_group, column):
 _registered: Set[str] = set()
 
 
-def _unregister(language: str):
-    # WARNING: Uses private whylogs internals. Do not copy this code.
-    # TODO: Add proper whylogs API to support this.
-
-    global _registered
-    _multicolumn_udfs[language] = [
-        u
-        for u in _multicolumn_udfs[language]
-        if list(u.udfs.keys())[0] not in _registered
-    ]
-    _registered = set()
-
-
 def _register_udfs(language: str):
     global _registered
-    _unregister(language)
+    unregister_udfs(_registered)
     regex_groups = pattern_loader.get_regex_groups()
     if regex_groups is not None:
         column = prompt_column
