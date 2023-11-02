@@ -1,5 +1,4 @@
 import pandas as pd
-from langkit import LangKitConfig
 import langkit.textstat as ts
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
@@ -10,11 +9,6 @@ def _unpack(tuples):
 
 
 def test_textstat():
-    config = LangKitConfig(
-        prompt_languages={"", "ar", "en", "es", "it", "text_standard_component"},
-        response_languages={"", "ar", "en", "es", "it", "text_standard_component"},
-    )
-    ts.init(config=config)
     df = pd.DataFrame(
         {
             "prompt": [
@@ -30,15 +24,15 @@ def test_textstat():
         }
     )
     udf_list = _unpack(ts._udfs_to_register) + [
-        ("aggregate_reading_level", ""),
+        ("aggregate_reading_level", "en"),
     ]
-    schema_names = set([s for _, s in udf_list])
-    for schema_name in schema_names:
-        schema = udf_schema(schema_name=schema_name)
-        view = why.log(df, schema=schema).view()
-        for stat, stat_schema in udf_list:
+    languages = set([s for _, s in udf_list])
+    for language in languages:
+        ts.init(language=language)
+        view = why.log(df, schema=udf_schema()).view()
+        for stat, lang in udf_list:
             for column in ["prompt", "response"]:
-                if stat_schema in {"", schema_name}:
+                if lang == language:
                     dist = (
                         view.get_column(f"{column}.{stat}")
                         .get_metric("distribution")

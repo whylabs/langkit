@@ -17,14 +17,14 @@ diagnostic_logger = getLogger(__name__)
 # (stat name, language[, udf name])
 _udfs_to_register: List[Union[Tuple[str, str], Tuple[str, str, str]]] = [
     ("flesch_kincaid_grade", "text_standard_component"),
-    ("flesch_reading_ease", ""),
+    ("flesch_reading_ease", "en"),
     ("smog_index", "text_standard_component"),
     ("coleman_liau_index", "text_standard_component"),
-    ("automated_readability_index", ""),
+    ("automated_readability_index", "en"),
     ("dale_chall_readability_score", "text_standard_component"),
     ("linsear_write_formula", "text_standard_component"),
     ("gunning_fog", "text_standard_component"),
-    ("text_standard", "", "aggregate_reading_level"),
+    ("text_standard", "en", "aggregate_reading_level"),
     ("fernandez_huerta", "es"),
     ("szigriszt_pazos", "es"),
     ("gutierrez_polini", "es"),
@@ -32,14 +32,14 @@ _udfs_to_register: List[Union[Tuple[str, str], Tuple[str, str, str]]] = [
     ("gulpease_index", "it"),
     ("osman", "ar"),
     # count metrics
-    ("syllable_count", ""),
-    ("lexicon_count", ""),
-    ("sentence_count", ""),
-    ("char_count", "", "character_count"),
-    ("letter_count", ""),
-    ("polysyllabcount", "", "polysyllable_count"),
-    ("monosyllabcount", "", "monosyllable_count"),
-    ("difficult_words", ""),
+    ("syllable_count", "en"),
+    ("lexicon_count", "en"),
+    ("sentence_count", "en"),
+    ("char_count", "en", "character_count"),
+    ("letter_count", "en"),
+    ("polysyllabcount", "en", "polysyllable_count"),
+    ("monosyllabcount", "en", "monosyllable_count"),
+    ("difficult_words", "en"),
 ]
 
 
@@ -93,7 +93,7 @@ def init(language: Optional[str] = None, config: Optional[LangKitConfig] = None)
                 register_dataset_udf(
                     [column],
                     udf_name=udf_name,
-                    schema_name=schema_name,  # TODO: probably should be default schema
+                    # schema_name=schema_name,  # TODO: probably should be default schema
                 )(wrapper(stat_name, column))
                 _registered.add(udf_name)
     for column in [prompt_column, response_column]:

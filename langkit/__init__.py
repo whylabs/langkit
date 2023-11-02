@@ -75,6 +75,12 @@ class LangKitConfig:
     injections_version: Optional[str] = "v1"
     prompt_languages: Optional[Set[str]] = field(default_factory=lambda: {"en"})
     response_languages: Optional[Set[str]] = field(default_factory=lambda: {"en"})
+    sentiment_model_path: Optional[
+        str
+    ] = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
+    response_sentiment_model_path: Optional[
+        str
+    ] = "lxyuan/distilbert-base-multilingual-cased-sentiments-student"
 
 
 prompt_column: str = "prompt"
