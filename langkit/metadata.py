@@ -29,9 +29,7 @@ def _add_langkit_version_metadata(
     return metadata
 
 
-def attach_schema_metadata(
-    schema: Any, metric_collection_name: Optional[str]
-) -> Optional[Dict[str, str]]:
+def attach_schema_metadata(schema: Any, metric_collection_name: Optional[str]) -> Any:
     metadata = _check_for_metadata(schema)
     if metadata is None:
         diagnostic_logger.warning(
