@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import List, Optional, Set
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 import evaluate
-from . import LangKitConfig, lang_config, response_column
+from langkit import LangKitConfig, lang_config, response_column
 from logging import getLogger
 
 

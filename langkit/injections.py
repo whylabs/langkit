@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Union
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config, prompt_column
+from langkit import LangKitConfig, lang_config, prompt_column
 from sentence_transformers import SentenceTransformer
 import requests
 from io import BytesIO

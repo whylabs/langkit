@@ -1,5 +1,5 @@
 import os
-from . import lang_config
+from langkit import lang_config
 
 
 def _get_data_home() -> str:
