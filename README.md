@@ -68,11 +68,13 @@ You can have more information about the different modules and their metrics [her
 ## Benchmarks
 
 | AWS Instance Type | Metric Module |      Throughput |
-|-------------------|:-------------:|:---------------:|
+|-------------------|:-------------:|----------------:|
 | c5.xlarge         | Light metrics | 2335 chats/sec  |
 |                   | LLM metrics   | 8.2 chats/sec   |
 |                   | All metrics   | 0.28 chats/sec  |
-|-------------------|:-------------:|:----------------|
+
+|                   |               |                 |
+|-------------------|:-------------:|----------------:|
 | p3.2xlarge        | Light metrics | 1800 chats/sec  |
 |                   | LLM metrics   | 9.8 chats/sec   |
 |                   | All metrics   | 0.32 chats/sec  |
