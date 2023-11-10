@@ -4,7 +4,7 @@ from typing import Callable, List, Optional
 from transformers import (
     pipeline,
 )
-from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 
 
 _topics: List[str] = lang_config.topics

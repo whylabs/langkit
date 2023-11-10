@@ -4,7 +4,7 @@ from typing import Callable, Optional
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from langkit.transformer import Encoder
 
 _prompt = prompt_column

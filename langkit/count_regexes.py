@@ -3,7 +3,7 @@ from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.stubs import pd
 from typing import Dict, List, Optional, Set, Union
 
