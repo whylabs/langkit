@@ -37,7 +37,7 @@ def attach_schema_metadata(
         diagnostic_logger.warning(
             "schema does not contain metadata, LangKit won't update metadata"
         )
-        return metadata
-    metadata = _add_langkit_version_metadata(metadata, metric_collection_name)
+        return schema
+    _add_langkit_version_metadata(metadata, metric_collection_name)
 
     return schema
