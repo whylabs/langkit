@@ -65,6 +65,14 @@ More examples are available [here](https://github.com/whylabs/langkit/tree/main/
 
 You can have more information about the different modules and their metrics [here](https://github.com/whylabs/langkit/blob/main/langkit/docs/modules.md).
 
+## Benchmarks
+
+| AWS Instance Type | Metric Module |     Throughput |
+| ----------------- | :-----------: | -------------: |
+| c5.xlarge         | Light metrics | 2335 chats/sec |
+|                   |  LLM metrics  |  8.2 chats/sec |
+|                   |  All metrics  | 0.28 chats/sec |
+
 ## Frequently Asked Questions
 
 You can check some frequently asked questions on our [FAQs section](https://github.com/whylabs/langkit/blob/main/langkit/docs/faq.md)
