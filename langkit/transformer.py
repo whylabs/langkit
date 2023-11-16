@@ -7,7 +7,7 @@ import os
 import torch
 
 _USE_CUDA = torch.cuda.is_available() and not bool(
-    os.environ.get("WHYLABS_DISABLE_CUDA", False)
+    os.environ.get("LANGKIT_NO_CUDA", False)
 )
 _device = "cuda" if _USE_CUDA else "cpu"
 
