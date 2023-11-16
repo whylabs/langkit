@@ -3,6 +3,11 @@ from typing import Optional, Callable, Union, List, Any
 from torch import Tensor
 import numpy as np
 
+import torch
+
+_device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
 try:
     import tensorflow as tf
 except ImportError:
@@ -39,7 +44,7 @@ class Encoder:
             transformer_model = CustomEncoder(custom_encoder)
             self.transformer_name = "custom_encoder"
         if transformer_name:
-            transformer_model = SentenceTransformer(transformer_name)
+            transformer_model = SentenceTransformer(transformer_name, device=_device)
             self.transformer_name = transformer_name
         self.transformer_model = transformer_model
 

@@ -4,6 +4,9 @@ from typing import Optional
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 
+import torch
+
+_device = 0 if torch.cuda.is_available() else -1
 
 _prompt = prompt_column
 _response = response_column
@@ -46,7 +49,7 @@ def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = Non
     _toxicity_tokenizer = AutoTokenizer.from_pretrained(model_path)
     model = AutoModelForSequenceClassification.from_pretrained(model_path)
     _toxicity_pipeline = TextClassificationPipeline(
-        model=model, tokenizer=_toxicity_tokenizer
+        model=model, tokenizer=_toxicity_tokenizer, device=_device
     )
 
 
