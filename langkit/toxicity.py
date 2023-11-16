@@ -7,8 +7,10 @@ from langkit import LangKitConfig, lang_config, prompt_column, response_column
 import os
 import torch
 
-_USE_CUDA = torch.cuda.is_available() and not bool(os.environ.get("WHYLABS_DISABLE_CUDA", False))
-_device = 0 if  _USE_CUDA else -1
+_USE_CUDA = torch.cuda.is_available() and not bool(
+    os.environ.get("WHYLABS_DISABLE_CUDA", False)
+)
+_device = 0 if _USE_CUDA else -1
 
 _prompt = prompt_column
 _response = response_column
