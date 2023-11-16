@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict, List
 
 import importlib.resources as resources
 
@@ -14,6 +14,7 @@ class LangKitConfig:
     pattern_file_path: str = field(
         default_factory=lambda: _resource_filename("pattern_groups.json")
     )
+    metric_name_map: Dict[str, str] = field(default_factory=dict)
     theme_file_path: str = field(
         default_factory=lambda: _resource_filename("themes.json")
     )

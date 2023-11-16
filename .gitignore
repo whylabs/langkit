@@ -141,6 +141,7 @@ env.bak/
 venv.bak/
 pythonenv*
 .dockerignore
+langkit/langkit_data/
 
 # Spyder project settings
 .spyderproject

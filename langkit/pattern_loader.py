@@ -4,7 +4,7 @@ from copy import deepcopy
 from logging import getLogger
 from typing import Optional
 
-from . import LangKitConfig, lang_config
+from langkit import LangKitConfig, lang_config
 
 
 diagnostic_logger = getLogger(__name__)

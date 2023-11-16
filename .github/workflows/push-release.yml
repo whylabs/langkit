@@ -51,7 +51,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2.0.0
         with:
-          poetry-version: 1.5.1
+          poetry-version: 1.6.1
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -76,3 +76,5 @@ jobs:
           base: main
           delete-branch: true
           title: "Bump version to ${{ env.VERSION }}"
+          committer: w0-automator <whylabs-automator@users.noreply.github.com>
+          author: w0-automator <whylabs-automator@users.noreply.github.com>

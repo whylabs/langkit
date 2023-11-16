@@ -3,10 +3,10 @@ from logging import getLogger
 
 from langkit.pattern_loader import PatternLoader
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
-from typing import Optional
+from typing import Dict, List, Optional
 
 diagnostic_logger = getLogger(__name__)
 
@@ -35,22 +35,56 @@ def _wrapper(column):
     return wrappee
 
 
-_registered = False
+_registered: List[str] = []
 
 
-def _register_udfs():
-    global _registered
-    if _registered:
+def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
+    from whylogs.experimental.core.udf_schema import _multicolumn_udfs
+
+    if _multicolumn_udfs is None or namespace not in _multicolumn_udfs:
         return
 
+    _multicolumn_udfs[namespace] = [
+        udf
+        for udf in _multicolumn_udfs[namespace]
+        if list(udf.udfs.keys())[0] != old_name
+    ]
+
+
+def _register_udfs(config: Optional[LangKitConfig] = None):
+    from whylogs.experimental.core.udf_schema import _resolver_specs
+
+    global _registered
+    if _registered and config is None:
+        return
+    if config is None:
+        config = lang_config
+    default_metric_name = "has_patterns"
+    pattern_metric_name = config.metric_name_map.get(
+        default_metric_name, default_metric_name
+    )
+
+    for old in _registered:
+        _unregister_metric_udf(old_name=old)
+        if (
+            _resolver_specs is not None
+            and isinstance(_resolver_specs, Dict)
+            and isinstance(_resolver_specs[""], List)
+        ):
+            _resolver_specs[""] = [
+                spec for spec in _resolver_specs[""] if spec.column_name != old
+            ]
+    _registered = []
+
     if pattern_loader.get_regex_groups() is not None:
-        _registered = True
         for column in [prompt_column, response_column]:
+            udf_name = f"{column}.{pattern_metric_name}"
             register_dataset_udf(
                 [column],
-                udf_name=f"{column}.has_patterns",
+                udf_name=udf_name,
                 metrics=[MetricSpec(FrequentItemsMetric)],
             )(_wrapper(column))
+            _registered.append(udf_name)
 
 
 def init(
@@ -64,7 +98,7 @@ def init(
     pattern_loader = PatternLoader(config)
     pattern_loader.update_patterns()
 
-    _register_udfs()
+    _register_udfs(config)
 
 
 init()

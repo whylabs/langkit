@@ -1,4 +1,5 @@
-from . import LangKitConfig
+from langkit.metadata import attach_schema_metadata
+from langkit import LangKitConfig
 from logging import getLogger
 from typing import Optional
 from whylogs.experimental.core.udf_schema import udf_schema
@@ -27,5 +28,5 @@ def init(config: Optional[LangKitConfig] = None) -> DeclarativeSchema:
     toxicity.init(config=config)
     input_output.init(config=config)
 
-    text_schema = udf_schema()
+    text_schema = attach_schema_metadata(udf_schema(), "llm_metrics")
     return text_schema

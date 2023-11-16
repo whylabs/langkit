@@ -1,9 +1,8 @@
 from logging import getLogger
 from typing import Callable, Dict, List, Optional, Tuple, Union
-import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from . import LangKitConfig, prompt_column, response_column
+from langkit import LangKitConfig, prompt_column, response_column
 
 
 diagnostic_logger = getLogger(__name__)
@@ -43,6 +42,8 @@ _udfs_to_register: List[Union[Tuple[str, str], Tuple[str, str, str]]] = [
 def wrapper(
     stat_name: str, column: str
 ) -> Callable[[Union[pd.DataFrame, Dict[str, List]]], Union[pd.Series, List]]:
+    import textstat
+
     stat = textstat.textstat.__getattribute__(stat_name)
 
     def wrappee(text: Union[pd.DataFrame, Dict[str, List]]) -> Union[pd.Series, List]:
@@ -54,6 +55,8 @@ def wrapper(
 def aggregate_wrapper(
     column: str,
 ) -> Callable[[Union[pd.DataFrame, Dict[str, List]]], Union[pd.Series, List]]:
+    import textstat
+
     stat = textstat.textstat.text_standard
 
     def wrappee(text: Union[pd.DataFrame, Dict[str, List]]) -> Union[pd.Series, List]:
