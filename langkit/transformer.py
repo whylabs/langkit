@@ -3,9 +3,11 @@ from typing import Optional, Callable, Union, List, Any
 from torch import Tensor
 import numpy as np
 
+import os
 import torch
 
-_device = "cuda" if torch.cuda.is_available() else "cpu"
+_USE_CUDA = torch.cuda.is_available() and not bool(os.environ.get("WHYLABS_DISABLE_CUDA", False))
+_device = "cuda" if _USE_CUDA else "cpu"
 
 
 try:
