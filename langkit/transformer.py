@@ -28,6 +28,7 @@ class Encoder:
         self,
         transformer_name: Optional[str],
         custom_encoder: Optional[Callable[[List[str]], Any]],
+        veto_cuda: bool = False
     ):
         """
         Args:
@@ -42,13 +43,14 @@ class Encoder:
             )
         if transformer_name is None and custom_encoder is None:
             raise ValueError(
-                "One of transformer_name or encoder must be specified, none was given."
+                "One of transformer_name or custom_encoder must be specified, none was given."
             )
         if custom_encoder:
             transformer_model = CustomEncoder(custom_encoder)
             self.transformer_name = "custom_encoder"
         if transformer_name:
-            transformer_model = SentenceTransformer(transformer_name, device=_device)
+            device = _defice if not veto_cuda else "cpu"
+            transformer_model = SentenceTransformer(transformer_name, device=device)
             self.transformer_name = transformer_name
         self.transformer_model = transformer_model
 

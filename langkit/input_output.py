@@ -25,7 +25,7 @@ def init(
     global _transformer_model
     if transformer_name is None and custom_encoder is None:
         transformer_name = config.transformer_name
-    _transformer_model = Encoder(transformer_name, custom_encoder)
+    _transformer_model = Encoder(transformer_name, custom_encoder, veto_cuda=True)
 
 
 init()
