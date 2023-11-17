@@ -3,6 +3,15 @@ from typing import Optional, Callable, Union, List, Any
 from torch import Tensor
 import numpy as np
 
+import os
+import torch
+
+_USE_CUDA = torch.cuda.is_available() and not bool(
+    os.environ.get("LANGKIT_NO_CUDA", False)
+)
+_device = "cuda" if _USE_CUDA else "cpu"
+
+
 try:
     import tensorflow as tf
 except ImportError:
@@ -39,7 +48,7 @@ class Encoder:
             transformer_model = CustomEncoder(custom_encoder)
             self.transformer_name = "custom_encoder"
         if transformer_name:
-            transformer_model = SentenceTransformer(transformer_name)
+            transformer_model = SentenceTransformer(transformer_name, device=_device)
             self.transformer_name = transformer_name
         self.transformer_model = transformer_model
 
