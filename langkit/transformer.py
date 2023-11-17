@@ -28,7 +28,7 @@ class Encoder:
         self,
         transformer_name: Optional[str],
         custom_encoder: Optional[Callable[[List[str]], Any]],
-        veto_cuda: bool = False
+        veto_cuda: bool = False,
     ):
         """
         Args:
