@@ -10,10 +10,17 @@ import numpy as np
 import faiss
 from langkit.utils import _get_data_home
 import os
+import torch
 
 _prompt = prompt_column
 _index_embeddings = None
 _transformer_model = None
+
+
+_USE_CUDA = torch.cuda.is_available() and not bool(
+    os.environ.get("LANGKIT_NO_CUDA", False)
+)
+_device = "cuda" if _USE_CUDA else "cpu"
 
 
 def download_embeddings(url):
@@ -35,7 +42,7 @@ def init(
         transformer_name = "all-MiniLM-L6-v2"
     if not version:
         version = "v1"
-    _transformer_model = SentenceTransformer(transformer_name)
+    _transformer_model = SentenceTransformer(transformer_name, device=_device)
 
     path = f"index_embeddings_{transformer_name}_harm_{version}.npy"
     embeddings_url = config.injections_base_url + path
