@@ -49,7 +49,7 @@ class Encoder:
             transformer_model = CustomEncoder(custom_encoder)
             self.transformer_name = "custom_encoder"
         if transformer_name:
-            device = _defice if not veto_cuda else "cpu"
+            device = _device if not veto_cuda else "cpu"
             transformer_model = SentenceTransformer(transformer_name, device=device)
             self.transformer_name = transformer_name
         self.transformer_model = transformer_model
