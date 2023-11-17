@@ -40,7 +40,7 @@ def init(
     _topics = topics or config.topics
     topic_classifier = topic_classifier or lang_config.topic_classifier
     model_path = model_path or config.topic_model_path
-    _classifier = pipeline(topic_classifier, model=model_path)
+    _classifier = pipeline(topic_classifier, model=model_path, device=_device)
     for column in [prompt_column, response_column]:
         register_dataset_udf([column], udf_name=f"{column}.closest_topic")(
             _wrapper(column)
