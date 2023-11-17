@@ -6,11 +6,19 @@ from transformers import (
 )
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 
+import os
+import torch
+
+_USE_CUDA = torch.cuda.is_available() and not bool(
+    os.environ.get("LANGKIT_NO_CUDA", False)
+)
+_device = 0 if _USE_CUDA else -1
+
 
 _topics: List[str] = lang_config.topics
 
 _model_path: str = lang_config.topic_model_path
-_classifier = pipeline(lang_config.topic_classifier, model=_model_path)
+_classifier = pipeline(lang_config.topic_classifier, model=_model_path, device=_device)
 
 
 def closest_topic(text):
