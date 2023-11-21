@@ -1,12 +1,7 @@
 import langkit
 import pandas as pd
 
-row = {"prompt": "I love you", "response": "I hate you"}
-df = pd.DataFrame({"prompt": ["I love you", "I hate you"]})
 
-
-# toxicity.init()
-# sentiment.init()
 def test_extract_pandas():
     from langkit import textstat
 
