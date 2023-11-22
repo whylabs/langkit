@@ -19,6 +19,7 @@ _transformer_model = None
 
 _initialized = False
 
+
 def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     if not _initialized:
         init()

@@ -3,8 +3,6 @@ import re
 from logging import getLogger
 from typing import Optional
 
-from langkit import LangKitConfig, lang_config
-
 
 diagnostic_logger = getLogger(__name__)
 

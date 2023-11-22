@@ -77,7 +77,9 @@ def init(
     if not (model_path and topic_classifier):
         _response_classifier = None
     else:
-        _response_classifier = pipeline(topic_classifier, model=model_path, device=_device)
+        _response_classifier = pipeline(
+            topic_classifier, model=model_path, device=_device
+        )
 
     if _classifier is not None:
         register_dataset_udf(

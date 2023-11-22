@@ -1,6 +1,5 @@
 from logging import getLogger
 from typing import Callable, Dict, List, Optional, Set, Tuple, Union
-import textstat
 from whylogs.core.stubs import pd
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
