@@ -15,3 +15,4 @@ def extract(
     elif isinstance(data, dict):
         _, row_enhanced = schema.apply_udfs(row=data)
         return row_enhanced
+    raise ValueError("extract: Invalid data type")
