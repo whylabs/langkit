@@ -82,7 +82,6 @@ class ConsistencyChecker:
         self.sample_generator_llm = sample_generator
         consistency_checker_llm = llm.copy()
         consistency_checker_llm.temperature = 0
-        consistency_checker_llm.max_tokens = 10
         self.consistency_checker_llm = consistency_checker_llm
         self.embeddings_encoder = embeddings_encoder
 

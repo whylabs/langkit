@@ -84,6 +84,7 @@ class OpenAIDavinci(LLMInvocationParams):
                 f"last message must exist and contain a content key but got {last_message}"
             )
         params = asdict(self)
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         text_completion_respone = openai.Completion.create(prompt=prompt, **params)
         content = text_completion_respone.choices[0].text
         response = type(
@@ -138,7 +139,7 @@ class OpenAIDefault(LLMInvocationParams):
 
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
-        openai.ChatCompletion.create
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         return openai.ChatCompletion.create(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
@@ -148,6 +149,40 @@ class OpenAIDefault(LLMInvocationParams):
             max_tokens=self.max_tokens,
             frequency_penalty=self.frequency_penalty,
             presence_penalty=self.presence_penalty,
+        )
+
+
+@dataclass
+class OpenAIAzure(LLMInvocationParams):
+    temperature: float = field(default_factory=lambda: _llm_model_temperature)
+    max_tokens: int = field(default_factory=lambda: _llm_model_max_tokens)
+    frequency_penalty: float = field(
+        default_factory=lambda: _llm_model_frequency_penalty
+    )
+    presence_penalty: float = field(default_factory=lambda: _llm_model_presence_penalty)
+    engine: Optional[str] = None
+    api_type: Optional[str] = None
+    api_version: Optional[str] = None
+
+    def completion(self, messages: List[Dict[str, str]], **kwargs):
+        params = asdict(self)
+        openai.api_type = self.api_type or "azure"
+        openai.api_version = self.api_version or "2023-05-15"
+        endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        if endpoint:
+            openai.api_base = endpoint
+        openai.api_key = os.getenv("AZURE_OPENAI_KEY")
+        return openai.ChatCompletion.create(messages=messages, **params)
+
+    def copy(self) -> LLMInvocationParams:
+        return OpenAIAzure(
+            engine=self.engine,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            frequency_penalty=self.frequency_penalty,
+            presence_penalty=self.presence_penalty,
+            api_type=self.api_type,
+            api_version=self.api_version,
         )
 
 
@@ -163,6 +198,7 @@ class OpenAIGPT4(LLMInvocationParams):
 
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         return openai.ChatCompletion.create(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
