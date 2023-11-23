@@ -82,7 +82,6 @@ class ConsistencyChecker:
         self.sample_generator_llm = sample_generator
         consistency_checker_llm = llm.copy()
         consistency_checker_llm.temperature = 0
-        consistency_checker_llm.max_tokens = 10
         self.consistency_checker_llm = consistency_checker_llm
         self.embeddings_encoder = embeddings_encoder
 
@@ -256,7 +255,12 @@ def init(llm: LLMInvocationParams, num_samples=1):
 def response_hallucination(text):
     series_result = []
     for prompt, response in zip(text[_prompt], text[_response]):
-        result: ConsistencyResult = checker.consistency_check(prompt, response)
+        if checker is not None:
+            result: ConsistencyResult = checker.consistency_check(prompt, response)
+        else:
+            raise Exception(
+                "Response Hallucination: you need to call init() before using this function"
+            )
         series_result.append(result.final_score)
     return series_result
 
