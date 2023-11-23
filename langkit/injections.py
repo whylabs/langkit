@@ -15,7 +15,6 @@ import torch
 _prompt = prompt_column
 _index_embeddings = None
 _transformer_model = None
-proactive_detector = None
 
 
 _USE_CUDA = torch.cuda.is_available() and not bool(
