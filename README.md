@@ -72,6 +72,10 @@ You can have more information about the different modules and their metrics [her
 | c5.xlarge         | Light metrics | 2335 chats/sec |
 |                   |  LLM metrics  |  8.2 chats/sec |
 |                   |  All metrics  | 0.28 chats/sec |
+| ----------------- | :-----------: | -------------: |
+| g4dn.xlarge       | Light metrics | 2492 chats/sec |
+|                   |  LLM metrics  | 23.3 chats/sec |
+|                   |  All metrics  | 1.79 chats/sec |
 
 ## Frequently Asked Questions
 
