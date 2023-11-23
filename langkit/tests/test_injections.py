@@ -39,7 +39,7 @@ def test_download_embeddings():
 
 @pytest.mark.load
 def test_injections(texts):
-    from langkit import injections  # noqa
+    from langkit.injections import injections  # noqa
     from whylogs.experimental.core.udf_schema import udf_schema
 
     text_schema = udf_schema()
