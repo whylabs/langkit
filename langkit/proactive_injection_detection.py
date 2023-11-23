@@ -3,14 +3,14 @@ from langkit import prompt_column
 from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from dataclasses import dataclass
 from langkit.utils import id_generator
-from typing import Dict, List, Union
+from typing import Dict, List, Set, Union
 from logging import getLogger
 import pandas as pd
 import os
 
 proactive_detector = None
 
-_registered = set()
+_registered: Set[str] = set()
 _prompt = prompt_column
 
 diagnostic_logger = getLogger(__name__)
