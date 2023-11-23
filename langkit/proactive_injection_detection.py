@@ -1,11 +1,13 @@
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from langkit import LangKitConfig, lang_config, prompt_column
+from langkit import prompt_column
 from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from dataclasses import dataclass
 from langkit.utils import id_generator
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Union
 from logging import getLogger
 import pandas as pd
+
+proactive_detector = None
 
 _registered = set()
 _prompt = prompt_column
