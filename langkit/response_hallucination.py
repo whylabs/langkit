@@ -238,7 +238,12 @@ class ConsistencyChecker:
 def response_hallucination(text):
     series_result = []
     for prompt, response in zip(text[prompt_column], text[response_column]):
-        result: ConsistencyResult = checker.consistency_check(prompt, response)
+        if checker is not None:
+            result: ConsistencyResult = checker.consistency_check(prompt, response)
+        else:
+            raise Exception(
+                "Response Hallucination: you need to call init() before using this function"
+            )
         series_result.append(result.final_score)
     return series_result
 

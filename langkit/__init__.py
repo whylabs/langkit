@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Set
-
+from .extract import extract
 import importlib.resources as resources
 
 
@@ -166,4 +166,4 @@ def package_version(package: str = __package__) -> str:
 
 __version__ = package_version()
 
-__ALL__ = [__version__, LangKitConfig]
+__ALL__ = [__version__, LangKitConfig, extract]
