@@ -1,6 +1,7 @@
+from collections import defaultdict
 from copy import deepcopy
 from logging import getLogger
-from typing import Callable, Optional, Set
+from typing import Callable, Dict, Optional, Set
 
 from sentence_transformers import util
 from whylogs.experimental.core.udf_schema import register_dataset_udf
@@ -44,7 +45,9 @@ def prompt_response_similarity(text):
     return series_result
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
 def init(
@@ -52,11 +55,13 @@ def init(
     transformer_name: Optional[str] = None,
     custom_encoder: Optional[Callable] = None,
     config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
     if transformer_name and custom_encoder:
         raise ValueError(
             "Only one of transformer_name or encoder can be specified, not both."
@@ -81,5 +86,6 @@ def init(
     register_dataset_udf(
         [prompt_column, response_column],
         f"{response_column}.relevance_to_{prompt_column}",
+        schema_name=schema_name,
     )(prompt_response_similarity)
-    _registered.add(f"{response_column}.relevance_to_{prompt_column}")
+    _registered[schema_name].add(f"{response_column}.relevance_to_{prompt_column}")

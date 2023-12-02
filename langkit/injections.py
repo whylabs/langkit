@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from typing import Dict, List, Optional, Set, Union
 from whylogs.core.stubs import pd
@@ -48,7 +49,9 @@ def download_embeddings(url):
     return array
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
 def init(
@@ -56,11 +59,13 @@ def init(
     transformer_name: Optional[str] = None,
     version: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
     config = config or deepcopy(lang_config)
     global _transformer_model
     global _index_embeddings
@@ -109,5 +114,7 @@ def init(
             f"Injections - unable to deserialize index to {embeddings_path}. Error: {deserialization_error}"
         )
     if _index_embeddings and _transformer_model:
-        register_dataset_udf([prompt_column], f"{prompt_column}.injection")(injection)
-        _registered.add(f"{prompt_column}.injection")
+        register_dataset_udf(
+            [prompt_column], f"{prompt_column}.injection", schema_name=schema_name
+        )(injection)
+        _registered[schema_name].add(f"{prompt_column}.injection")

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from logging import getLogger
 
@@ -35,12 +36,16 @@ def wrapper(pattern_group, column):
     return wrappee
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
-def _register_udfs(language: str):
+def _register_udfs(language: str, schema_name: str):
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], language, schema_name)
+    _registered[schema_name] = set()
+
     regex_groups = pattern_loader.get_regex_groups()
     if regex_groups is not None:
         column = prompt_column
@@ -49,9 +54,10 @@ def _register_udfs(language: str):
             register_dataset_udf(
                 [column],
                 udf_name=udf_name,
-                schema_name=language,
+                namespace=language,
+                schema_name=schema_name,
             )(wrapper(group, column))
-            _registered.add(udf_name)
+            _registered[schema_name].add(udf_name)
 
     regex_groups = response_pattern_loader.get_regex_groups()
     if regex_groups is not None:
@@ -61,9 +67,10 @@ def _register_udfs(language: str):
             register_dataset_udf(
                 [column],
                 udf_name=udf_name,
-                schema_name=language,
+                namespace=language,
+                schema_name=schema_name,
             )(wrapper(group, column))
-            _registered.add(udf_name)
+            _registered[schema_name].add(udf_name)
 
 
 def init(
@@ -71,6 +78,7 @@ def init(
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_pattern_file_path: Optional[str] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
@@ -83,4 +91,4 @@ def init(
     global pattern_loader, response_pattern_loader
     pattern_loader = PatternLoader(config.pattern_file_path)
     response_pattern_loader = PatternLoader(config.response_pattern_file_path)
-    _register_udfs(language)
+    _register_udfs(language, schema_name)

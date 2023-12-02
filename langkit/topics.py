@@ -1,6 +1,7 @@
+from collections import defaultdict
 from copy import deepcopy
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from typing import Callable, List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set
 from transformers import (
     pipeline,
 )
@@ -41,7 +42,9 @@ def _wrapper(column: str, classifier, topics) -> Callable:
     return lambda text: [closest_topic(t, classifier, topics) for t in text[column]]
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
 def init(
@@ -53,11 +56,13 @@ def init(
     response_topics: Optional[List[str]] = None,
     response_model_path: Optional[str] = None,
     response_topic_classifier: Optional[str] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
     config = config or deepcopy(lang_config)
     global _topics, _classifier
     _topics = topics or config.topics
@@ -83,12 +88,16 @@ def init(
 
     if _classifier is not None:
         register_dataset_udf(
-            [prompt_column], udf_name=f"{prompt_column}.closest_topic"
+            [prompt_column],
+            udf_name=f"{prompt_column}.closest_topic",
+            schema_name=schema_name,
         )(_wrapper(prompt_column, _classifier, _topics))
-        _registered.add(f"{prompt_column}.closest_topic")
+        _registered[schema_name].add(f"{prompt_column}.closest_topic")
 
     if _response_classifier is not None:
         register_dataset_udf(
-            [response_column], udf_name=f"{response_column}.closest_topic"
+            [response_column],
+            udf_name=f"{response_column}.closest_topic",
+            schema_name=schema_name,
         )(_wrapper(response_column, _response_classifier, _response_topics))
-        _registered.add(f"{response_column}.closest_topic")
+        _registered[schema_name].add(f"{response_column}.closest_topic")

@@ -20,8 +20,13 @@ def unregister_udf(
         if name in spec.udfs:
             found = True
             del spec.udfs[name]
+
     if not found:
         logger.warn(f"UDF {name} could not be found for unregistering")
+
+    us._multicolumn_udfs[schema_name] = [
+        spec for spec in us._multicolumn_udfs[schema_name] if len(spec.udfs) > 0
+    ]
     us._resolver_specs[schema_name] = list(
         filter(lambda x: x.column_name != name, us._resolver_specs[schema_name])
     )

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from logging import getLogger
 from typing import Callable, Dict, List, Optional, Set, Tuple, Union
 from whylogs.core.stubs import pd
@@ -72,10 +73,16 @@ def _unpack(t: Union[Tuple[str, str], Tuple[str, str, str]]) -> Tuple[str, str, 
     return t if len(t) == 3 else (t[0], t[1], t[0])  # type: ignore
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
-def init(language: Optional[str] = None, config: Optional[LangKitConfig] = None):
+def init(
+    language: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
+):
     config = config or lang_config
     prompt_languages = (
         {language} if language is not None else config.prompt_languages
@@ -84,27 +91,31 @@ def init(language: Optional[str] = None, config: Optional[LangKitConfig] = None)
         {language} if language is not None else config.response_languages
     ) or set()
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
 
     for t in _udfs_to_register:
-        stat_name, schema_name, udf = _unpack(t)
+        stat_name, udf_lang, udf = _unpack(t)
         for column in [prompt_column, response_column]:
-            if schema_name in (
+            if udf_lang in (
                 prompt_languages if column == prompt_column else response_languages
             ):
                 udf_name = f"{column}.{udf}"
                 register_dataset_udf(
                     [column],
                     udf_name=udf_name,
-                    # schema_name=schema_name,  # TODO: probably should be default schema
+                    schema_name=schema_name,
                 )(wrapper(stat_name, column))
-                _registered.add(udf_name)
+                _registered[schema_name].add(udf_name)
+
     for column in [prompt_column, response_column]:
         if "en" in (
             prompt_languages if column == prompt_column else response_languages
         ):
             udf_name = f"{column}.aggregate_reading_level"
-            register_dataset_udf([column], udf_name=udf_name)(aggregate_wrapper(column))
-            _registered.add(udf_name)
+            register_dataset_udf([column], udf_name=udf_name, schema_name=schema_name)(
+                aggregate_wrapper(column)
+            )
+            _registered[schema_name].add(udf_name)
 
     diagnostic_logger.info("Initialized textstat metrics.")

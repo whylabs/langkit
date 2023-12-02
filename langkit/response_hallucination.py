@@ -1,12 +1,14 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from logging import getLogger
-from typing import List, Optional
+from typing import List, Dict, Optional, Set
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from nltk.tokenize import sent_tokenize
 from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from langkit.transformer import Encoder
 from sentence_transformers import util
+from langkit.whylogs.unreg import unregister_udfs
 
 
 diagnostic_logger = getLogger(__name__)
@@ -258,14 +260,20 @@ def consistency_check(prompt: str, response: Optional[str] = None):
 checker: Optional[ConsistencyChecker] = None
 
 
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
+
+
 def init(
     language: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     llm: LLMInvocationParams = LLMInvocationParams(),
     num_samples=1,
+    schema_name: str = "",
 ):
     config = config or lang_config
-    global checker, embeddings_encoder
+    global checker, embeddings_encoder, _registered
     import nltk
 
     nltk.download("punkt")
@@ -274,6 +282,10 @@ def init(
     )
     embeddings_encoder = Encoder(config.response_transformer_name, custom_encoder=None)
     checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
+    udf_name = f"{response_column}.hallucination"
     register_dataset_udf(
-        [prompt_column, response_column], f"{response_column}.hallucination"
+        [prompt_column, response_column], udf_name, schema_name=schema_name
     )(response_hallucination)
+    _registered[schema_name].add(udf_name)

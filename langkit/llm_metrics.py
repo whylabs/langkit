@@ -21,14 +21,30 @@ except ImportError:
 
 
 def init(
-    language: Optional[str] = None, config: Optional[LangKitConfig] = None
+    language: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
 ) -> DeclarativeSchema:
-    regexes.init(language, config=config or multi_lang_config[language])
-    sentiment.init(language, config=config or multi_lang_config[language])
-    textstat.init(language, config=config or multi_lang_config[language])
-    themes.init(language, config=config or multi_lang_config[language])
-    toxicity.init(language, config=config or multi_lang_config[language])
-    input_output.init(language, config=config or multi_lang_config[language])
+    regexes.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    sentiment.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    textstat.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    themes.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    toxicity.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    input_output.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
 
-    text_schema = attach_schema_metadata(udf_schema(), "llm_metrics")
+    text_schema = attach_schema_metadata(
+        udf_schema(schema_name=schema_name), "llm_metrics"
+    )
     return text_schema

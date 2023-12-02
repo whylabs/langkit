@@ -9,10 +9,18 @@ from langkit import textstat
 
 
 def init(
-    language: Optional[str] = None, config: Optional[LangKitConfig] = None
+    language: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
 ) -> DeclarativeSchema:
-    regexes.init(language, config=config or multi_lang_config[language])
-    textstat.init(language, config=config or multi_lang_config[language])
+    regexes.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    textstat.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
 
-    text_schema = attach_schema_metadata(udf_schema(), "light_metrics")
+    text_schema = attach_schema_metadata(
+        udf_schema(schema_name=schema_name), "light_metrics"
+    )
     return text_schema

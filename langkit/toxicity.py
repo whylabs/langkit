@@ -1,5 +1,6 @@
+from collections import defaultdict
 from copy import deepcopy
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
@@ -45,7 +46,9 @@ def _toxicity_wrapper(column, pipeline, tokenizer):
     return lambda text: [toxicity(t, pipeline, tokenizer) for t in text[column]]
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
 def init(
@@ -53,11 +56,13 @@ def init(
     model_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_model_path: Optional[str] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
     from transformers import (
         AutoModelForSequenceClassification,
         AutoTokenizer,
@@ -79,14 +84,16 @@ def init(
         _toxicity_pipeline = TextClassificationPipeline(
             model=model, tokenizer=_toxicity_tokenizer, device=_device
         )
-        register_dataset_udf([prompt_column], f"{prompt_column}.toxicity")(
+        register_dataset_udf(
+            [prompt_column], f"{prompt_column}.toxicity", schema_name=schema_name
+        )(
             translated_udf(translators)(
                 _toxicity_wrapper(
                     prompt_column, _toxicity_pipeline, _toxicity_tokenizer
                 )
             )
         )
-        _registered.add(f"{prompt_column}.toxicity")
+        _registered[schema_name].add(f"{prompt_column}.toxicity")
 
     model_path = response_model_path or config.response_toxicity_model_path
     global _response_toxicity_tokenizer, _response_toxicity_pipeline
@@ -98,7 +105,9 @@ def init(
         _response_toxicity_pipeline = TextClassificationPipeline(
             model=model, tokenizer=_response_toxicity_tokenizer, device=_device
         )
-        register_dataset_udf([response_column], f"{response_column}.toxicity")(
+        register_dataset_udf(
+            [response_column], f"{response_column}.toxicity", schema_name=schema_name
+        )(
             translated_udf(translators)(
                 _toxicity_wrapper(
                     response_column,
@@ -107,4 +116,4 @@ def init(
                 )
             )
         )
-        _registered.add(f"{response_column}.toxicity")
+        _registered[schema_name].add(f"{response_column}.toxicity")

@@ -1,3 +1,4 @@
+from collections import defaultdict
 from copy import deepcopy
 from logging import getLogger
 
@@ -6,7 +7,7 @@ from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 from langkit.whylogs.unreg import unregister_udfs
 
 diagnostic_logger = getLogger(__name__)
@@ -35,14 +36,17 @@ def _wrapper(column, groups):
     return wrappee
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
-def _register_udfs(config: Optional[LangKitConfig] = None):
+def _register_udfs(config: Optional[LangKitConfig] = None, schema_name: str = ""):
     global _initialized
     _initialized = True
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name)
+    _registered[schema_name] = set()
     if config is None:
         config = lang_config
     default_metric_name = "has_patterns"
@@ -56,8 +60,9 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
             [column],
             udf_name=udf_name,
             metrics=[MetricSpec(FrequentItemsMetric)],
+            schema_name=schema_name,
         )(_wrapper(column, pattern_loader.get_regex_groups()))
-        _registered.add(udf_name)
+        _registered[schema_name].add(udf_name)
 
     if response_pattern_loader.get_regex_groups() is not None:
         column = response_column
@@ -66,8 +71,9 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
             [column],
             udf_name=udf_name,
             metrics=[MetricSpec(FrequentItemsMetric)],
+            schema_name=schema_name,
         )(_wrapper(column, response_pattern_loader.get_regex_groups()))
-        _registered.add(udf_name)
+        _registered[schema_name].add(udf_name)
 
 
 def init(
@@ -75,6 +81,7 @@ def init(
     pattern_file_path: Optional[str] = None,
     config: Optional[LangKitConfig] = None,
     response_pattern_file_path: Optional[str] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
@@ -88,4 +95,4 @@ def init(
     pattern_loader = PatternLoader(config.pattern_file_path)
     response_pattern_loader = PatternLoader(config.response_pattern_file_path)
 
-    _register_udfs(config)
+    _register_udfs(config, schema_name)

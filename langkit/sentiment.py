@@ -1,12 +1,15 @@
+from collections import defaultdict
 from copy import deepcopy
-from typing import Optional, Set
+from typing import Dict, Optional, Set
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from langkit.whylogs.unreg import unregister_udfs
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
 _nltk_downloaded = None
@@ -118,12 +121,14 @@ def init(
     response_lexicon: Optional[str] = None,
     sentiment_model_path: Optional[str] = None,
     response_sentiment_model_path: Optional[str] = None,
+    schema_name: str = "",
 ):
     global _initialized
     _initialized = True
 
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
 
     config = config or deepcopy(lang_config)
     prompt_languages = {language} if language is not None else config.prompt_languages
@@ -137,31 +142,39 @@ def init(
     if prompt_languages is not None and len(prompt_languages) > 0:
         if prompt_languages.issubset({"", "en"}) and _sentiment_analyzer:
             register_dataset_udf(
-                [prompt_column], udf_name=f"{prompt_column}.sentiment_nltk"
+                [prompt_column],
+                udf_name=f"{prompt_column}.sentiment_nltk",
+                schema_name=schema_name,
             )(_sentiment_wrapper(sentiment_nltk, _sentiment_analyzer, prompt_column))
-            _registered.add(f"{prompt_column}.sentiment_nltk")
+            _registered[schema_name].add(f"{prompt_column}.sentiment_nltk")
         elif prompt_languages.issubset(_supported_languages) and _pipeline:
             register_dataset_udf(
-                [prompt_column], udf_name=f"{prompt_column}.sentiment_multi"
+                [prompt_column],
+                udf_name=f"{prompt_column}.sentiment_multi",
+                schema_name=schema_name,
             )(_sentiment_wrapper(sentiment_multilingual, _pipeline, prompt_column))
-            _registered.add(f"{prompt_column}.sentiment_multi")
+            _registered[schema_name].add(f"{prompt_column}.sentiment_multi")
 
     if response_languages is not None and len(response_languages) > 0:
         if response_languages.issubset({"", "en"}) and _response_sentiment_analyzer:
             register_dataset_udf(
-                [response_column], udf_name=f"{response_column}.sentiment_nltk"
+                [response_column],
+                udf_name=f"{response_column}.sentiment_nltk",
+                schema_name=schema_name,
             )(
                 _sentiment_wrapper(
                     sentiment_nltk, _response_sentiment_analyzer, response_column
                 )
             )
-            _registered.add(f"{response_column}.sentiment_nltk")
+            _registered[schema_name].add(f"{response_column}.sentiment_nltk")
         elif response_languages.issubset(_supported_languages) and _response_pipeline:
             register_dataset_udf(
-                [prompt_column], udf_name=f"{response_column}.sentiment_multi"
+                [prompt_column],
+                udf_name=f"{response_column}.sentiment_multi",
+                schema_name=schema_name,
             )(
                 _sentiment_wrapper(
                     sentiment_multilingual, _response_pipeline, prompt_column
                 )
             )
-            _registered.add(f"{response_column}.sentiment_multi")
+            _registered[schema_name].add(f"{response_column}.sentiment_multi")

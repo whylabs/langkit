@@ -16,15 +16,35 @@ from langkit import input_output
 
 
 def init(
-    language: Optional[str] = None, config: Optional[LangKitConfig] = None
+    language: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    schema_name: str = "",
 ) -> DeclarativeSchema:
-    injections.init(language, config=config or multi_lang_config[language])
-    topics.init(language, config=config or multi_lang_config[language])
-    regexes.init(language, config=config or multi_lang_config[language])
-    sentiment.init(language, config=config or multi_lang_config[language])
-    textstat.init(language, config=config or multi_lang_config[language])
-    themes.init(language, config=config or multi_lang_config[language])
-    toxicity.init(language, config=config or multi_lang_config[language])
-    input_output.init(language, config=config or multi_lang_config[language])
-    text_schema = attach_schema_metadata(udf_schema(), "all_metrics")
+    injections.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    topics.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    regexes.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    sentiment.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    textstat.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    themes.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    toxicity.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    input_output.init(
+        language, config=config or multi_lang_config[language], schema_name=schema_name
+    )
+    text_schema = attach_schema_metadata(
+        udf_schema(schema_name=schema_name), "all_metrics"
+    )
     return text_schema

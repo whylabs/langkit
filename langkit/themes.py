@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from copy import deepcopy
 from logging import getLogger
 from typing import Callable, Optional, Dict, List, Set
@@ -59,12 +60,15 @@ def _map_embeddings(embeddings_map, theme_groups, transformer_model):
         ]
 
 
-_registered: Set[str] = set()
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
 
 
-def _register_theme_udfs():
+def _register_theme_udfs(schema_name: str):
     global _registered
-    unregister_udfs(_registered)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
     if _transformer_model is not None:
         _map_embeddings(_embeddings_map, _theme_groups, _transformer_model)
         for group in _theme_groups:
@@ -72,8 +76,8 @@ def _register_theme_udfs():
             if group == "refusal":
                 continue
             udf_name = f"{column}.{group}_similarity"
-            _registered.add(udf_name)
-            register_dataset_udf([column], udf_name=udf_name)(
+            _registered[schema_name].add(udf_name)
+            register_dataset_udf([column], udf_name=udf_name, schema_name=schema_name)(
                 create_similarity_function(
                     group, column, _transformer_model, _embeddings_map
                 )
@@ -90,8 +94,8 @@ def _register_theme_udfs():
             if group == "jailbreak":
                 continue
             udf_name = f"{column}.{group}_similarity"
-            _registered.add(udf_name)
-            register_dataset_udf([column], udf_name=udf_name)(
+            _registered[schema_name].add(udf_name)
+            register_dataset_udf([column], udf_name=udf_name, schema_name=schema_name)(
                 create_similarity_function(
                     group,
                     column,
@@ -128,6 +132,7 @@ def init(
     response_custom_encoder: Optional[Callable] = None,
     response_theme_file_path: Optional[str] = None,
     response_theme_json: Optional[str] = None,
+    schema_name: str = "",
 ):
     config = config or deepcopy(lang_config)
     global _transformer_model
@@ -174,7 +179,7 @@ def init(
     else:
         _response_transformer_model = None
 
-    _register_theme_udfs()
+    _register_theme_udfs(schema_name)
 
 
 def get_subject_similarity(
