@@ -14,6 +14,32 @@ _llm_model_system_message = "The following is a conversation with an AI assistan
 _llm_concatenate_history = True
 
 
+def get_openai_version():
+    return openai.__version__
+
+
+def create_chat_completion(messages, **params):
+    openai_version = get_openai_version()
+    if openai_version.startswith("0."):
+        return openai.ChatCompletion.create(messages=messages, **params)
+    elif openai_version.startswith("1."):
+        client = openai.OpenAI()
+        return client.chat.completions.create(messages=messages, **params)
+    else:
+        raise Exception("Unsupported version of OpenAI library")
+
+
+def create_completion(prompt, **params):
+    openai_version = get_openai_version()
+    if openai_version.startswith("0."):
+        return openai.Completion.create(prompt=prompt, **params)
+    elif openai_version.startswith("1."):
+        client = openai.OpenAI()
+        return client.completions.create(prompt=prompt, **params)
+    else:
+        raise Exception("Unsupported version of OpenAI library")
+
+
 class ChatLog:
     def __init__(
         self,
@@ -85,7 +111,7 @@ class OpenAIDavinci(LLMInvocationParams):
             )
         params = asdict(self)
         openai.api_key = os.getenv("OPENAI_API_KEY")
-        text_completion_respone = openai.Completion.create(prompt=prompt, **params)
+        text_completion_respone = create_completion(prompt=prompt, **params)
         content = text_completion_respone.choices[0].text
         response = type(
             "ChatCompletions",
@@ -140,7 +166,7 @@ class OpenAIDefault(LLMInvocationParams):
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
         openai.api_key = os.getenv("OPENAI_API_KEY")
-        return openai.ChatCompletion.create(messages=messages, **params)
+        return create_chat_completion(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
         return OpenAIDefault(
@@ -150,6 +176,27 @@ class OpenAIDefault(LLMInvocationParams):
             frequency_penalty=self.frequency_penalty,
             presence_penalty=self.presence_penalty,
         )
+
+
+def create_azure_chat_completion(messages, **params):
+    openai_version = get_openai_version()
+    if openai_version.startswith("0."):
+        return openai.ChatCompletion.create(messages=messages, **params)
+    elif openai_version.startswith("1."):
+        client = openai.AzureOpenAI(
+            api_version=openai.api_version,
+            api_key=openai.api_key,
+            azure_endpoint=openai.api_base,
+        )
+        model = params.pop("engine", None)
+        params.pop(
+            "model", None
+        )  # v0 searches "engine" instead of "model", which is also present at params.
+        params.pop("api_type", None)  # used in v0, but raises an error in v1
+        params.pop("api_version", None)  # used in v0, but raises an error in v1
+        return client.chat.completions.create(model=model, messages=messages, **params)
+    else:
+        raise Exception("Unsupported version of OpenAI library")
 
 
 @dataclass
@@ -172,7 +219,8 @@ class OpenAIAzure(LLMInvocationParams):
         if endpoint:
             openai.api_base = endpoint
         openai.api_key = os.getenv("AZURE_OPENAI_KEY")
-        return openai.ChatCompletion.create(messages=messages, **params)
+        return create_azure_chat_completion(messages=messages, **params)
+        # return openai.ChatCompletion.create(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
         return OpenAIAzure(
@@ -199,7 +247,7 @@ class OpenAIGPT4(LLMInvocationParams):
     def completion(self, messages: List[Dict[str, str]], **kwargs):
         params = asdict(self)
         openai.api_key = os.getenv("OPENAI_API_KEY")
-        return openai.ChatCompletion.create(messages=messages, **params)
+        return create_chat_completion(messages=messages, **params)
 
     def copy(self) -> LLMInvocationParams:
         return OpenAIGPT4(
