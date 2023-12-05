@@ -173,7 +173,7 @@ class ConsistencyChecker:
 
                 Don't include additional information/explanation. Please answer only with the options above.
 
-                Answer:                 
+                Answer:
                 """
                 result: ChatLog = Conversation(
                     self.consistency_checker_llm
