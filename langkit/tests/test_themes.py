@@ -42,7 +42,7 @@ def test_theme_custom(interactions):
     def embed(texts: List[str]):
         return [[0.2, 0.2] for _ in texts]
 
-    themes.init(custom_encoder=embed)
+    themes.init(custom_encoder=embed, response_custom_encoder=embed)
     schema = udf_schema()
     for i, interaction in enumerate(interactions):
         result = why.log(interaction, schema=schema)
@@ -129,7 +129,10 @@ def test_themes_with_json_string():
     }
     # if we don't reset udfs, jailbreak_similarity will be an empty metric
     _reset_udfs()
-    themes.init(theme_json=json.dumps(refusals_json))
+    themes.init(
+        theme_json=json.dumps(refusals_json),
+        response_theme_json=json.dumps(refusals_json),
+    )
     schema = udf_schema()
 
     prof = why.log({"prompt": "hello"}, schema=schema).view()
@@ -150,7 +153,18 @@ def test_themes_with_json_string():
 
 @pytest.mark.load
 def test_themes_standalone():
-    from langkit.themes import group_similarity
+    from langkit.themes import (
+        group_similarity,
+        init,
+        _transformer_model,
+        _embeddings_map,
+    )
 
-    score = group_similarity("Sorry, but I can't assist with that", "refusal")
+    init()
+    score = group_similarity(
+        "Sorry, but I can't assist with that",
+        "refusal",
+        _transformer_model,
+        _embeddings_map,
+    )
     assert score == pytest.approx(1.0)

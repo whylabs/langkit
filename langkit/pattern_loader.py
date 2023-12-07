@@ -1,22 +1,21 @@
 import json
 import re
-from copy import deepcopy
 from logging import getLogger
 from typing import Optional
-
-from langkit import LangKitConfig, lang_config
 
 
 diagnostic_logger = getLogger(__name__)
 
 
 class PatternLoader:
-    def __init__(self, config: Optional[LangKitConfig] = None):
-        self.config: LangKitConfig = config or deepcopy(lang_config)
+    def __init__(self, json_path: Optional[str] = None):
+        self.json_path = json_path
         self.regex_groups = self.load_patterns()
 
     def load_patterns(self):
-        json_path = self.config.pattern_file_path
+        json_path = self.json_path
+        if json_path is None:
+            return None
         try:
             skip = False
             with open(json_path, "r") as myfile:
@@ -37,12 +36,10 @@ class PatternLoader:
         except json.decoder.JSONDecodeError as json_error:
             skip = True
             diagnostic_logger.warning(f"Could not parse {json_path}: {json_error}")
-        if not skip:
-            return regex_groups
-        return None
+        return regex_groups if not skip else None
 
-    def set_config(self, config: LangKitConfig):
-        self.config = config
+    def set_config(self, json_path: Optional[str] = None):
+        self.json_path = json_path
 
     def update_patterns(self):
         self.regex_groups = self.load_patterns()

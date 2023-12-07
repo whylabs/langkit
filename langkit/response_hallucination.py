@@ -1,19 +1,19 @@
+from collections import defaultdict
 from dataclasses import dataclass
 from logging import getLogger
-from typing import List, Optional
+from typing import List, Dict, Optional, Set
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from langkit import lang_config, prompt_column, response_column
+from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from nltk.tokenize import sent_tokenize
 from langkit.openai.openai import LLMInvocationParams, Conversation, ChatLog
 from langkit.transformer import Encoder
 from sentence_transformers import util
+from langkit.whylogs.unreg import unregister_udfs
 
-_prompt = prompt_column
-_response = response_column
 
 diagnostic_logger = getLogger(__name__)
 
-embeddings_encoder = Encoder(lang_config.transformer_name, custom_encoder=None)
+embeddings_encoder = None
 
 
 @dataclass
@@ -241,24 +241,9 @@ class ConsistencyChecker:
         return consistency_result
 
 
-checker: Optional[ConsistencyChecker] = None
-
-
-def init(llm: LLMInvocationParams, num_samples=1):
-    global checker
-    import nltk
-
-    nltk.download("punkt")
-    diagnostic_logger.info(
-        "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
-    )
-    checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
-
-
-@register_dataset_udf([_prompt, _response], f"{_response}.hallucination")
 def response_hallucination(text):
     series_result = []
-    for prompt, response in zip(text[_prompt], text[_response]):
+    for prompt, response in zip(text[prompt_column], text[response_column]):
         if checker is not None:
             result: ConsistencyResult = checker.consistency_check(prompt, response)
         else:
@@ -274,3 +259,37 @@ def consistency_check(prompt: str, response: Optional[str] = None):
         return checker.consistency_check(prompt, response).to_summary_dict()
     else:
         raise Exception("You need to call init() before using this function")
+
+
+checker: Optional[ConsistencyChecker] = None
+
+
+_registered: Dict[str, Set[str]] = defaultdict(
+    set
+)  # _registered[schema_name] -> set of registered UDF names
+
+
+def init(
+    language: Optional[str] = None,
+    config: Optional[LangKitConfig] = None,
+    llm: LLMInvocationParams = LLMInvocationParams(),
+    num_samples=1,
+    schema_name: str = "",
+):
+    config = config or lang_config
+    global checker, embeddings_encoder, _registered
+    import nltk
+
+    nltk.download("punkt")
+    diagnostic_logger.info(
+        "Info: the response_hallucination metric module performs additionall LLM calls to check the consistency of the response."
+    )
+    embeddings_encoder = Encoder(config.response_transformer_name, custom_encoder=None)
+    checker = ConsistencyChecker(llm, num_samples, embeddings_encoder)
+    unregister_udfs(_registered[schema_name], schema_name=schema_name)
+    _registered[schema_name] = set()
+    udf_name = f"{response_column}.hallucination"
+    register_dataset_udf(
+        [prompt_column, response_column], udf_name, schema_name=schema_name
+    )(response_hallucination)
+    _registered[schema_name].add(udf_name)
