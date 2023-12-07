@@ -36,6 +36,7 @@ def init(
     config: Optional[LangKitConfig] = None,
 ):
     config = config or deepcopy(lang_config)
+
     global _transformer_model
     global _index_embeddings
     if not transformer_name:
@@ -85,6 +86,7 @@ def init(
 def injection(prompt: Union[Dict[str, List], pd.DataFrame]) -> Union[List, pd.Series]:
     global _transformer_model
     global _index_embeddings
+
     if _transformer_model is None:
         raise ValueError("Injections - transformer model not initialized")
     embeddings = _transformer_model.encode(prompt[_prompt])

@@ -1,5 +1,7 @@
 import os
 from langkit import lang_config
+import string
+import random
 
 
 def _get_data_home() -> str:
@@ -9,3 +11,7 @@ def _get_data_home() -> str:
         os.makedirs(data_path)
 
     return data_path
+
+
+def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+    return "".join(random.choice(chars) for _ in range(size))
