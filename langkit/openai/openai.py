@@ -26,7 +26,7 @@ def create_chat_completion(messages, **params):
         client = openai.OpenAI()
         return client.chat.completions.create(messages=messages, **params)
     else:
-        raise Exception("Unsupported version of OpenAI library")
+        raise Exception(f"Unsupported version of OpenAI library: {openai_version}")
 
 
 def create_azure_chat_completion(messages, **params):
@@ -49,7 +49,7 @@ def create_azure_chat_completion(messages, **params):
         params.pop("api_version", None)  # used in v0, but raises an error in v1
         return client.chat.completions.create(model=model, messages=messages, **params)
     else:
-        raise Exception("Unsupported version of OpenAI library")
+        raise Exception(f"Unsupported version of OpenAI library: {openai_version}")
 
 
 def create_completion(prompt, **params):
@@ -60,7 +60,7 @@ def create_completion(prompt, **params):
         client = openai.OpenAI()
         return client.completions.create(prompt=prompt, **params)
     else:
-        raise Exception("Unsupported version of OpenAI library")
+        raise Exception(f"Unsupported version of OpenAI library: {openai_version}")
 
 
 class ChatLog:
