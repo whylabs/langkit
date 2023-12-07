@@ -170,6 +170,10 @@ class ConsistencyChecker:
 
                 Is the passage supported by the context above?
                 Answer between: Accurate, Minor Inaccurate, Major Inaccurate
+
+                Don't include additional information/explanation. Please answer only with the options above.
+
+                Answer:
                 """
                 result: ChatLog = Conversation(
                     self.consistency_checker_llm
