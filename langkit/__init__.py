@@ -48,8 +48,8 @@ class LangKitConfig:
     toxicity_model_path: str = "martin-ha/toxic-comment-model"
 
 
-prompt_column: str = "prompt"
-response_column: str = "response"
+prompt_column = "prompt"
+response_column = "response"
 lang_config = LangKitConfig()
 
 

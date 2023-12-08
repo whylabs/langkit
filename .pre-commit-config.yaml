@@ -40,3 +40,11 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
         exclude: ^\.bumpversion\.cfg$
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.1.7
+  hooks:
+    # Run the linter.
+    - id: ruff
+    # Run the formatter.
+    - id: ruff-format
