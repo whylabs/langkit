@@ -1,18 +1,34 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from functools import reduce
-from typing import Any, Callable, Dict, List, Optional, Union
+from functools import partial, reduce
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union, cast
+
+import pandas as pd
 
 from whylogs.core.resolvers import Resolver
 from whylogs.core.schema import DatasetSchema
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig, TypeMapper
-from whylogs.experimental.core.udf_schema import ResolverSpec, UdfSchema, UdfSpec, Validator
+from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, ResolverSpec, UdfSchema, UdfSpec, Validator
 
 
-@dataclass
+class UdfInput:
+    def __init__(self, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> None:
+        self.text = text
+
+    def iter_column(self, column_name: str) -> Iterator[Any]:
+        if column_name not in self.text:
+            return iter([])
+
+        if isinstance(self.text, pd.DataFrame):
+            col = cast(pd.Series, self.text[column_name])
+            return cast(Iterator[Any], iter(col))
+        else:
+            return iter(self.text[column_name])
+
+
+@dataclass(frozen=True)
 class UdfSchemaArgs:
     """
     This shouldn't really exist. It does because creating a UdfSchema ends up
@@ -32,24 +48,48 @@ class UdfSchemaArgs:
     udf_specs: Optional[List[UdfSpec]] = None
 
 
-class Module(ABC):
-    @abstractmethod
-    def create(self) -> UdfSchemaArgs:
-        pass
+UdfFunctionInput = Union[pd.DataFrame, Dict[str, List[Any]]]
+
+ColumnName = str
+UdfFunction = Callable[[ColumnName, UdfFunctionInput], Union[pd.DataFrame, Dict[str, List[Any]]]]
 
 
-ModuleType = Union[Module, List[Module], Callable[[], UdfSchemaArgs], Callable[[], List[UdfSchemaArgs]], List[Callable[[], UdfSchemaArgs]]]
+class ModuleBuilder:
+    def __init__(self) -> None:
+        self.args: List[UdfSchemaArgs] = []
+
+    def add_udf(self, input_column_name: str, output_column_name: str, udf: UdfFunction) -> "ModuleBuilder":
+        _udf = partial(udf, input_column_name)
+
+        udf_spec = UdfSpec(
+            column_names=[input_column_name],
+            udfs={output_column_name: _udf},
+        )
+
+        schema = UdfSchemaArgs(
+            types={input_column_name: str},
+            resolvers=NO_FI_RESOLVER,  # TODO is this the right default resolver to use?
+            udf_specs=[udf_spec],
+        )
+
+        self.args.append(schema)
+
+        return self
+
+    def build(self) -> "Module":
+        return lambda: self.args
+
+
+Module = Union[Callable[[], UdfSchemaArgs], Callable[[], List[UdfSchemaArgs]], List[Callable[[], UdfSchemaArgs]]]
 
 
 class SchemaBuilder:
     def __init__(self) -> None:
         super().__init__()
-        self._modules: List[ModuleType] = []
+        self._modules: List[Module] = []
 
-    def add(self, module: ModuleType) -> "SchemaBuilder":
-        if isinstance(module, Module):
-            self._modules.append(module)
-        elif isinstance(module, list):
+    def add(self, module: Module) -> "SchemaBuilder":
+        if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
             self._modules.append(module)
@@ -61,9 +101,7 @@ class SchemaBuilder:
     def build(self) -> DatasetSchema:
         schemas: List[UdfSchemaArgs] = []
         for module in self._modules:
-            if isinstance(module, Module):
-                schemas.append(module.create())
-            elif callable(module):
+            if callable(module):
                 schema = module()
                 if isinstance(schema, UdfSchemaArgs):
                     schemas.append(schema)
@@ -72,8 +110,8 @@ class SchemaBuilder:
             else:
                 # schemas.extend([m.create() for m in module])
                 for m in module:
-                    if isinstance(m, Module):
-                        schemas.append(m.create())
+                    if isinstance(m, ModuleBuilder):
+                        schemas.append(m.build())
                     elif callable(m):
                         schema = m()
                         schemas.append(schema)

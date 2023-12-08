@@ -1,12 +1,13 @@
-from typing import Any
+from typing import Any, Dict, List, Union
 
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import SchemaBuilder
+from langkit.module.module import ModuleBuilder, SchemaBuilder, UdfInput
 from langkit.module.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
+    prompt_response_flesch_kincaid_grade_level_module,
     prompt_response_textstat_module,
     prompt_textstat_module,
     response_char_count_module,
@@ -16,7 +17,9 @@ from langkit.module.text_statistics import (
 from whylogs.core.schema import DatasetSchema
 
 expected_metrics = [
-    "type",
+    "cardinality/est",
+    "cardinality/lower_1",
+    "cardinality/upper_1",
     "counts/inf",
     "counts/n",
     "counts/nan",
@@ -35,12 +38,15 @@ expected_metrics = [
     "distribution/q_95",
     "distribution/q_99",
     "distribution/stddev",
+    "type",
     "types/boolean",
     "types/fractional",
     "types/integral",
     "types/object",
     "types/string",
     "types/tensor",
+    "ints/max",
+    "ints/min",
 ]
 
 df = pd.DataFrame(
@@ -181,7 +187,10 @@ def test_prompt_reading_ease_module():
 
     actual = _log(row, prompt_reading_ease_schema)
 
-    assert list(actual.columns) == expected_metrics
+    # score is a float so it doesn't have the ints metrics
+    expected_metrics_without_ints = [metric for metric in expected_metrics if "ints" not in metric]
+
+    assert list(actual.columns) == expected_metrics_without_ints
 
     assert actual.index.tolist() == [
         "prompt",
@@ -195,12 +204,33 @@ def test_response_reading_ease_module():
 
     actual = _log(row, response_reading_ease_schema)
 
-    assert list(actual.columns) == expected_metrics
+    # score is a float so it doesn't have the ints metrics
+    expected_metrics_without_ints = [metric for metric in expected_metrics if "ints" not in metric]
+
+    assert list(actual.columns) == expected_metrics_without_ints
 
     assert actual.index.tolist() == [
         "prompt",
         "response",
         "response.flesch_reading_ease",
+    ]
+
+
+def test_prompt_response_flesch_kincaid_grade_level_module():
+    schema = SchemaBuilder().add(prompt_response_flesch_kincaid_grade_level_module).build()
+
+    actual = _log(row, schema)
+
+    # score is a float so it doesn't have the ints metrics
+    expected_metrics_without_ints = [metric for metric in expected_metrics if "ints" not in metric]
+
+    assert list(actual.columns) == expected_metrics_without_ints
+
+    assert actual.index.tolist() == [
+        "prompt",
+        "prompt.flesch_kincaid_grade",
+        "response",
+        "response.flesch_kincaid_grade",
     ]
 
 
@@ -289,3 +319,22 @@ def test_custom_module_combination():
     assert actual.index.tolist() == expected_columns
     assert actual["distribution/max"]["prompt.char_count"] == len(row["prompt"].replace(" ", ""))
     assert actual["distribution/max"]["response.char_count"] == len(row["response"].replace(" ", ""))
+
+
+def test_manual_udf_module_builder():
+    def str_length_udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+        return [len(it) for it in UdfInput(text).iter_column(column_name)]
+
+    my_module = ModuleBuilder().add_udf("prompt", "prompt.str_length", str_length_udf).build()
+    schema = SchemaBuilder().add(my_module).build()
+
+    actual = _log(row, schema)
+
+    assert list(actual.columns) == expected_metrics
+    assert actual.index.tolist() == [
+        "prompt",
+        "prompt.str_length",
+        "response",
+    ]
+
+    assert actual["distribution/max"]["prompt.str_length"] == len(row["prompt"])

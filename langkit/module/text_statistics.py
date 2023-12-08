@@ -1,14 +1,12 @@
 from functools import partial
-from typing import Any, Dict, Iterator, List, Literal, Union, cast
+from typing import Any, Dict, List, Literal, Union
 
 import pandas as pd
 from textstat import textstat
 
-from langkit.module.module import ModuleType, UdfSchemaArgs
-from whylogs.experimental.core.metrics.udf_metric import StandardMetric
+from langkit.module.module import Module, UdfInput, UdfSchemaArgs
 from whylogs.experimental.core.udf_schema import (
-    MetricSpec,
-    ResolverSpec,
+    NO_FI_RESOLVER,
     UdfSpec,
 )
 
@@ -39,21 +37,6 @@ TextStat = Literal[
 ]
 
 
-class UdfInput:
-    def __init__(self, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> None:
-        self.text = text
-
-    def iter_column(self, column_name: str) -> Iterator[Any]:
-        if column_name not in self.text:
-            return iter([])
-
-        if isinstance(self.text, pd.DataFrame):
-            col = cast(pd.Series, self.text[column_name])
-            return cast(Iterator[Any], iter(col))
-        else:
-            return iter(self.text[column_name])
-
-
 def _textstat_module(stat: TextStat, column_name: str) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         stat_func = getattr(textstat, stat)
@@ -66,19 +49,9 @@ def _textstat_module(stat: TextStat, column_name: str) -> UdfSchemaArgs:
         udfs={f"{column_name}.{stat}": udf},
     )
 
-    textstat_resolver_spec = ResolverSpec(
-        f"{column_name}.{stat}",
-        None,
-        [
-            MetricSpec(StandardMetric.counts.value),
-            MetricSpec(StandardMetric.types.value),
-            MetricSpec(StandardMetric.distribution.value),
-        ],
-    )
-
     schema = UdfSchemaArgs(
         types={column_name: str},
-        resolvers=[textstat_resolver_spec],
+        resolvers=NO_FI_RESOLVER,
         udf_specs=[textstat_udf],
     )
 
@@ -148,7 +121,7 @@ response_difficult_words_module = partial(__difficult_words_module, column_name=
 prompt_response_difficult_words_module = [prompt_difficult_words_module, response_difficult_words_module]
 
 
-prompt_response_textstat_module: ModuleType = [
+prompt_response_textstat_module: Module = [
     *prompt_response_reading_ease_module,
     *prompt_response_flesch_kincaid_grade_level_module,
     *prompt_response_char_count_module,
@@ -161,7 +134,7 @@ prompt_response_textstat_module: ModuleType = [
     *prompt_response_difficult_words_module,
 ]
 
-prompt_textstat_module: ModuleType = [
+prompt_textstat_module: Module = [
     prompt_reading_ease_module,
     prompt_flesch_kincaid_grade_level_module,
     prompt_char_count_module,
@@ -174,7 +147,7 @@ prompt_textstat_module: ModuleType = [
     prompt_difficult_words_module,
 ]
 
-response_textstat_module: ModuleType = [
+response_textstat_module: Module = [
     response_reading_ease_module,
     response_flesch_kincaid_grade_level_module,
     response_char_count_module,
