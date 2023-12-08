@@ -38,6 +38,7 @@ def mock_proactive_injection_detection():
     return mock_proactive_injection_detection
 
 
+@pytest.mark.load
 def test_proactive_injection_detection(mock_proactive_injection_detection):
     os.environ["OPENAI_API_KEY"] = "<your-key>"
     openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -52,6 +53,7 @@ def test_proactive_injection_detection(mock_proactive_injection_detection):
     assert result["score"] == 1
 
 
+@pytest.mark.load
 @patch("langkit.extract")
 def test_proactive_injection_detection_extract(mock_get):
     os.environ["OPENAI_API_KEY"] = "<your-key>"
