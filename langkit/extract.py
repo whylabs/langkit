@@ -15,4 +15,6 @@ def extract(
     elif isinstance(data, dict):
         _, row_enhanced = schema.apply_udfs(row=data)
         return row_enhanced
-    raise ValueError("extract: Invalid data type")
+    raise ValueError(
+        f"Extract: data of type {type(data)} is invalid: supported input types are pandas dataframe or dictionary"
+    )
