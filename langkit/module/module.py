@@ -13,6 +13,8 @@ from whylogs.experimental.core.metrics.udf_metric import MetricConfig, TypeMappe
 from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, ResolverSpec, UdfSchema, UdfSpec, Validator
 
 
+# TODO make this generic and add a filter ability to ensure that it only delivers the things
+# you want instead of a bunch of Any
 class UdfInput:
     def __init__(self, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> None:
         self.text = text
@@ -75,6 +77,29 @@ class ModuleBuilder:
         self.args.append(schema)
 
         return self
+
+    # TODO add a fn for adding conditions/validators
+    # def build(self) -> "RegexValidatorBuilder":
+    #     from langkit import regexes  # pyright: ignore reportUnusedImport
+    #
+    #     config_path: Optional[str] = self.validation_rule.config_path
+    #     if config_path is not None:
+    #         regexes.init(pattern_file_path=config_path)  # type: ignore
+    #     self.key = f"{self.validation_rule.rule_type}.has_patterns"
+    #
+    #     def validate_patterns_condition(pattern: str) -> bool:
+    #         return not bool(pattern)
+    #
+    #     passed_conditions: Dict[str, Union[Condition, Callable[[Any], bool]]] = {
+    #         "no_patterns": Condition(Predicate().is_(validate_patterns_condition))
+    #     }
+    #     self.validator: ConditionValidator = ConditionValidator(
+    #         name="no_patterns_validator",
+    #         conditions=passed_conditions,
+    #         actions=[flag_failed_validation],
+    #     )
+    #     return self
+    #
 
     def build(self) -> "Module":
         return lambda: self.args
