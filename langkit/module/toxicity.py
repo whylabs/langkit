@@ -71,4 +71,5 @@ def __toxicity_module(column_name: str) -> UdfSchemaArgs:
 
 prompt_toxicity = partial(__toxicity_module, "prompt")
 response_toxicity = partial(__toxicity_module, "response")
+# TODO make these lists readonly
 prompt_response_toxicity = [prompt_toxicity, response_toxicity]
