@@ -114,7 +114,7 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 ## Proactive Injection Detection
 
@@ -329,7 +329,7 @@ This method returns the number of words with one syllable present in the input t
 
 The `themes` namespace will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 Currently, supported themes are: `jailbreaks` and `refusals`.
 

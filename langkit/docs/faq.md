@@ -6,6 +6,12 @@
 
 ---
 
+**Q**: Does Langkit integrate with which Large Language Models?
+
+**A**: Most of Langkit's metrics require only the presence of one of two (or both) specific columns: a `prompt` column and a `response` column. You can use any LLM you wish with Langkit, as long as you provide the prompt and response columns. There are, however, two modules that require additional LLM calls to calculate metrics: `response_hallucination` and `proactive_injection_detection`. For these two modules, only OpenAI models are supported through `langkit.openai`'s `OpenAIDavinci`, `OpenAIDefault`, and `OpenAIGPT4`. Azure-hosted OpenAI models are also supported through `OpenAIAzure`.
+
+---
+
 **Q**: Do I need to import each namespace I want to use manually?
 
 **A**: Langkit provides some groups that will import multiple namespaces for you. Calling `llm_metrics`, for example, will automatically initialize a group of metrics usually used in conjunction for LLM applications. The `light_metrics` will initialize metrics that don't consume high computational resources and don't require big-sized artifacts to load. As its name suggests, the `all_metrics` group will initialize all available metric namespaces.
