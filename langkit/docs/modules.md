@@ -18,7 +18,7 @@
 The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times. For more information on this approach see [SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection
 for Generative Large Language Models](https://arxiv.org/pdf/2303.08896.pdf)
 
-> Note: Requires additional LLM calls to calculate the consistency score.
+> Note: Requires additional LLM calls to calculate the consistency score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAIDavinci`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 ### Usage
 
@@ -122,6 +122,8 @@ This detector is based on the assumption that, under a prompt injection attack, 
 is an injection attack.
 
 The instruction prompt will instruct the LLM to repeat a randomly generated string. If the response does not contain the string, a potential injection attack is detected, and the detector will return a score of 1. Otherwise, it will return a score of 0.
+
+> Note: Requires an additional LLM call to calculate the score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAIDavinci`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 Reference: https://arxiv.org/abs/2310.12815
 
