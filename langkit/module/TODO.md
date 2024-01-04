@@ -3,7 +3,7 @@
 - DONE Toxicity
 - DONE Sentiment
 - DONE Textstat
-- regexes
+- DONE regexes
 - themes
 - input_output
 

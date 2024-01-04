@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 from functools import partial
 from typing import Any, Dict, List, Optional, Union
 
@@ -22,7 +23,7 @@ def __sanitize_name_for_frequent_item(pattern_name: str) -> str:
     return pattern_name.replace(" ", "_").upper()
 
 
-def has_any_patterns(patterns: CompiledPatternGroups, input: str) -> Optional[str]:
+def __has_any_patterns(patterns: CompiledPatternGroups, input: str) -> Optional[str]:
     for pattern in patterns["patterns"]:
         if any(expr.search(input) for expr in pattern["expressions"]):
             return __sanitize_name_for_frequent_item(pattern["name"])
@@ -30,7 +31,7 @@ def has_any_patterns(patterns: CompiledPatternGroups, input: str) -> Optional[st
     return None
 
 
-def has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) -> int:
+def __has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) -> int:
     pattern = next((it for it in patterns["patterns"] if it["name"] == group_name), None)
 
     if pattern is None:
@@ -44,7 +45,7 @@ def has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) ->
 
 def __regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [has_any_patterns(patterns, it) for it in UdfInput(text).iter_column(column_name)]
+        return [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column(column_name)]
 
     udf = partial(_udf, column_name)
 
@@ -67,9 +68,9 @@ def __regexes_frequent_items_module(column_name: str, patterns: CompiledPatternG
     )
 
 
-prompt_default_regexes = partial(__regexes_frequent_items_module, "prompt", __default_patterns)
-response_default_regexes = partial(__regexes_frequent_items_module, "response", __default_patterns)
-prompt_response_default_regexes = [prompt_default_regexes, response_default_regexes]
+prompt_default_regexes_module = partial(__regexes_frequent_items_module, "prompt", __default_patterns)
+response_default_regexes_module = partial(__regexes_frequent_items_module, "response", __default_patterns)
+prompt_response_default_regexes_module = [prompt_default_regexes_module, response_default_regexes_module]
 
 
 def __custom_regexes_frequent_items_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> ModuleFn:
@@ -81,20 +82,30 @@ def __custom_regexes_frequent_items_module(column_name: str, file_or_patterns: U
     return lambda: __regexes_frequent_items_module(column_name, patterns)
 
 
-prompt_custom_regexes_frequent_items_module = partial(__custom_regexes_frequent_items_module, "prompt")
-response_custom_regexes_frequent_items_module = partial(__custom_regexes_frequent_items_module, "response")
+@dataclass(frozen=True)
+class CustomRegexFreqItemsModules:
+    prompt_custom_regexes_frequent_items_module: Module
+    response_custom_regexes_frequent_items_module: Module
+    prompt_response_custom_regexes_frequent_items_module: Module
 
 
-def prompt_response_custom_regex_frequent_items_module(file_path: str) -> Module:
-    return [
-        prompt_custom_regexes_frequent_items_module(file_path),
-        response_custom_regexes_frequent_items_module(file_path),
-    ]
+def get_custom_regex_frequent_items_modules(file_path: str) -> CustomRegexFreqItemsModules:
+    prompt_custom_regexes_frequent_items_module = __custom_regexes_frequent_items_module("prompt", file_path)
+    response_custom_regexes_frequent_items_module = __custom_regexes_frequent_items_module("response", file_path)
+
+    return CustomRegexFreqItemsModules(
+        prompt_custom_regexes_frequent_items_module=prompt_custom_regexes_frequent_items_module,
+        response_custom_regexes_frequent_items_module=response_custom_regexes_frequent_items_module,
+        prompt_response_custom_regexes_frequent_items_module=[
+            prompt_custom_regexes_frequent_items_module,
+            response_custom_regexes_frequent_items_module,
+        ],
+    )
 
 
 def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column(column_name)]
+        return [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column(column_name)]
 
     udf = partial(_udf, column_name)
 
@@ -110,26 +121,26 @@ def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pat
     )
 
 
-prompt_ssn_regex = partial(__single_regex_module, "prompt", __default_patterns, "SSN")
-prompt_credit_card_number_regex = partial(__single_regex_module, "prompt", __default_patterns, "credit card number")
-prompt_phone_number_regex = partial(__single_regex_module, "prompt", __default_patterns, "phone number")
-prompt_mailing_address_regex = partial(__single_regex_module, "prompt", __default_patterns, "mailing address")
-prompt_email_address_regex = partial(__single_regex_module, "prompt", __default_patterns, "email address")
+prompt_ssn_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "SSN")
+prompt_credit_card_number_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "credit card number")
+prompt_phone_number_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "phone number")
+prompt_mailing_address_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "mailing address")
+prompt_email_address_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "email address")
 
-response_ssn_regex = partial(__single_regex_module, "response", __default_patterns, "SSN")
-response_credit_card_number_regex = partial(__single_regex_module, "response", __default_patterns, "credit card number")
-response_phone_number_regex = partial(__single_regex_module, "response", __default_patterns, "phone number")
-response_mailing_address_regex = partial(__single_regex_module, "response", __default_patterns, "mailing address")
-response_email_address_regex = partial(__single_regex_module, "response", __default_patterns, "email address")
+response_ssn_regex_module = partial(__single_regex_module, "response", __default_patterns, "SSN")
+response_credit_card_number_regex_module = partial(__single_regex_module, "response", __default_patterns, "credit card number")
+response_phone_number_regex_module = partial(__single_regex_module, "response", __default_patterns, "phone number")
+response_mailing_address_regex_module = partial(__single_regex_module, "response", __default_patterns, "mailing address")
+response_email_address_regex_module = partial(__single_regex_module, "response", __default_patterns, "email address")
 
-prompt_response_ssn_regex = [prompt_ssn_regex, response_ssn_regex]
-prompt_response_credit_card_number_regex = [prompt_credit_card_number_regex, response_credit_card_number_regex]
-prompt_response_phone_number_regex = [prompt_phone_number_regex, response_phone_number_regex]
-prompt_response_mailing_address_regex = [prompt_mailing_address_regex, response_mailing_address_regex]
-prompt_response_email_address_regex = [prompt_email_address_regex, response_email_address_regex]
+prompt_response_ssn_regex_module = [prompt_ssn_regex_module, response_ssn_regex_module]
+prompt_response_credit_card_number_regex_module = [prompt_credit_card_number_regex_module, response_credit_card_number_regex_module]
+prompt_response_phone_number_regex_module = [prompt_phone_number_regex_module, response_phone_number_regex_module]
+prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_module, response_mailing_address_regex_module]
+prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
 
 
-def custom_regex_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]):
+def custom_regex_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Module:
     """
     Create a custom regex module directly with a pattern group.
     Using this to create a custom regex module will result in the generated metrics
@@ -144,6 +155,22 @@ def custom_regex_module(column_name: str, file_or_patterns: Union[str, CompiledP
     return lambda: [__single_regex_module(column_name, patterns, pattern["name"]) for pattern in patterns["patterns"]]
 
 
-prompt_custom_regex_module = partial(custom_regex_module, "prompt")
-response_custom_regex_module = partial(custom_regex_module, "response")
-prompt_response_custom_regex_module = [prompt_custom_regex_module, response_custom_regex_module]
+@dataclass(frozen=True)
+class CustomRegexModules:
+    prompt_custom_regex_module: Module
+    response_custom_regex_module: Module
+    prompt_response_custom_regex_module: Module
+
+
+# this "get_" pattern was introduced to clearly distinguish between the modules you can just use directly
+# and the ones that require some input before you can use them. Otherwise, you had no idea based on the names alone
+# Now, if it has "module" as a suffix, you can definitely put it into a schema builder as is.
+def get_custom_regex_modules(file_path_or_pattern: Union[str, CompiledPatternGroups]) -> CustomRegexModules:
+    prompt_custom_regex_module = custom_regex_module("prompt", file_path_or_pattern)
+    response_custom_regex_module = custom_regex_module("response", file_path_or_pattern)
+
+    return CustomRegexModules(
+        prompt_custom_regex_module=prompt_custom_regex_module,
+        response_custom_regex_module=response_custom_regex_module,
+        prompt_response_custom_regex_module=lambda: [prompt_custom_regex_module, response_custom_regex_module],
+    )

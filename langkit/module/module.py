@@ -105,8 +105,10 @@ class ModuleBuilder:
         return lambda: self.args
 
 
+# Don't allow a raw UdfSchemaArgs to be a Module because wrapping it in a callable of some kind
+# lets us defer/manage side effects.
 ModuleFn = Callable[[], UdfSchemaArgs]
-Module = Union[ModuleFn, Callable[[], List[UdfSchemaArgs]], List[ModuleFn]]
+Module = Union[ModuleFn, Callable[[], List[UdfSchemaArgs]], List[ModuleFn], Callable[[], "Module"], Callable[[], List["Module"]]]
 
 
 class SchemaBuilder:
@@ -124,15 +126,22 @@ class SchemaBuilder:
 
         return self
 
-    def build(self) -> DatasetSchema:
+    def _evaluate_modules(self, modules: List[Module]) -> List[UdfSchemaArgs]:
         schemas: List[UdfSchemaArgs] = []
-        for module in self._modules:
+        for module in modules:
             if callable(module):
                 schema = module()
                 if isinstance(schema, UdfSchemaArgs):
                     schemas.append(schema)
+                elif isinstance(schema, list):
+                    for s in schema:
+                        if isinstance(s, UdfSchemaArgs):
+                            schemas.append(s)
+                        else:
+                            schemas.extend(self._evaluate_modules([s]))
                 else:
-                    schemas.extend(schema)
+                    s = schema
+                    schemas.extend(self._evaluate_modules([schema]))
             else:
                 # schemas.extend([m.create() for m in module])
                 for m in module:
@@ -141,6 +150,11 @@ class SchemaBuilder:
                     elif callable(m):
                         schema = m()
                         schemas.append(schema)
+
+        return schemas
+
+    def build(self) -> DatasetSchema:
+        schemas: List[UdfSchemaArgs] = self._evaluate_modules(self._modules)
 
         # reduce the schemas
         args = reduce(combine_schemas, schemas)

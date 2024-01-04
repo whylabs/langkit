@@ -11,27 +11,26 @@ import whylogs as why
 from langkit.module.module import SchemaBuilder
 from langkit.module.regexes.regex_loader import CompiledPatternGroups, PatternGroups
 from langkit.module.regexes.regexes import (
-    prompt_credit_card_number_regex,
-    prompt_custom_regex_module,
-    prompt_custom_regexes_frequent_items_module,
-    prompt_default_regexes,
-    prompt_email_address_regex,
-    prompt_mailing_address_regex,
-    prompt_phone_number_regex,
-    prompt_response_credit_card_number_regex,
-    prompt_response_default_regexes,
-    prompt_response_email_address_regex,
-    prompt_response_mailing_address_regex,
-    prompt_response_phone_number_regex,
-    prompt_response_ssn_regex,
-    prompt_ssn_regex,
-    response_credit_card_number_regex,
-    response_custom_regex_module,
-    response_default_regexes,
-    response_email_address_regex,
-    response_mailing_address_regex,
-    response_phone_number_regex,
-    response_ssn_regex,
+    get_custom_regex_frequent_items_modules,
+    get_custom_regex_modules,
+    prompt_credit_card_number_regex_module,
+    prompt_default_regexes_module,
+    prompt_email_address_regex_module,
+    prompt_mailing_address_regex_module,
+    prompt_phone_number_regex_module,
+    prompt_response_credit_card_number_regex_module,
+    prompt_response_default_regexes_module,
+    prompt_response_email_address_regex_module,
+    prompt_response_mailing_address_regex_module,
+    prompt_response_phone_number_regex_module,
+    prompt_response_ssn_regex_module,
+    prompt_ssn_regex_module,
+    response_credit_card_number_regex_module,
+    response_default_regexes_module,
+    response_email_address_regex_module,
+    response_mailing_address_regex_module,
+    response_phone_number_regex_module,
+    response_ssn_regex_module,
 )
 from whylogs.core.metrics.metrics import FrequentItem
 from whylogs.core.schema import DatasetSchema
@@ -92,7 +91,7 @@ def test_prompt_regex_df_ssn():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_ssn_regex).build()
+    schema = SchemaBuilder().add(prompt_ssn_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -127,7 +126,7 @@ def test_response_regex_df_ssn():
         }
     )
 
-    schema = SchemaBuilder().add(response_ssn_regex).build()
+    schema = SchemaBuilder().add(response_ssn_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -162,7 +161,7 @@ def test_prompt_response_df_ssn():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_ssn_regex).build()
+    schema = SchemaBuilder().add(prompt_response_ssn_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -201,7 +200,7 @@ def test_prompt_regex_df_email_address():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_email_address_regex).build()
+    schema = SchemaBuilder().add(prompt_email_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -237,7 +236,7 @@ def test_response_regex_df_email_address():
         }
     )
 
-    schema = SchemaBuilder().add(response_email_address_regex).build()
+    schema = SchemaBuilder().add(response_email_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -272,7 +271,7 @@ def test_prompt_response_df_email_address():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_email_address_regex).build()
+    schema = SchemaBuilder().add(prompt_response_email_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -311,7 +310,7 @@ def test_prompt_regex_df_phone_number():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_phone_number_regex).build()
+    schema = SchemaBuilder().add(prompt_phone_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -346,7 +345,7 @@ def test_response_regex_df_phone_number():
         }
     )
 
-    schema = SchemaBuilder().add(response_phone_number_regex).build()
+    schema = SchemaBuilder().add(response_phone_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -381,7 +380,7 @@ def test_prompt_response_regex_df_phone_number():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_phone_number_regex).build()
+    schema = SchemaBuilder().add(prompt_response_phone_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -422,7 +421,7 @@ def test_prompt_regex_df_mailing_address():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_mailing_address_regex).build()
+    schema = SchemaBuilder().add(prompt_mailing_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -457,7 +456,7 @@ def test_response_regex_df_mailing_address():
         }
     )
 
-    schema = SchemaBuilder().add(response_mailing_address_regex).build()
+    schema = SchemaBuilder().add(response_mailing_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -492,7 +491,7 @@ def test_prompt_response_regex_df_mailing_address():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_mailing_address_regex).build()
+    schema = SchemaBuilder().add(prompt_response_mailing_address_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -531,7 +530,7 @@ def test_prompt_regex_df_credit_card_number():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_credit_card_number_regex).build()
+    schema = SchemaBuilder().add(prompt_credit_card_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -566,7 +565,7 @@ def test_response_regex_df_credit_card_number():
         }
     )
 
-    schema = SchemaBuilder().add(response_credit_card_number_regex).build()
+    schema = SchemaBuilder().add(response_credit_card_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -601,7 +600,7 @@ def test_prompt_response_regex_df_credit_card_number():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_credit_card_number_regex).build()
+    schema = SchemaBuilder().add(prompt_response_credit_card_number_regex_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -640,7 +639,7 @@ def test_prompt_regex_df_default():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_default_regexes).build()
+    schema = SchemaBuilder().add(prompt_default_regexes_module).build()
 
     actual = _log(df, schema)
     expected = [
@@ -685,7 +684,7 @@ def test_response_regex_df_default():
         }
     )
 
-    schema = SchemaBuilder().add(response_default_regexes).build()
+    schema = SchemaBuilder().add(response_default_regexes_module).build()
 
     actual = _log(df, schema)
     expected = [
@@ -731,7 +730,7 @@ def test_prompt_response_regex_df_default():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_response_default_regexes).build()
+    schema = SchemaBuilder().add(prompt_response_default_regexes_module).build()
 
     actual = _log(df, schema)
     expected = [
@@ -783,7 +782,11 @@ def test_prompt_response_ssn_phone_number():
     )
 
     # mix and match several different ones
-    schema = SchemaBuilder().add(prompt_response_ssn_regex + prompt_response_phone_number_regex + prompt_response_default_regexes).build()
+    schema = (
+        SchemaBuilder()
+        .add(prompt_response_ssn_regex_module + prompt_response_phone_number_regex_module + prompt_response_default_regexes_module)
+        .build()
+    )
 
     actual = _log(df, schema)
     expected_columns = [
@@ -849,7 +852,8 @@ def test_custom_regex_frequent_item():
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
         json.dump(regexes["patterns"], f)
 
-    schema = SchemaBuilder().add(prompt_custom_regexes_frequent_items_module(f.name)).build()
+    custom_regex_modules = get_custom_regex_frequent_items_modules(f.name)
+    schema = SchemaBuilder().add(custom_regex_modules.prompt_custom_regexes_frequent_items_module).build()
 
     actual = _log(df, schema)
 
@@ -900,7 +904,9 @@ def test_custom_regex():
         ]
     }
 
-    schema = SchemaBuilder().add(prompt_custom_regex_module(password_detector)).add(response_custom_regex_module(foo_detector)).build()
+    prompt_modules = get_custom_regex_modules(password_detector)
+    response_modules = get_custom_regex_modules(foo_detector)
+    schema = SchemaBuilder().add(prompt_modules.prompt_custom_regex_module).add(response_modules.response_custom_regex_module).build()
 
     actual = _log(df, schema)
 
