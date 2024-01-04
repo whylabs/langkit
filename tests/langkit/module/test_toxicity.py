@@ -4,7 +4,7 @@ import pandas as pd
 
 import whylogs as why
 from langkit.module.module import SchemaBuilder
-from langkit.module.toxicity import prompt_response_toxicity, prompt_toxicity, response_toxicity
+from langkit.module.toxicity import prompt_response_toxicity_module, prompt_toxicity_module, response_toxicity_module
 from whylogs.core.schema import DatasetSchema
 
 expected_metrics = [
@@ -64,7 +64,7 @@ def _log(item: Any, schema: DatasetSchema) -> pd.DataFrame:
 
 
 def test_prompt_toxicity_row_non_toxic():
-    schema = SchemaBuilder().add(prompt_toxicity).build()
+    schema = SchemaBuilder().add(prompt_toxicity_module).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -80,7 +80,7 @@ def test_prompt_toxicity_row_non_toxic():
 
 
 def test_prompt_toxicity_df_non_toxic():
-    schema = SchemaBuilder().add(prompt_toxicity).build()
+    schema = SchemaBuilder().add(prompt_toxicity_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -96,7 +96,7 @@ def test_prompt_toxicity_df_non_toxic():
 
 
 def test_prompt_toxicity_row_toxic():
-    schema = SchemaBuilder().add(prompt_toxicity).build()
+    schema = SchemaBuilder().add(prompt_toxicity_module).build()
 
     row = {"prompt": "You're a terrible person", "response": "I'm doing great, how about you?"}
 
@@ -114,7 +114,7 @@ def test_prompt_toxicity_row_toxic():
 
 
 def test_prompt_toxicity_df_toxic():
-    schema = SchemaBuilder().add(prompt_toxicity).build()
+    schema = SchemaBuilder().add(prompt_toxicity_module).build()
 
     df = pd.DataFrame(
         {
@@ -147,7 +147,7 @@ def test_prompt_toxicity_df_toxic():
 
 
 def test_prompt_toxicity_df_mixed():
-    schema = SchemaBuilder().add(prompt_toxicity).build()
+    schema = SchemaBuilder().add(prompt_toxicity_module).build()
 
     df = pd.DataFrame(
         {
@@ -181,7 +181,7 @@ def test_prompt_toxicity_df_mixed():
 
 
 def test_response_toxicity_row_non_toxic():
-    schema = SchemaBuilder().add(response_toxicity).build()
+    schema = SchemaBuilder().add(response_toxicity_module).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -197,7 +197,7 @@ def test_response_toxicity_row_non_toxic():
 
 
 def test_response_toxicity_df_non_toxic():
-    schema = SchemaBuilder().add(response_toxicity).build()
+    schema = SchemaBuilder().add(response_toxicity_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -213,7 +213,7 @@ def test_response_toxicity_df_non_toxic():
 
 
 def test_response_toxicity_row_toxic():
-    schema = SchemaBuilder().add(response_toxicity).build()
+    schema = SchemaBuilder().add(response_toxicity_module).build()
 
     row = {"prompt": "Hi, how are you doing today?", "response": "You're a terrible person"}
 
@@ -231,7 +231,7 @@ def test_response_toxicity_row_toxic():
 
 
 def test_response_toxicity_df_toxic():
-    schema = SchemaBuilder().add(response_toxicity).build()
+    schema = SchemaBuilder().add(response_toxicity_module).build()
 
     df = pd.DataFrame(
         {
@@ -264,7 +264,7 @@ def test_response_toxicity_df_toxic():
 
 
 def test_response_toxicity_df_mixed():
-    schema = SchemaBuilder().add(response_toxicity).build()
+    schema = SchemaBuilder().add(response_toxicity_module).build()
 
     df = pd.DataFrame(
         {
@@ -298,7 +298,7 @@ def test_response_toxicity_df_mixed():
 
 
 def test_prompt_response_toxicity_row_non_toxic():
-    schema = SchemaBuilder().add(prompt_response_toxicity).build()
+    schema = SchemaBuilder().add(prompt_response_toxicity_module).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -316,7 +316,7 @@ def test_prompt_response_toxicity_row_non_toxic():
 
 
 def test_prompt_response_toxicity_df_non_toxic():
-    schema = SchemaBuilder().add(prompt_response_toxicity).build()
+    schema = SchemaBuilder().add(prompt_response_toxicity_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -334,7 +334,7 @@ def test_prompt_response_toxicity_df_non_toxic():
 
 
 def test_prompt_response_toxicity_row_toxic():
-    schema = SchemaBuilder().add(prompt_response_toxicity).build()
+    schema = SchemaBuilder().add(prompt_response_toxicity_module).build()
 
     row = {"prompt": "You're a terrible person", "response": "You're a terrible person"}
 
@@ -354,7 +354,7 @@ def test_prompt_response_toxicity_row_toxic():
 
 
 def test_prompt_response_toxicity_df_toxic():
-    schema = SchemaBuilder().add(prompt_response_toxicity).build()
+    schema = SchemaBuilder().add(prompt_response_toxicity_module).build()
 
     df = pd.DataFrame(
         {
@@ -391,7 +391,7 @@ def test_prompt_response_toxicity_df_toxic():
 
 
 def test_prompt_response_toxicity_df_mixed():
-    schema = SchemaBuilder().add(prompt_response_toxicity).build()
+    schema = SchemaBuilder().add(prompt_response_toxicity_module).build()
 
     df = pd.DataFrame(
         {
