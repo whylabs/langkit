@@ -1,0 +1,28 @@
+[
+  {
+    "expressions": [
+      "(?!(\\d){3}(-| |)\\1{2}\\2\\1{4})(?!666|000|9\\d{2})(\\b\\d{3}(-| |)(?!00)\\d{2}\\4(?!0{4})\\d{4}\\b)"
+    ],
+    "name": "SSN"
+  },
+  {
+    "expressions": ["\\b\\d{4}[- ]?(\\d{4}[- ]?){2,3}\\d{4}\\b|\\b\\d{15}\\b"],
+    "name": "credit card number"
+  },
+  {
+    "expressions": [
+      "((\\+\\d{1,2}\\s)?\\(?\\d{3}\\)?[\\s.-]\\d{3}[\\s.-]\\d{4}|[0-9]{10}|\\+{1}[0-9 ]{11,15}|[0-9]{4} [0-9]{6})"
+    ],
+    "name": "phone number"
+  },
+  {
+    "expressions": [
+      "\\d+(\\s+(N|S|E|W|NE|NW|SE|SW)\\.?)?\\s+[0-9]{0,5}[a-zA-Z]+\\s+(?:Street|St|Road|Rd|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Court|Ct|Lane|Ln|Square|Sq)"
+    ],
+    "name": "mailing address"
+  },
+  {
+    "expressions": ["[A-Za-z0-9._+\\-\\']+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}"],
+    "name": "email address"
+  }
+]

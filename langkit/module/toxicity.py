@@ -17,10 +17,10 @@ from langkit.module.module import UdfInput, UdfSchemaArgs
 from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, UdfSpec
 
 
-def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> float:
+def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:
     # TODO lots of error handling here
     results = pipeline(text, truncation=True, max_length=max_length)
-    return [result["score"] if result["label"] == "toxic" else 1 - result["score"] for result in results]
+    return [result["score"] if result["label"] == "toxic" else 1.0 - result["score"] for result in results]  # type: ignore
 
 
 __model: Optional[PreTrainedTokenizerBase] = None
@@ -71,5 +71,5 @@ def __toxicity_module(column_name: str) -> UdfSchemaArgs:
 
 prompt_toxicity = partial(__toxicity_module, "prompt")
 response_toxicity = partial(__toxicity_module, "response")
-# TODO make these lists readonly
+# TODO this has to be a readonly list
 prompt_response_toxicity = [prompt_toxicity, response_toxicity]

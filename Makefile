@@ -30,7 +30,7 @@ lint-fix:
 format-fix:
 	poetry run ruff format
 
-fix: lint-fix format-fix
+fix: format-fix lint-fix
 
 default: dist
 

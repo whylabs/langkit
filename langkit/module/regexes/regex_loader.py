@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+import json
+from typing import Any, List, TypedDict, TypeGuard
+
+import regex as re
+
+
+class Pattern(TypedDict, total=True):
+    name: str
+    expressions: List[str]
+
+
+class PatternGroups(TypedDict, total=True):
+    patterns: List[Pattern]
+
+
+class CompiledPattern(TypedDict, total=True):
+    name: str
+    expressions: List[re.Pattern[str]]
+
+
+class CompiledPatternGroups(TypedDict):
+    patterns: List[CompiledPattern]
+
+
+def load_pattern_string(pattern_file_content: str) -> CompiledPatternGroups:
+    unvalidated_patterns = json.loads(pattern_file_content)
+
+    if not _is_pattern_group(unvalidated_patterns):
+        raise ValueError(f"Invalid pattern group found: {unvalidated_patterns}")
+
+    try:
+        return _compile_pattern_groups(PatternGroups(patterns=unvalidated_patterns))
+    except Exception as e:
+        raise ValueError(f"Invalid pattern group found: {unvalidated_patterns}") from e  # TODO make nicer looking
+
+
+def load_patterns_file(file_path: str) -> CompiledPatternGroups:
+    with open(file_path, "r") as f:
+        return load_pattern_string(f.read())
+
+
+def _is_pattern(obj: Any) -> TypeGuard[Pattern]:
+    return (
+        isinstance(obj, dict)
+        and "name" in obj
+        and isinstance(obj["name"], str)
+        and "expressions" in obj
+        and isinstance(obj["expressions"], list)
+        and all(isinstance(expr, str) for expr in obj["expressions"])  # type: ignore[reportUnknownVariableType]
+    )
+
+
+def _is_pattern_group(obj: Any) -> TypeGuard[List[Pattern]]:
+    return isinstance(obj, list) and all(_is_pattern(item) for item in obj)  # type: ignore[reportUnknownVariableType]
+
+
+def _compile_pattern_groups(pattern_groups: PatternGroups) -> CompiledPatternGroups:
+    return {
+        "patterns": [
+            {
+                "name": pattern["name"],
+                "expressions": [re.compile(expr) for expr in pattern["expressions"]],
+            }
+            for pattern in pattern_groups["patterns"]
+        ]
+    }

@@ -105,7 +105,8 @@ class ModuleBuilder:
         return lambda: self.args
 
 
-Module = Union[Callable[[], UdfSchemaArgs], Callable[[], List[UdfSchemaArgs]], List[Callable[[], UdfSchemaArgs]]]
+ModuleFn = Callable[[], UdfSchemaArgs]
+Module = Union[ModuleFn, Callable[[], List[UdfSchemaArgs]], List[ModuleFn]]
 
 
 class SchemaBuilder:
