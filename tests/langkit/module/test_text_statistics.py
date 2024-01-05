@@ -323,7 +323,7 @@ def test_custom_module_combination():
 
 def test_manual_udf_module_builder():
     def str_length_udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [len(it) for it in UdfInput(text).iter_column(column_name)]
+        return [len(it) for it in UdfInput(text).iter_column_rows(column_name)]
 
     my_module = ModuleBuilder().add_udf("prompt", "prompt.str_length", str_length_udf).build()
     schema = SchemaBuilder().add(my_module).build()

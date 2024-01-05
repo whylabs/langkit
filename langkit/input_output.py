@@ -41,10 +41,13 @@ def prompt_response_similarity(text):
         )
 
     series_result = []
+    # TODO? Why are we performing pairwise comparisons here? Why not just encode the whole column?
     for x, y in zip(text["prompt"], text["response"]):
         try:
             embedding_1 = _transformer_model.encode([x] if isinstance(x, str) else x)
             embedding_2 = _transformer_model.encode([y] if isinstance(y, str) else y)
+            # TODO? this util always takes tensors but we don't guarantee that it gets tensors. We actually do the opposite,
+            # We export numpy arrays from the tensors in the encoder?
             similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
             series_result.append(similarity.item())
         except Exception as e:

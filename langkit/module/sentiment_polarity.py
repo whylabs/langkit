@@ -9,15 +9,13 @@ from langkit.module.module import UdfInput, UdfSchemaArgs
 from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, UdfSpec
 
 
-def _sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon") -> UdfSchemaArgs:
-    # Does this have built in idempotency?
+def __sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon") -> UdfSchemaArgs:
+    # TODO Does this have built in idempotency?
     nltk.download(lexicon)  # type: ignore[reportUnknownMemberType]
     analyzer = SentimentIntensityAnalyzer()
 
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [analyzer.polarity_scores(t)["compound"] for t in UdfInput(text).iter_column(column_name)]  # type: ignore[reportUnknownMemberType]
-
-    udf = partial(_udf, column_name)
+    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+        return [analyzer.polarity_scores(t)["compound"] for t in UdfInput(text).iter_column_rows(column_name)]  # type: ignore[reportUnknownMemberType]
 
     textstat_udf = UdfSpec(
         column_names=[column_name],
@@ -33,6 +31,6 @@ def _sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon")
     return schema
 
 
-promp_sentiment_polarity = partial(_sentiment_polarity_module, "prompt")
-response_sentiment_polarity = partial(_sentiment_polarity_module, "response")
+promp_sentiment_polarity = partial(__sentiment_polarity_module, "prompt")
+response_sentiment_polarity = partial(__sentiment_polarity_module, "response")
 promp_response_sentiment_polarity = [promp_sentiment_polarity, response_sentiment_polarity]

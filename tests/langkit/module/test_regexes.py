@@ -11,6 +11,7 @@ import whylogs as why
 from langkit.module.module import SchemaBuilder
 from langkit.module.regexes.regex_loader import CompiledPatternGroups, PatternGroups
 from langkit.module.regexes.regexes import (
+    get_custom_regex_frequent_items_for_column_module,
     get_custom_regex_frequent_items_modules,
     get_custom_regex_modules,
     prompt_credit_card_number_regex_module,
@@ -141,6 +142,29 @@ def test_response_regex_df_ssn():
     assert actual["distribution/max"]["response.ssn"] == 1
     assert actual["distribution/min"]["response.ssn"] == 0
     assert actual["types/integral"]["response.ssn"] == 4
+
+
+def test_response_regex_df_ssn_row():
+    row = {
+        "prompt": "How are you?",
+        "response": "I'm doing great, here's my ssn: 123-45-6789",
+    }
+
+    schema = SchemaBuilder().add(response_ssn_regex_module).build()
+
+    actual = _log(row, schema)
+    assert list(actual.columns) == expected_metrics
+
+    expected_columns = [
+        "prompt",
+        "response",
+        "response.ssn",
+    ]
+
+    assert actual.index.tolist() == expected_columns
+    assert actual["distribution/max"]["response.ssn"] == 1
+    assert actual["distribution/min"]["response.ssn"] == 1
+    assert actual["types/integral"]["response.ssn"] == 1
 
 
 def test_prompt_response_df_ssn():
@@ -922,3 +946,58 @@ def test_custom_regex():
     assert actual["distribution/min"]["prompt.password_detector"] == 0
     assert actual["distribution/max"]["response.foo_detector"] == 1
     assert actual["distribution/min"]["response.foo_detector"] == 1
+
+
+def test_custom_regex_custom_columns():
+    df = pd.DataFrame(
+        {
+            "my_prompt": [
+                "This is a ssn: 123-45-6789",
+                "This is a ssn: 123-45-6789",
+                "This is a ssn: redacted",
+                "This is a phone number: 123-456-7890",
+                "This is my password: password123",
+            ],
+            "my_response": [
+                "foo I'm doing great, here's my phone number: 123-456-7890",
+                "foo I'm doing great, here's my ssn: 123-45-6789",
+                "foo I'm doing great, here's my ssn: 123-45-6789",
+                "foo I'm doing great, here's my email address: foo@gmail.com",
+                "Nice foo!",
+            ],
+        }
+    )
+
+    password_detector: CompiledPatternGroups = {
+        "patterns": [
+            {"name": "password detector", "expressions": [re.compile(r"\bpassword\b")]},
+        ]
+    }
+
+    foo_detector: CompiledPatternGroups = {
+        "patterns": [
+            {"name": "foo detector", "expressions": [re.compile(r"\bfoo\b")]},
+        ]
+    }
+
+    prompt_module = get_custom_regex_frequent_items_for_column_module("my_prompt", password_detector)
+    response_module = get_custom_regex_frequent_items_for_column_module("my_response", foo_detector)
+    schema = SchemaBuilder().add(prompt_module).add(response_module).build()
+
+    actual = _log(df, schema)
+
+    expected_columns = [
+        "my_prompt",
+        "my_prompt.has_patterns",
+        "my_response",
+        "my_response.has_patterns",
+    ]
+
+    assert actual.index.tolist() == expected_columns
+    pd.set_option("display.max_columns", None)
+    assert actual["frequent_items/frequent_strings"]["my_prompt.has_patterns"] == [
+        FrequentItem(value="PASSWORD_DETECTOR", est=1, upper=1, lower=1),
+    ]
+    assert actual["frequent_items/frequent_strings"]["my_response.has_patterns"] == [
+        FrequentItem(value="FOO_DETECTOR", est=5, upper=5, lower=5),
+    ]

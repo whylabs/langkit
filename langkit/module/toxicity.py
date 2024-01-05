@@ -49,7 +49,7 @@ def __toxicity_module(column_name: str) -> UdfSchemaArgs:
     max_length = cast(int, tokenizer.model_max_length)
 
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        col = list(UdfInput(text).iter_column(column_name))
+        col = list(UdfInput(text).iter_column_rows(column_name))
         # TODO filter out only the non-strings
         return __toxicity(pipeline, max_length, col)
 

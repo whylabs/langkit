@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.module.module import Module, ModuleFn, UdfInput, UdfSchemaArgs
+from langkit.module.module import Module, UdfInput, UdfSchemaArgs
 from langkit.module.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
 from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec, StandardMetric
 from whylogs.experimental.core.udf_schema import UdfSpec
@@ -43,9 +43,9 @@ def __has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) 
     return 0
 
 
-def __regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> UdfSchemaArgs:
+def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column(column_name)]
+        return [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column_rows(column_name)]
 
     udf = partial(_udf, column_name)
 
@@ -68,18 +68,22 @@ def __regexes_frequent_items_module(column_name: str, patterns: CompiledPatternG
     )
 
 
-prompt_default_regexes_module = partial(__regexes_frequent_items_module, "prompt", __default_patterns)
-response_default_regexes_module = partial(__regexes_frequent_items_module, "response", __default_patterns)
+prompt_default_regexes_module = partial(__get_regexes_frequent_items_module, "prompt", __default_patterns)
+response_default_regexes_module = partial(__get_regexes_frequent_items_module, "response", __default_patterns)
 prompt_response_default_regexes_module = [prompt_default_regexes_module, response_default_regexes_module]
 
 
-def __custom_regexes_frequent_items_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> ModuleFn:
+def get_custom_regex_frequent_items_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Module:
+    """
+    This module getter is the same as get_custom_regex_frequent_items_modules but it lets you specify a column name,
+    instead of assuming prompt/response.
+    """
     if isinstance(file_or_patterns, str):
         patterns = load_patterns_file(file_or_patterns)
     else:
         patterns = file_or_patterns
 
-    return lambda: __regexes_frequent_items_module(column_name, patterns)
+    return partial(__get_regexes_frequent_items_module, column_name, patterns)
 
 
 @dataclass(frozen=True)
@@ -89,9 +93,21 @@ class CustomRegexFreqItemsModules:
     prompt_response_custom_regexes_frequent_items_module: Module
 
 
-def get_custom_regex_frequent_items_modules(file_path: str) -> CustomRegexFreqItemsModules:
-    prompt_custom_regexes_frequent_items_module = __custom_regexes_frequent_items_module("prompt", file_path)
-    response_custom_regexes_frequent_items_module = __custom_regexes_frequent_items_module("response", file_path)
+def get_custom_regex_frequent_items_modules(file_or_patterns: Union[str, CompiledPatternGroups]) -> CustomRegexFreqItemsModules:
+    """
+    Get modules for running regex based tests on prompts and responses.
+    The modules generated from this function will create "frequent items" metrics, which means that instead
+    of seeing "prompt.email", "response.mailing_address", etc, you'll see "prompt.has_patterns" and "response.has_patterns".
+    Those metrics will have a frequent item of "SSN" or "MAILING_ADDRESS" rather than be split out across n patterns.
+    This is personal preference.
+    """
+    if isinstance(file_or_patterns, str):
+        patterns = load_patterns_file(file_or_patterns)
+    else:
+        patterns = file_or_patterns
+
+    prompt_custom_regexes_frequent_items_module = partial(__get_regexes_frequent_items_module, "prompt", patterns)
+    response_custom_regexes_frequent_items_module = partial(__get_regexes_frequent_items_module, "response", patterns)
 
     return CustomRegexFreqItemsModules(
         prompt_custom_regexes_frequent_items_module=prompt_custom_regexes_frequent_items_module,
@@ -105,7 +121,7 @@ def get_custom_regex_frequent_items_modules(file_path: str) -> CustomRegexFreqIt
 
 def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column(column_name)]
+        return [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
 
     udf = partial(_udf, column_name)
 
@@ -140,12 +156,13 @@ prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_mod
 prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
 
 
-def custom_regex_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Module:
+def get_custom_regex_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Module:
     """
-    Create a custom regex module directly with a pattern group.
     Using this to create a custom regex module will result in the generated metrics
     appearing as `prompt.<pattern_name>` and `response.<pattern_name>`, or whatever you supply
     for the column_name parameter.
+
+    This function lets you specify any column name you want, rather than just prompt/response.
     """
     if isinstance(file_or_patterns, str):
         patterns = load_patterns_file(file_or_patterns)
@@ -166,11 +183,12 @@ class CustomRegexModules:
 # and the ones that require some input before you can use them. Otherwise, you had no idea based on the names alone
 # Now, if it has "module" as a suffix, you can definitely put it into a schema builder as is.
 def get_custom_regex_modules(file_path_or_pattern: Union[str, CompiledPatternGroups]) -> CustomRegexModules:
-    prompt_custom_regex_module = custom_regex_module("prompt", file_path_or_pattern)
-    response_custom_regex_module = custom_regex_module("response", file_path_or_pattern)
+    """ """
+    prompt_custom_regex_module = get_custom_regex_for_column_module("prompt", file_path_or_pattern)
+    response_custom_regex_module = get_custom_regex_for_column_module("response", file_path_or_pattern)
 
     return CustomRegexModules(
         prompt_custom_regex_module=prompt_custom_regex_module,
         response_custom_regex_module=response_custom_regex_module,
-        prompt_response_custom_regex_module=lambda: [prompt_custom_regex_module, response_custom_regex_module],
+        prompt_response_custom_regex_module=[prompt_custom_regex_module, response_custom_regex_module],
     )

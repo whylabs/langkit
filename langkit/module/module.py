@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from functools import partial, reduce
 from typing import Any, Callable, Dict, Iterator, List, Optional, Union, cast
 
+import numpy as np
 import pandas as pd
 
 from whylogs.core.resolvers import Resolver
@@ -16,10 +17,14 @@ from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, ResolverSpec, U
 # TODO make this generic and add a filter ability to ensure that it only delivers the things
 # you want instead of a bunch of Any
 class UdfInput:
+    """
+    Utility class for iterating over the input data to a UDF row by row.
+    """
+
     def __init__(self, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> None:
         self.text = text
 
-    def iter_column(self, column_name: str) -> Iterator[Any]:
+    def iter_column_rows(self, column_name: str) -> Iterator[Any]:
         if column_name not in self.text:
             return iter([])
 
@@ -28,6 +33,26 @@ class UdfInput:
             return cast(Iterator[Any], iter(col))
         else:
             return iter(self.text[column_name])
+
+    def to_numpy(self, column_name: str) -> np.ndarray[Any, Any]:
+        if column_name not in self.text:
+            raise ValueError(f"Column {column_name} not found in {self.text}")
+
+        if isinstance(self.text, pd.DataFrame):
+            col = cast(pd.Series, self.text[column_name])
+            return cast(np.ndarray[Any, Any], col.to_numpy())  # type: ignore[reportUnknownMemberType]
+        else:
+            return np.array(self.text[column_name])
+
+    def to_list(self, column_name: str) -> List[Any]:
+        if column_name not in self.text:
+            raise ValueError(f"Column {column_name} not found in {self.text}")
+
+        if isinstance(self.text, pd.DataFrame):
+            col = cast(pd.Series, self.text[column_name])
+            return cast(List[Any], col.to_list())
+
+        return self.text[column_name]
 
 
 @dataclass(frozen=True)
@@ -107,8 +132,14 @@ class ModuleBuilder:
 
 # Don't allow a raw UdfSchemaArgs to be a Module because wrapping it in a callable of some kind
 # lets us defer/manage side effects.
-ModuleFn = Callable[[], UdfSchemaArgs]
-Module = Union[ModuleFn, Callable[[], List[UdfSchemaArgs]], List[ModuleFn], Callable[[], "Module"], Callable[[], List["Module"]]]
+Module = Union[
+    List["Module"],
+    Callable[[], "Module"],
+    Callable[[], List["Module"]],
+    Callable[[], UdfSchemaArgs],
+    Callable[[], List[UdfSchemaArgs]],
+    List[Callable[[], UdfSchemaArgs]],
+]
 
 
 class SchemaBuilder:
@@ -146,10 +177,17 @@ class SchemaBuilder:
                 # schemas.extend([m.create() for m in module])
                 for m in module:
                     if isinstance(m, ModuleBuilder):
-                        schemas.append(m.build())
+                        schemas.extend(self._evaluate_modules([m.build()]))
                     elif callable(m):
                         schema = m()
-                        schemas.append(schema)
+                        if isinstance(schema, UdfSchemaArgs):
+                            schemas.append(schema)
+                        elif isinstance(schema, list):
+                            for s in schema:
+                                if isinstance(s, UdfSchemaArgs):
+                                    schemas.append(s)
+                                else:
+                                    schemas.extend(self._evaluate_modules([s]))
 
         return schemas
 

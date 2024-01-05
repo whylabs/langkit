@@ -40,7 +40,7 @@ TextStat = Literal[
 def __textstat_module(stat: TextStat, column_name: str) -> UdfSchemaArgs:
     def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         stat_func = getattr(textstat, stat)
-        return [stat_func(it) for it in UdfInput(text).iter_column(column_name)]
+        return [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
 
     udf = partial(_udf, column_name)
 
