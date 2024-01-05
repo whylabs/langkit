@@ -4,7 +4,8 @@
 - DONE Sentiment
 - DONE Textstat
 - DONE regexes
-- input_output
+- DONE input_output
+- topics
 - themes
 
 - injections
