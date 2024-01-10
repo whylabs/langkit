@@ -39,6 +39,7 @@ types-setuptools = { version = ">=68.2.0.0", python = ">=3.8.1,<4" }
 bump2version = { version = "^1.0.1", python = ">=3.8.1,<4" }
 pyright = "^1.1.339"
 ruff = "^0.1.7"
+pandas-stubs = "2.0.0.230412"  # Last one that works with python 3.8
 
 [tool.poetry.extras]
 all = [

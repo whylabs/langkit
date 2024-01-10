@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=none
 import json
 import math
 import os

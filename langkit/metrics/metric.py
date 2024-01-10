@@ -22,8 +22,8 @@ class UdfInput:
             return iter([])
 
         if isinstance(self.text, pd.DataFrame):
-            col = cast(pd.Series, self.text[column_name])
-            return cast(Iterator[Any], iter(col))
+            col = cast("pd.Series[Any]", self.text[column_name])
+            return iter(col)
         else:
             return iter(self.text[column_name])
 
@@ -32,7 +32,7 @@ class UdfInput:
             raise ValueError(f"Column {column_name} not found in {self.text}")
 
         if isinstance(self.text, pd.DataFrame):
-            col = cast(pd.Series, self.text[column_name])
+            col = cast("pd.Series[Any]", self.text[column_name])
             return cast(np.ndarray[Any, Any], col.to_numpy())  # type: ignore[reportUnknownMemberType]
         else:
             return np.array(self.text[column_name])
@@ -42,8 +42,8 @@ class UdfInput:
             raise ValueError(f"Column {column_name} not found in {self.text}")
 
         if isinstance(self.text, pd.DataFrame):
-            col = cast(pd.Series, self.text[column_name])
-            return cast(List[Any], col.to_list())
+            col = cast("pd.Series[Any]", self.text[column_name])
+            return col.to_list()
 
         return self.text[column_name]
 

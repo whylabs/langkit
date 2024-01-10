@@ -5,14 +5,14 @@
 - DONE Textstat
 - DONE regexes
 - DONE input_output
-- topics
-- themes
+- DONE topics
 
+- themes
 - injections
 - Hallucinations
 
 
 
-## bad
+## Issues
 - https://github.com/whylabs/langkit/blob/main/langkit/docs/modules.md#regexes refernces the default pattern file constantly but never
   actually links to it. What does this thing look like.
