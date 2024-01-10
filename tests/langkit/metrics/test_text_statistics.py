@@ -3,8 +3,8 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
-from langkit.module.text_statistics import (
+from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.metrics.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
     prompt_response_flesch_kincaid_grade_level_module,
@@ -14,7 +14,7 @@ from langkit.module.text_statistics import (
     response_reading_ease_module,
     response_textstat_module,
 )
-from langkit.module.whylogs_compat import create_whylogs_udf_schema
+from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
     "cardinality/est",
@@ -264,7 +264,7 @@ def test_response_char_count_module():
 
 
 def test_custom_module_combination():
-    from langkit.module.text_statistics import (
+    from langkit.metrics.text_statistics import (
         prompt_char_count_module,
         prompt_difficult_words_module,
         prompt_reading_ease_module,

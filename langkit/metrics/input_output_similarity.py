@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from sentence_transformers import SentenceTransformer
 
-from langkit.module.metric import EvaluationResult, MetricConfig, UdfInput
+from langkit.metrics.metric import EvaluationResult, MetricConfig, UdfInput
 
 
 class EmbeddingEncoder(Protocol):

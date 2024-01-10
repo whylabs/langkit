@@ -5,8 +5,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.module.metric import EvaluationResult, Metric, MetricConfig, UdfInput
-from langkit.module.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
+from langkit.metrics.metric import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
 
 __current_module_path = os.path.dirname(__file__)
 __default_pattern_file = os.path.join(__current_module_path, "pattern_groups.json")

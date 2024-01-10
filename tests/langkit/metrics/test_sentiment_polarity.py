@@ -3,9 +3,9 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
-from langkit.module.sentiment_polarity import promp_response_sentiment_polarity, promp_sentiment_polarity, response_sentiment_polarity
-from langkit.module.whylogs_compat import create_whylogs_udf_schema
+from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity, promp_sentiment_polarity, response_sentiment_polarity
+from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
     "cardinality/est",

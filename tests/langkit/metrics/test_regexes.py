@@ -8,9 +8,9 @@ import pandas as pd
 import regex as re
 
 import whylogs as why
-from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
-from langkit.module.regexes.regex_loader import CompiledPatternGroups, PatternGroups
-from langkit.module.regexes.regexes import (
+from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, PatternGroups
+from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_for_column_module,
     get_custom_regex_frequent_items_modules,
     get_custom_regex_modules,
@@ -33,7 +33,7 @@ from langkit.module.regexes.regexes import (
     response_phone_number_regex_module,
     response_ssn_regex_module,
 )
-from langkit.module.whylogs_compat import create_whylogs_udf_schema
+from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
 
 expected_metrics = [

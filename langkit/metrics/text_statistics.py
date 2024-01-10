@@ -4,7 +4,7 @@ from typing import Literal
 import pandas as pd
 from textstat import textstat
 
-from langkit.module.metric import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.metrics.metric import EvaluationResult, Metric, MetricConfig, UdfInput
 
 TextStat = Literal[
     "flesch_kincaid_grade",

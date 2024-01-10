@@ -4,7 +4,7 @@ import nltk
 import pandas as pd
 from nltk.sentiment import SentimentIntensityAnalyzer
 
-from langkit.module.metric import EvaluationResult, MetricConfig, UdfInput
+from langkit.metrics.metric import EvaluationResult, MetricConfig, UdfInput
 
 
 def __sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon") -> MetricConfig:

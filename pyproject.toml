@@ -73,7 +73,7 @@ reportMissingTypeArgumet = false
 [tool.ruff]
 line-length = 140
 indent-width = 4
-include = ["./langkit/module/**/*.py", "./tests/**/*.py"]
+include = ["./langkit/metrics/**/*.py", "./tests/**/*.py"]
 select = ["E", "F", "I", "W"]
 
 [tool.ruff.isort]
