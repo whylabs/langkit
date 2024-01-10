@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
+from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.module.toxicity import prompt_response_toxicity_module, prompt_toxicity_module, response_toxicity_module
 from langkit.module.whylogs_compat import create_whylogs_udf_schema
 

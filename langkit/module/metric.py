@@ -100,7 +100,7 @@ class EvaluationConfifBuilder:
 
         return self
 
-    def _evaluate_modules(self, modules: List[Metric]) -> List[MetricConfig]:
+    def _build_metrics(self, modules: List[Metric]) -> List[MetricConfig]:
         schemas: List[MetricConfig] = []
         for module in modules:
             if callable(module):
@@ -112,12 +112,11 @@ class EvaluationConfifBuilder:
                         if isinstance(s, MetricConfig):
                             schemas.append(s)
                         else:
-                            schemas.extend(self._evaluate_modules([s]))
+                            schemas.extend(self._build_metrics([s]))
                 else:
                     s = schema
-                    schemas.extend(self._evaluate_modules([schema]))
+                    schemas.extend(self._build_metrics([schema]))
             else:
-                # schemas.extend([m.create() for m in module])
                 for m in module:
                     if callable(m):
                         schema = m()
@@ -128,13 +127,13 @@ class EvaluationConfifBuilder:
                                 if isinstance(s, MetricConfig):
                                     schemas.append(s)
                                 else:
-                                    schemas.extend(self._evaluate_modules([s]))
+                                    schemas.extend(self._build_metrics([s]))
                     else:
-                        schemas.extend(self._evaluate_modules([m]))
+                        schemas.extend(self._build_metrics([m]))
 
         return schemas
 
     def build(self) -> EvaluationConfig:
-        schemas: List[MetricConfig] = self._evaluate_modules(self._modules)
+        schemas: List[MetricConfig] = self._build_metrics(self._modules)
 
         return EvaluationConfig(configs=schemas)

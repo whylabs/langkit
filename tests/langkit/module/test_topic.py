@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
+from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.module.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.module.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem

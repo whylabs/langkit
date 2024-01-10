@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.module.module import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.module.metric import EvaluationResult, Metric, MetricConfig, UdfInput
 from langkit.module.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
 
 __current_module_path = os.path.dirname(__file__)

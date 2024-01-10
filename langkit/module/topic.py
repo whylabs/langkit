@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from transformers import Pipeline, pipeline  # type: ignore
 
-from langkit.module.module import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.module.metric import EvaluationResult, Metric, MetricConfig, UdfInput
 from langkit.module.util import LazyInit
 
 __default_topics = ["politics", "economy", "entertainment", "environment"]

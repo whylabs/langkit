@@ -3,7 +3,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
+from langkit.module.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.module.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
