@@ -4,7 +4,7 @@ from typing import Literal
 import pandas as pd
 from textstat import textstat
 
-from langkit.module.module import EvaluationResult, MetricConf, Module, UdfInput
+from langkit.module.module import EvaluationResult, Metric, MetricConfig, UdfInput
 
 TextStat = Literal[
     "flesch_kincaid_grade",
@@ -33,13 +33,13 @@ TextStat = Literal[
 ]
 
 
-def __textstat_module(stat: TextStat, column_name: str) -> MetricConf:
+def __textstat_module(stat: TextStat, column_name: str) -> MetricConfig:
     def udf(text: pd.DataFrame) -> EvaluationResult:
         stat_func = getattr(textstat, stat)
         metrics = [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
         return EvaluationResult(metrics)
 
-    return MetricConf(
+    return MetricConfig(
         name=f"{column_name}.{stat}",
         input_name=column_name,
         evaluate=udf,
@@ -109,7 +109,7 @@ response_difficult_words_module = partial(__difficult_words_module, column_name=
 prompt_response_difficult_words_module = [prompt_difficult_words_module, response_difficult_words_module]
 
 
-prompt_response_textstat_module: Module = [
+prompt_response_textstat_module: Metric = [
     *prompt_response_reading_ease_module,
     *prompt_response_flesch_kincaid_grade_level_module,
     *prompt_response_char_count_module,
@@ -122,7 +122,7 @@ prompt_response_textstat_module: Module = [
     *prompt_response_difficult_words_module,
 ]
 
-prompt_textstat_module: Module = [
+prompt_textstat_module: Metric = [
     prompt_reading_ease_module,
     prompt_flesch_kincaid_grade_level_module,
     prompt_char_count_module,
@@ -135,7 +135,7 @@ prompt_textstat_module: Module = [
     prompt_difficult_words_module,
 ]
 
-response_textstat_module: Module = [
+response_textstat_module: Metric = [
     response_reading_ease_module,
     response_flesch_kincaid_grade_level_module,
     response_char_count_module,

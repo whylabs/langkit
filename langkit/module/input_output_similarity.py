@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from sentence_transformers import SentenceTransformer
 
-from langkit.module.module import EvaluationResult, MetricConf, UdfInput
+from langkit.module.module import EvaluationResult, MetricConfig, UdfInput
 
 
 class EmbeddingEncoder(Protocol):
@@ -36,7 +36,7 @@ def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _o
 
 def __input_output_similarity_module(
     input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
-) -> MetricConf:
+) -> MetricConfig:
     if embedding_encoder is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         encoder = TransformerEmbeddingAdapter(SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device))
@@ -53,7 +53,7 @@ def __input_output_similarity_module(
         else:
             return EvaluationResult(similarity.squeeze(dim=0).tolist())  # type: ignore[reportUnknownVariableType]
 
-    return MetricConf(
+    return MetricConfig(
         name=f"{output_column_name}.relevance_to_{input_column_name}",
         input_name=input_column_name,
         evaluate=udf,

@@ -62,7 +62,7 @@ EvaluateFn = Callable[[pd.DataFrame], EvaluationResult]
 
 
 @dataclass(frozen=True)
-class MetricConf:
+class MetricConfig:
     name: str  # Basically the output name
     input_name: str
     evaluate: EvaluateFn
@@ -70,27 +70,27 @@ class MetricConf:
 
 # Don't allow a raw UdfSchemaArgs to be a Module because wrapping it in a callable of some kind
 # lets us defer/manage side effects.
-Module = Union[
-    List["Module"],
-    Callable[[], "Module"],
-    Callable[[], List["Module"]],
-    Callable[[], MetricConf],
-    Callable[[], List[MetricConf]],
-    List[Callable[[], MetricConf]],
+Metric = Union[
+    List["Metric"],
+    Callable[[], "Metric"],
+    Callable[[], List["Metric"]],
+    Callable[[], MetricConfig],
+    Callable[[], List[MetricConfig]],
+    List[Callable[[], MetricConfig]],
 ]
 
 
 @dataclass(frozen=True)
 class EvaluationConfig:
-    configs: List[MetricConf]
+    configs: List[MetricConfig]
 
 
 class EvaluationConfifBuilder:
     def __init__(self) -> None:
         super().__init__()
-        self._modules: List[Module] = []
+        self._modules: List[Metric] = []
 
-    def add(self, module: Module) -> "EvaluationConfifBuilder":
+    def add(self, module: Metric) -> "EvaluationConfifBuilder":
         if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
@@ -100,16 +100,16 @@ class EvaluationConfifBuilder:
 
         return self
 
-    def _evaluate_modules(self, modules: List[Module]) -> List[MetricConf]:
-        schemas: List[MetricConf] = []
+    def _evaluate_modules(self, modules: List[Metric]) -> List[MetricConfig]:
+        schemas: List[MetricConfig] = []
         for module in modules:
             if callable(module):
                 schema = module()
-                if isinstance(schema, MetricConf):
+                if isinstance(schema, MetricConfig):
                     schemas.append(schema)
                 elif isinstance(schema, list):
                     for s in schema:
-                        if isinstance(s, MetricConf):
+                        if isinstance(s, MetricConfig):
                             schemas.append(s)
                         else:
                             schemas.extend(self._evaluate_modules([s]))
@@ -121,11 +121,11 @@ class EvaluationConfifBuilder:
                 for m in module:
                     if callable(m):
                         schema = m()
-                        if isinstance(schema, MetricConf):
+                        if isinstance(schema, MetricConfig):
                             schemas.append(schema)
                         elif isinstance(schema, list):
                             for s in schema:
-                                if isinstance(s, MetricConf):
+                                if isinstance(s, MetricConfig):
                                     schemas.append(s)
                                 else:
                                     schemas.extend(self._evaluate_modules([s]))
@@ -135,6 +135,6 @@ class EvaluationConfifBuilder:
         return schemas
 
     def build(self) -> EvaluationConfig:
-        schemas: List[MetricConf] = self._evaluate_modules(self._modules)
+        schemas: List[MetricConfig] = self._evaluate_modules(self._modules)
 
         return EvaluationConfig(configs=schemas)

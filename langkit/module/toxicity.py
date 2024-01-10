@@ -13,7 +13,7 @@ from transformers import (
     TextClassificationPipeline,
 )
 
-from langkit.module.module import EvaluationResult, MetricConf, UdfInput
+from langkit.module.module import EvaluationResult, MetricConfig, UdfInput
 
 
 def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:
@@ -26,7 +26,7 @@ __model: Optional[PreTrainedTokenizerBase] = None
 __tokenizer: Optional[PreTrainedTokenizerBase] = None
 
 
-def __toxicity_module(column_name: str) -> MetricConf:
+def __toxicity_module(column_name: str) -> MetricConfig:
     global __model, __tokenizer
     model_path = "martin-ha/toxic-comment-model"
 
@@ -52,7 +52,7 @@ def __toxicity_module(column_name: str) -> MetricConf:
         metrics = __toxicity(pipeline, max_length, col)
         return EvaluationResult(metrics=metrics)
 
-    return MetricConf(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
+    return MetricConfig(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
 
 
 prompt_toxicity_module = partial(__toxicity_module, "prompt")

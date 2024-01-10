@@ -6,10 +6,11 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.module.module import EvaluationConfig, MetricConf
-from whylogs.core.resolvers import Resolver, StandardMetric
+from langkit.module.module import EvaluationConfig, MetricConfig
+from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
-from whylogs.experimental.core.metrics.udf_metric import MetricConfig, TypeMapper
+from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
+from whylogs.experimental.core.metrics.udf_metric import TypeMapper
 from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, MetricSpec, ResolverSpec, UdfSchema, UdfSpec, Validator
 
 
@@ -24,7 +25,7 @@ class UdfSchemaArgs:
 
     resolvers: Optional[List[ResolverSpec]] = None
     types: Optional[Dict[str, Any]] = None
-    default_config: Optional[MetricConfig] = None
+    default_config: Optional[YMetricConfig] = None
     type_mapper: Optional[TypeMapper] = None
     cache_size: int = 1024
     schema_based_automerge: bool = False
@@ -33,7 +34,7 @@ class UdfSchemaArgs:
     udf_specs: Optional[List[UdfSpec]] = None
 
 
-def to_udf_schema_args(conf: MetricConf) -> UdfSchemaArgs:
+def to_udf_schema_args(conf: MetricConfig) -> UdfSchemaArgs:
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         if isinstance(text, pd.DataFrame):
             return conf.evaluate(text).metrics
@@ -89,16 +90,6 @@ def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
 
 
 def combine_type_mappers(a: TypeMapper, b: TypeMapper) -> TypeMapper:
-    # TODO implement
-    return a
-
-
-def combine_metric_configs(a: MetricConfig, b: MetricConfig) -> MetricConfig:
-    # TODO implement
-    return a
-
-
-def combine_resolvers(a: Resolver, b: Resolver) -> Resolver:
     # TODO implement
     return a
 
