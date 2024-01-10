@@ -1,9 +1,9 @@
-from typing import Any, Dict, List, Union
+from typing import Any
 
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import ModuleBuilder, SchemaBuilder, UdfInput
+from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
 from langkit.module.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
@@ -14,7 +14,7 @@ from langkit.module.text_statistics import (
     response_reading_ease_module,
     response_textstat_module,
 )
-from whylogs.core.schema import DatasetSchema
+from langkit.module.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
     "cardinality/est",
@@ -69,12 +69,13 @@ df = pd.DataFrame(
 row = {"prompt": "Hi, how are you doing today?", "response": "I'm doing great, how about you?"}
 
 
-def _log(item: Any, schema: DatasetSchema) -> pd.DataFrame:
+def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+    schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
 def test_prompt_response_textstat_module():
-    all_textstat_schema = SchemaBuilder().add(prompt_response_textstat_module).build()
+    all_textstat_schema = EvaluationConfifBuilder().add(prompt_response_textstat_module).build()
 
     actual = _log(row, all_textstat_schema)
 
@@ -117,7 +118,7 @@ def test_prompt_response_textstat_module():
 
 
 def test_prompt_textstat_module():
-    prompt_textstat_schema = SchemaBuilder().add(prompt_textstat_module).build()
+    prompt_textstat_schema = EvaluationConfifBuilder().add(prompt_textstat_module).build()
 
     actual = _log(row, prompt_textstat_schema)
 
@@ -150,7 +151,7 @@ def test_prompt_textstat_module():
 
 
 def test_response_textstat_module():
-    response_textstat_schema = SchemaBuilder().add(response_textstat_module).build()
+    response_textstat_schema = EvaluationConfifBuilder().add(response_textstat_module).build()
 
     actual = _log(row, response_textstat_schema)
 
@@ -183,7 +184,7 @@ def test_response_textstat_module():
 
 
 def test_prompt_reading_ease_module():
-    prompt_reading_ease_schema = SchemaBuilder().add(prompt_reading_ease_module).build()
+    prompt_reading_ease_schema = EvaluationConfifBuilder().add(prompt_reading_ease_module).build()
 
     actual = _log(row, prompt_reading_ease_schema)
 
@@ -200,7 +201,7 @@ def test_prompt_reading_ease_module():
 
 
 def test_response_reading_ease_module():
-    response_reading_ease_schema = SchemaBuilder().add(response_reading_ease_module).build()
+    response_reading_ease_schema = EvaluationConfifBuilder().add(response_reading_ease_module).build()
 
     actual = _log(row, response_reading_ease_schema)
 
@@ -217,7 +218,7 @@ def test_response_reading_ease_module():
 
 
 def test_prompt_response_flesch_kincaid_grade_level_module():
-    schema = SchemaBuilder().add(prompt_response_flesch_kincaid_grade_level_module).build()
+    schema = EvaluationConfifBuilder().add(prompt_response_flesch_kincaid_grade_level_module).build()
 
     actual = _log(row, schema)
 
@@ -235,7 +236,7 @@ def test_prompt_response_flesch_kincaid_grade_level_module():
 
 
 def test_prompt_char_count_module():
-    prompt_char_count_schema = SchemaBuilder().add(prompt_char_count_module).build()
+    prompt_char_count_schema = EvaluationConfifBuilder().add(prompt_char_count_module).build()
 
     actual = _log(row, prompt_char_count_schema)
 
@@ -249,7 +250,7 @@ def test_prompt_char_count_module():
 
 
 def test_response_char_count_module():
-    response_char_count_schema = SchemaBuilder().add(response_char_count_module).build()
+    response_char_count_schema = EvaluationConfifBuilder().add(response_char_count_module).build()
 
     actual = _log(row, response_char_count_schema)
 
@@ -272,7 +273,7 @@ def test_custom_module_combination():
     )
 
     schema = (
-        SchemaBuilder()
+        EvaluationConfifBuilder()
         .add(prompt_char_count_module)
         .add(prompt_reading_ease_module)
         .add(prompt_difficult_words_module)
@@ -311,7 +312,7 @@ def test_custom_module_combination():
         response_sentence_count_module,
     ]
 
-    schema = SchemaBuilder().add(prompt_modules).add(response_modules).build()
+    schema = EvaluationConfifBuilder().add(prompt_modules).add(response_modules).build()
 
     actual = _log(row, schema)
 
@@ -319,22 +320,3 @@ def test_custom_module_combination():
     assert actual.index.tolist() == expected_columns
     assert actual["distribution/max"]["prompt.char_count"] == len(row["prompt"].replace(" ", ""))
     assert actual["distribution/max"]["response.char_count"] == len(row["response"].replace(" ", ""))
-
-
-def test_manual_udf_module_builder():
-    def str_length_udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [len(it) for it in UdfInput(text).iter_column_rows(column_name)]
-
-    my_module = ModuleBuilder().add_udf("prompt", "prompt.str_length", str_length_udf).build()
-    schema = SchemaBuilder().add(my_module).build()
-
-    actual = _log(row, schema)
-
-    assert list(actual.columns) == expected_metrics
-    assert actual.index.tolist() == [
-        "prompt",
-        "prompt.str_length",
-        "response",
-    ]
-
-    assert actual["distribution/max"]["prompt.str_length"] == len(row["prompt"])

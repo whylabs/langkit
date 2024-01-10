@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import Any, Dict, List, Union
+from typing import List
 
 import pandas as pd
 import torch
 from transformers import Pipeline, pipeline  # type: ignore
 
-from langkit.module.module import Module, UdfInput, UdfSchemaArgs
+from langkit.module.module import EvaluationResult, MetricConf, Module, UdfInput
 from langkit.module.util import LazyInit
-from whylogs.core.resolvers import MetricSpec, ResolverSpec, StandardMetric
-from whylogs.experimental.core.udf_schema import UdfSpec
 
 __default_topics = ["politics", "economy", "entertainment", "environment"]
 
@@ -24,26 +22,15 @@ def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False)
     return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
 
 
-def __topic_module(column_name: str, topics: List[str]) -> UdfSchemaArgs:
-    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
+def __topic_module(column_name: str, topics: List[str]) -> MetricConf:
+    def udf(text: pd.DataFrame) -> EvaluationResult:
+        metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
+        return EvaluationResult(metrics)
 
-    udf_column_name = f"{column_name}.closest_topic"
-
-    spec = UdfSpec(
-        column_names=[column_name],
-        udfs={udf_column_name: udf},
-    )
-
-    return UdfSchemaArgs(
-        types={column_name: str},
-        resolvers=[
-            ResolverSpec(
-                column_name=udf_column_name,
-                metrics=[MetricSpec(StandardMetric.frequent_items.value)],
-            )
-        ],
-        udf_specs=[spec],
+    return MetricConf(
+        name=f"{column_name}.closest_topic",
+        input_name=column_name,
+        evaluate=udf,
     )
 
 

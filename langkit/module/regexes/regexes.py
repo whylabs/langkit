@@ -5,10 +5,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.module.module import Module, UdfInput, UdfSchemaArgs
+from langkit.module.module import EvaluationResult, MetricConf, Module, UdfInput
 from langkit.module.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
-from whylogs.core.resolvers import NO_FI_RESOLVER, MetricSpec, ResolverSpec, StandardMetric
-from whylogs.experimental.core.udf_schema import UdfSpec
 
 __current_module_path = os.path.dirname(__file__)
 __default_pattern_file = os.path.join(__current_module_path, "pattern_groups.json")
@@ -43,28 +41,15 @@ def __has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) 
     return 0
 
 
-def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> UdfSchemaArgs:
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column_rows(column_name)]
+def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> MetricConf:
+    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> EvaluationResult:
+        metric = [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column_rows(column_name)]
+        return EvaluationResult(metric)
 
-    udf = partial(_udf, column_name)
-
-    udf_column_name = f"{column_name}.has_patterns"
-
-    spec = UdfSpec(
-        column_names=[column_name],
-        udfs={udf_column_name: udf},
-    )
-
-    return UdfSchemaArgs(
-        types={column_name: str},
-        resolvers=[
-            ResolverSpec(
-                column_name=udf_column_name,
-                metrics=[MetricSpec(StandardMetric.frequent_items.value)],
-            )
-        ],
-        udf_specs=[spec],
+    return MetricConf(
+        name=f"{column_name}.has_patterns",
+        input_name=column_name,
+        evaluate=partial(_udf, column_name),
     )
 
 
@@ -119,21 +104,15 @@ def get_custom_regex_frequent_items_modules(file_or_patterns: Union[str, Compile
     )
 
 
-def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> UdfSchemaArgs:
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
-        return [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
+def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> MetricConf:
+    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> EvaluationResult:
+        metrics = [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
+        return EvaluationResult(metrics)
 
-    udf = partial(_udf, column_name)
-
-    spec = UdfSpec(
-        column_names=[column_name],
-        udfs={f"{column_name}.{__sanitize_name_for_metric(pattern_name)}": udf},
-    )
-
-    return UdfSchemaArgs(
-        types={column_name: str},
-        resolvers=NO_FI_RESOLVER,
-        udf_specs=[spec],
+    return MetricConf(
+        name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
+        input_name=column_name,
+        evaluate=udf,
     )
 
 

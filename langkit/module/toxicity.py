@@ -2,7 +2,7 @@
 # pyright: reportUnknownVariableType=none
 import os
 from functools import partial
-from typing import Any, Dict, List, Optional, Union, cast
+from typing import List, Optional, cast
 
 import pandas as pd
 import torch
@@ -13,8 +13,7 @@ from transformers import (
     TextClassificationPipeline,
 )
 
-from langkit.module.module import UdfInput, UdfSchemaArgs
-from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, UdfSpec
+from langkit.module.module import EvaluationResult, MetricConf, UdfInput
 
 
 def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:
@@ -27,7 +26,7 @@ __model: Optional[PreTrainedTokenizerBase] = None
 __tokenizer: Optional[PreTrainedTokenizerBase] = None
 
 
-def __toxicity_module(column_name: str) -> UdfSchemaArgs:
+def __toxicity_module(column_name: str) -> MetricConf:
     global __model, __tokenizer
     model_path = "martin-ha/toxic-comment-model"
 
@@ -48,25 +47,12 @@ def __toxicity_module(column_name: str) -> UdfSchemaArgs:
     # TODO test/error handling
     max_length = cast(int, tokenizer.model_max_length)
 
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+    def udf(text: pd.DataFrame) -> EvaluationResult:
         col = list(UdfInput(text).iter_column_rows(column_name))
-        # TODO filter out only the non-strings
-        return __toxicity(pipeline, max_length, col)
+        metrics = __toxicity(pipeline, max_length, col)
+        return EvaluationResult(metrics=metrics)
 
-    udf = partial(_udf, column_name)
-
-    textstat_udf = UdfSpec(
-        column_names=[column_name],
-        udfs={f"{column_name}.toxicity": udf},
-    )
-
-    schema = UdfSchemaArgs(
-        types={column_name: str},
-        resolvers=NO_FI_RESOLVER,
-        udf_specs=[textstat_udf],
-    )
-
-    return schema
+    return MetricConf(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
 
 
 prompt_toxicity_module = partial(__toxicity_module, "prompt")

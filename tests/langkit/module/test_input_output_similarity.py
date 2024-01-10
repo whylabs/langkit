@@ -4,8 +4,8 @@ import pandas as pd
 
 import whylogs as why
 from langkit.module.input_output_similarity import input_output_similarity_module
-from langkit.module.module import SchemaBuilder
-from whylogs.core.schema import DatasetSchema
+from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
+from langkit.module.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
     "cardinality/est",
@@ -39,7 +39,8 @@ expected_metrics = [
 ]
 
 
-def _log(item: Any, schema: DatasetSchema) -> pd.DataFrame:
+def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+    schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
@@ -55,7 +56,7 @@ def test_input_output():
         }
     )
 
-    schema = SchemaBuilder().add(input_output_similarity_module).build()
+    schema = EvaluationConfifBuilder().add(input_output_similarity_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -79,7 +80,7 @@ def test_input_output_row():
         "response": "I'm going to answer that question!",
     }
 
-    schema = SchemaBuilder().add(input_output_similarity_module).build()
+    schema = EvaluationConfifBuilder().add(input_output_similarity_module).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -111,7 +112,7 @@ def test_input_output_multiple():
         }
     )
 
-    schema = SchemaBuilder().add(input_output_similarity_module).build()
+    schema = EvaluationConfifBuilder().add(input_output_similarity_module).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics

@@ -1,14 +1,10 @@
 from functools import partial
-from typing import Any, Dict, List, Literal, Union
+from typing import Literal
 
 import pandas as pd
 from textstat import textstat
 
-from langkit.module.module import Module, UdfInput, UdfSchemaArgs
-from whylogs.experimental.core.udf_schema import (
-    NO_FI_RESOLVER,
-    UdfSpec,
-)
+from langkit.module.module import EvaluationResult, MetricConf, Module, UdfInput
 
 TextStat = Literal[
     "flesch_kincaid_grade",
@@ -37,25 +33,17 @@ TextStat = Literal[
 ]
 
 
-def __textstat_module(stat: TextStat, column_name: str) -> UdfSchemaArgs:
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+def __textstat_module(stat: TextStat, column_name: str) -> MetricConf:
+    def udf(text: pd.DataFrame) -> EvaluationResult:
         stat_func = getattr(textstat, stat)
-        return [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
+        metrics = [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
+        return EvaluationResult(metrics)
 
-    udf = partial(_udf, column_name)
-
-    textstat_udf = UdfSpec(
-        column_names=[column_name],
-        udfs={f"{column_name}.{stat}": udf},
+    return MetricConf(
+        name=f"{column_name}.{stat}",
+        input_name=column_name,
+        evaluate=udf,
     )
-
-    schema = UdfSchemaArgs(
-        types={column_name: str},
-        resolvers=NO_FI_RESOLVER,
-        udf_specs=[textstat_udf],
-    )
-
-    return schema
 
 
 __reading_ease_module = partial(__textstat_module, "flesch_reading_ease")

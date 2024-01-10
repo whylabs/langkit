@@ -3,10 +3,10 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.module.module import SchemaBuilder
+from langkit.module.module import EvaluationConfifBuilder, EvaluationConfig
 from langkit.module.topic import get_custom_topic_modules, prompt_topic_module
+from langkit.module.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
-from whylogs.core.schema import DatasetSchema
 
 expected_metrics = [
     "cardinality/est",
@@ -40,7 +40,8 @@ expected_metrics = [
 ]
 
 
-def _log(item: Any, schema: DatasetSchema) -> pd.DataFrame:
+def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+    schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
@@ -62,7 +63,7 @@ def test_topic():
         }
     )
 
-    schema = SchemaBuilder().add(prompt_topic_module).build()
+    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
 
     actual = _log(df, schema)
 
@@ -87,7 +88,7 @@ def test_topic_row():
         "response": "George Washington is the president of the United States.",
     }
 
-    schema = SchemaBuilder().add(prompt_topic_module).build()
+    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
 
     actual = _log(row, schema)
 
@@ -122,7 +123,7 @@ def test_custom_topic():
     )
 
     custom_topic_modules = get_custom_topic_modules(["fishing", "boxing", "hiking", "swimming"])
-    schema = SchemaBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
+    schema = EvaluationConfifBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
 
     actual = _log(df, schema)
 

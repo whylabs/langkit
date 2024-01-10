@@ -1,5 +1,5 @@
 from functools import partial
-from typing import Any, Dict, List, Optional, Protocol, Union
+from typing import Any, List, Optional, Protocol, Union
 
 import numpy as np
 import pandas as pd
@@ -7,8 +7,7 @@ import torch
 import torch.nn.functional as F
 from sentence_transformers import SentenceTransformer
 
-from langkit.module.module import UdfInput, UdfSchemaArgs
-from whylogs.experimental.core.udf_schema import NO_FI_RESOLVER, UdfSpec
+from langkit.module.module import EvaluationResult, MetricConf, UdfInput
 
 
 class EmbeddingEncoder(Protocol):
@@ -37,36 +36,28 @@ def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _o
 
 def __input_output_similarity_module(
     input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
-) -> UdfSchemaArgs:
+) -> MetricConf:
     if embedding_encoder is None:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         encoder = TransformerEmbeddingAdapter(SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device))
     else:
         encoder = embedding_encoder
 
-    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+    def udf(text: pd.DataFrame) -> EvaluationResult:
         in_np = UdfInput(text).to_list(input_column_name)
         out_np = UdfInput(text).to_list(output_column_name)
         similarity = __compute_embedding_similarity(encoder, in_np, out_np)
 
         if len(similarity.shape) == 1:
-            return similarity.tolist()  # type: ignore[reportUnknownVariableType]
+            return EvaluationResult(similarity.tolist())  # type: ignore[reportUnknownVariableType]
         else:
-            return similarity.squeeze(dim=0).tolist()  # type: ignore[reportUnknownVariableType]
+            return EvaluationResult(similarity.squeeze(dim=0).tolist())  # type: ignore[reportUnknownVariableType]
 
-    metric_name = f"{output_column_name}.relevance_to_{input_column_name}"
-    spec = UdfSpec(
-        column_names=[input_column_name, output_column_name],
-        udfs={metric_name: udf},
+    return MetricConf(
+        name=f"{output_column_name}.relevance_to_{input_column_name}",
+        input_name=input_column_name,
+        evaluate=udf,
     )
-
-    schema = UdfSchemaArgs(
-        types={input_column_name: str, output_column_name: str},
-        resolvers=NO_FI_RESOLVER,
-        udf_specs=[spec],
-    )
-
-    return schema
 
 
 input_output_similarity_module = partial(__input_output_similarity_module, "prompt", "response", None)
