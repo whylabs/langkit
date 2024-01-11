@@ -7,6 +7,7 @@ from .openai import (
     OpenAIDavinci,
     OpenAIGPT4,
     OpenAIDefault,
+    OpenAILegacy,
 )
 
 __ALL__ = [
@@ -18,4 +19,5 @@ __ALL__ = [
     OpenAIDavinci,
     OpenAIDefault,
     OpenAIGPT4,
+    OpenAILegacy,
 ]

@@ -2,6 +2,7 @@ from dataclasses import asdict, dataclass, field
 import os
 from typing import Dict, List, Literal, Optional
 import openai
+from langkit.utils import deprecated
 
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -108,9 +109,81 @@ class LLMInvocationParams:
         )
 
 
+@deprecated(
+    message="text-davinci models were deprecated by OpenAI on Jan 4 2024. \
+Please use OpenAILegacy for access to legacy models that use the Completions API"
+)
 @dataclass
 class OpenAIDavinci(LLMInvocationParams):
     model: str = field(default_factory=lambda: "text-davinci-003")
+    temperature: float = field(default_factory=lambda: _llm_model_temperature)
+    max_tokens: int = field(default_factory=lambda: _llm_model_max_tokens)
+    frequency_penalty: float = field(
+        default_factory=lambda: _llm_model_frequency_penalty
+    )
+    presence_penalty: float = field(default_factory=lambda: _llm_model_presence_penalty)
+
+    def completion(self, messages: List[Dict[str, str]]):
+        last_message = messages[-1]
+        prompt = ""
+        if _llm_concatenate_history:
+            for row in messages:
+                content = row["content"]
+                prompt += f"content: {content}\n"
+            prompt += "content: "
+        elif "content" in last_message:
+            prompt = last_message["content"]
+        else:
+            raise ValueError(
+                f"last message must exist and contain a content key but got {last_message}"
+            )
+        params = asdict(self)
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+        text_completion_respone = create_completion(prompt=prompt, **params)
+        content = text_completion_respone.choices[0].text
+        response = type(
+            "ChatCompletions",
+            (),
+            {
+                "choices": [
+                    type(
+                        "choice",
+                        (),
+                        {
+                            "message": type(
+                                "message",
+                                (),
+                                {"content": text_completion_respone.choices[0].text},
+                            )
+                        },
+                    )
+                ],
+                "usage": type(
+                    "usage",
+                    (),
+                    {
+                        "prompt_tokens": text_completion_respone.usage.prompt_tokens,
+                        "completion_tokens": text_completion_respone.usage.completion_tokens,
+                        "total_tokens": text_completion_respone.usage.total_tokens,
+                    },
+                ),
+            },
+        )
+        return response
+
+    def copy(self) -> LLMInvocationParams:
+        return OpenAIDavinci(
+            model=self.model,
+            temperature=self.temperature,
+            max_tokens=self.max_tokens,
+            frequency_penalty=self.frequency_penalty,
+            presence_penalty=self.presence_penalty,
+        )
+
+
+@dataclass
+class OpenAILegacy(LLMInvocationParams):
+    model: str = field(default_factory=lambda: "gpt-3.5-turbo-instruct")
     temperature: float = field(default_factory=lambda: _llm_model_temperature)
     max_tokens: int = field(default_factory=lambda: _llm_model_max_tokens)
     frequency_penalty: float = field(

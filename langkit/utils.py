@@ -2,6 +2,21 @@ import os
 from langkit import lang_config
 import string
 import random
+import functools
+import warnings
+
+
+def deprecated(message):
+    def decorator_deprecated(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            func(*args, **kwargs)
+            warnings.warn(message, DeprecationWarning, stacklevel=2)
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator_deprecated
 
 
 def _get_data_home() -> str:
