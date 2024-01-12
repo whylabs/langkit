@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationConfig, MetricConfig
+from langkit.metrics.metric import EvaluationConfig, Metric
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
@@ -34,7 +34,7 @@ class UdfSchemaArgs:
     udf_specs: Optional[List[UdfSpec]] = None
 
 
-def to_udf_schema_args(conf: MetricConfig) -> UdfSchemaArgs:
+def to_udf_schema_args(conf: Metric) -> UdfSchemaArgs:
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         if isinstance(text, pd.DataFrame):
             return conf.evaluate(text).metrics
@@ -74,7 +74,7 @@ def to_udf_schema_args(conf: MetricConfig) -> UdfSchemaArgs:
 
 
 def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
-    args = reduce(combine_schemas, [to_udf_schema_args(it) for it in eval_conf.configs])
+    args = reduce(combine_schemas, [to_udf_schema_args(it) for it in eval_conf.metrics])
 
     return UdfSchema(
         resolvers=args.resolvers,

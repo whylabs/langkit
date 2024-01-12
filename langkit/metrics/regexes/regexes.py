@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.metrics.metric import Metric, MetricCreator, MetricResult, UdfInput
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
 
 __current_module_path = os.path.dirname(__file__)
@@ -41,15 +41,15 @@ def __has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) 
     return 0
 
 
-def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> MetricConfig:
-    def _udf(column_name: str, text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> EvaluationResult:
+def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> Metric:
+    def udf(text: pd.DataFrame) -> MetricResult:
         metric = [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return EvaluationResult(metric)
+        return MetricResult(metric)
 
-    return MetricConfig(
+    return Metric(
         name=f"{column_name}.has_patterns",
         input_name=column_name,
-        evaluate=partial(_udf, column_name),
+        evaluate=udf,
     )
 
 
@@ -58,7 +58,9 @@ response_default_regexes_module = partial(__get_regexes_frequent_items_module, "
 prompt_response_default_regexes_module = [prompt_default_regexes_module, response_default_regexes_module]
 
 
-def get_custom_regex_frequent_items_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Metric:
+def get_custom_regex_frequent_items_for_column_module(
+    column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]
+) -> MetricCreator:
     """
     This module getter is the same as get_custom_regex_frequent_items_modules but it lets you specify a column name,
     instead of assuming prompt/response.
@@ -73,9 +75,9 @@ def get_custom_regex_frequent_items_for_column_module(column_name: str, file_or_
 
 @dataclass(frozen=True)
 class CustomRegexFreqItemsModules:
-    prompt_custom_regexes_frequent_items_module: Metric
-    response_custom_regexes_frequent_items_module: Metric
-    prompt_response_custom_regexes_frequent_items_module: Metric
+    prompt_custom_regexes_frequent_items_module: MetricCreator
+    response_custom_regexes_frequent_items_module: MetricCreator
+    prompt_response_custom_regexes_frequent_items_module: MetricCreator
 
 
 def get_custom_regex_frequent_items_modules(file_or_patterns: Union[str, CompiledPatternGroups]) -> CustomRegexFreqItemsModules:
@@ -104,12 +106,12 @@ def get_custom_regex_frequent_items_modules(file_or_patterns: Union[str, Compile
     )
 
 
-def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> MetricConfig:
-    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> EvaluationResult:
+def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> Metric:
+    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> MetricResult:
         metrics = [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return EvaluationResult(metrics)
+        return MetricResult(metrics)
 
-    return MetricConfig(
+    return Metric(
         name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
         input_name=column_name,
         evaluate=udf,
@@ -135,7 +137,7 @@ prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_mod
 prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
 
 
-def get_custom_regex_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> Metric:
+def get_custom_regex_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
     """
     Using this to create a custom regex module will result in the generated metrics
     appearing as `prompt.<pattern_name>` and `response.<pattern_name>`, or whatever you supply
@@ -153,9 +155,9 @@ def get_custom_regex_for_column_module(column_name: str, file_or_patterns: Union
 
 @dataclass(frozen=True)
 class CustomRegexModules:
-    prompt_custom_regex_module: Metric
-    response_custom_regex_module: Metric
-    prompt_response_custom_regex_module: Metric
+    prompt_custom_regex_module: MetricCreator
+    response_custom_regex_module: MetricCreator
+    prompt_response_custom_regex_module: MetricCreator
 
 
 # this "get_" pattern was introduced to clearly distinguish between the modules you can just use directly

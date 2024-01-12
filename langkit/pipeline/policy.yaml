@@ -1,0 +1,44 @@
+
+
+# Issues:
+# - need a name if we're going to reference it in the validation section, but they have names builtin already so you won't see them here
+# - also, some of the metrics end up adding multiple names because they apply multiple metrics
+# - Currently, we have a section for prompt and response, but that means you can't really set up rules for things with different names
+
+metrics:
+  
+  # Option 1: pick a metric based on our lib structure
+  - metric: lib.text_stat.reading_ease.prompt
+
+  # Option 2: pick a metric based on a separate registry, basically all of the hardcoded things I enumerated
+  - metric: prompt_lexicon_count_module 
+  - metric: response_lexicon_count_module 
+  - metric: prompt_response_sentence_count_module 
+
+
+  # Option 3: Totally decoupled from the code names and you just need to read the docs
+  - metric: text_stat.char_count
+    input: prompt
+    name: prompt.text_stat.char_count
+
+  - metric: regexes
+    input: prompt
+    name: prompt.regexes
+    options:
+      regex_file: './foo.json'  # Or maybe define them inline right here instead of forcing a separate file
+
+  - metric: text_stat.char_count
+    input: response 
+    name: prompt.text_stat.char_count # Would we want a name still?
+
+
+  # Option 4: Validation as part of the metric definition. Advantage here is avoiding an id that has to match up across sections
+  - metric: text_stat.char_count
+    input: response 
+    name: prompt.text_stat.char_count # Would we want a name still?
+    validation: # Would this need to be a list?
+      upper_threshold: 1000
+      lower_threshold: 10 
+
+
+

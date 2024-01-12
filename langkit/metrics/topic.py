@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from transformers import Pipeline, pipeline  # type: ignore
 
-from langkit.metrics.metric import EvaluationResult, Metric, MetricConfig, UdfInput
+from langkit.metrics.metric import Metric, MetricCreator, MetricResult, UdfInput
 from langkit.metrics.util import LazyInit
 
 __default_topics = ["politics", "economy", "entertainment", "environment"]
@@ -22,12 +22,12 @@ def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False)
     return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
 
 
-def __topic_module(column_name: str, topics: List[str]) -> MetricConfig:
-    def udf(text: pd.DataFrame) -> EvaluationResult:
+def __topic_module(column_name: str, topics: List[str]) -> Metric:
+    def udf(text: pd.DataFrame) -> MetricResult:
         metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
-        return EvaluationResult(metrics)
+        return MetricResult(metrics)
 
-    return MetricConfig(
+    return Metric(
         name=f"{column_name}.closest_topic",
         input_name=column_name,
         evaluate=udf,
@@ -41,9 +41,9 @@ prompt_response_topic_module = [prompt_topic_module, response_topic_module]
 
 @dataclass
 class CustomTopicModules:
-    prompt_topic_module: Metric
-    response_topic_module: Metric
-    prompt_response_topic_module: Metric
+    prompt_topic_module: MetricCreator
+    response_topic_module: MetricCreator
+    prompt_response_topic_module: MetricCreator
 
 
 def get_custom_topic_modules(topics: List[str]) -> CustomTopicModules:

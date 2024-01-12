@@ -61,10 +61,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 140
-exclude = ["langkit/module/", "tests/"]
+exclude = ["langkit/metrics/",  "langkit/pipeline/", "tests/"]
 
 [tool.pyright]
-include = ["langkit/module/", "tests/"]
+include = ["langkit/metrics/", "langkit/pipeline/", "tests/"]
 typeCheckingMode = "strict"
 
 reportMissingTypeStubs = false
@@ -74,7 +74,7 @@ reportMissingTypeArgumet = false
 [tool.ruff]
 line-length = 140
 indent-width = 4
-include = ["./langkit/metrics/**/*.py", "./tests/**/*.py"]
+include = ["./langkit/metrics/**/*.py", "./langkit/pipeline/**/*.py", "./tests/**/*.py"]
 select = ["E", "F", "I", "W"]
 
 [tool.ruff.isort]

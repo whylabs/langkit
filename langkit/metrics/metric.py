@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Iterator, List, Optional, Union, cast
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union, cast
 
 import numpy as np
 import pandas as pd
@@ -49,20 +49,24 @@ class UdfInput:
 
 
 @dataclass(frozen=True)
-class EvaluationResult:
+class MetricResult:
     """
     This is the type that all of the UDFs should return.
     """
 
-    metrics: Union[List[Optional[int]], List[Optional[float]], List[Optional[str]], List[int], List[float], List[str]]
+    # TODO should this just be a series/dataframe?
+    metrics: Union[
+        Sequence[Optional[int]], Sequence[Optional[float]], Sequence[Optional[str]], Sequence[int], Sequence[float], Sequence[str]
+    ]
 
 
 # This is a UDF
-EvaluateFn = Callable[[pd.DataFrame], EvaluationResult]
+EvaluateFn = Callable[[pd.DataFrame], MetricResult]
 
 
 @dataclass(frozen=True)
-class MetricConfig:
+# TODO maybe make this a generic of the literal name? Then we can do nice stuff in the pipeline to help actions
+class Metric:
     name: str  # Basically the output name
     input_name: str
     evaluate: EvaluateFn
@@ -70,27 +74,27 @@ class MetricConfig:
 
 # Don't allow a raw UdfSchemaArgs to be a Module because wrapping it in a callable of some kind
 # lets us defer/manage side effects.
-Metric = Union[
-    List["Metric"],
-    Callable[[], "Metric"],
-    Callable[[], List["Metric"]],
-    Callable[[], MetricConfig],
-    Callable[[], List[MetricConfig]],
-    List[Callable[[], MetricConfig]],
+MetricCreator = Union[
+    List["MetricCreator"],
+    Callable[[], "MetricCreator"],
+    Callable[[], List["MetricCreator"]],
+    Callable[[], Metric],
+    Callable[[], List[Metric]],
+    List[Callable[[], Metric]],
 ]
 
 
 @dataclass(frozen=True)
 class EvaluationConfig:
-    configs: List[MetricConfig]
+    metrics: List[Metric]
 
 
 class EvaluationConfifBuilder:
     def __init__(self) -> None:
         super().__init__()
-        self._modules: List[Metric] = []
+        self._modules: List[MetricCreator] = []
 
-    def add(self, module: Metric) -> "EvaluationConfifBuilder":
+    def add(self, module: MetricCreator) -> "EvaluationConfifBuilder":
         if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
@@ -100,16 +104,16 @@ class EvaluationConfifBuilder:
 
         return self
 
-    def _build_metrics(self, modules: List[Metric]) -> List[MetricConfig]:
-        schemas: List[MetricConfig] = []
+    def _build_metrics(self, modules: List[MetricCreator]) -> List[Metric]:
+        schemas: List[Metric] = []
         for module in modules:
             if callable(module):
                 schema = module()
-                if isinstance(schema, MetricConfig):
+                if isinstance(schema, Metric):
                     schemas.append(schema)
                 elif isinstance(schema, list):
                     for s in schema:
-                        if isinstance(s, MetricConfig):
+                        if isinstance(s, Metric):
                             schemas.append(s)
                         else:
                             schemas.extend(self._build_metrics([s]))
@@ -120,11 +124,11 @@ class EvaluationConfifBuilder:
                 for m in module:
                     if callable(m):
                         schema = m()
-                        if isinstance(schema, MetricConfig):
+                        if isinstance(schema, Metric):
                             schemas.append(schema)
                         elif isinstance(schema, list):
                             for s in schema:
-                                if isinstance(s, MetricConfig):
+                                if isinstance(s, Metric):
                                     schemas.append(s)
                                 else:
                                     schemas.extend(self._build_metrics([s]))
@@ -134,6 +138,6 @@ class EvaluationConfifBuilder:
         return schemas
 
     def build(self) -> EvaluationConfig:
-        schemas: List[MetricConfig] = self._build_metrics(self._modules)
+        schemas: List[Metric] = self._build_metrics(self._modules)
 
-        return EvaluationConfig(configs=schemas)
+        return EvaluationConfig(metrics=schemas)
