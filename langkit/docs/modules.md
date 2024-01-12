@@ -18,7 +18,7 @@
 The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times. For more information on this approach see [SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection
 for Generative Large Language Models](https://arxiv.org/pdf/2303.08896.pdf)
 
-> Note: Requires additional LLM calls to calculate the consistency score.
+> Note: Requires additional LLM calls to calculate the consistency score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 ### Usage
 
@@ -114,7 +114,7 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 ## Proactive Injection Detection
 
@@ -122,6 +122,8 @@ This detector is based on the assumption that, under a prompt injection attack, 
 is an injection attack.
 
 The instruction prompt will instruct the LLM to repeat a randomly generated string. If the response does not contain the string, a potential injection attack is detected, and the detector will return a score of 1. Otherwise, it will return a score of 0.
+
+> Note: Requires an additional LLM call to calculate the score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 Reference: https://arxiv.org/abs/2310.12815
 
@@ -329,7 +331,7 @@ This method returns the number of words with one syllable present in the input t
 
 The `themes` namespace will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 Currently, supported themes are: `jailbreaks` and `refusals`.
 
