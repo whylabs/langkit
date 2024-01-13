@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
-from typing import Any, List, TypedDict, TypeGuard
-
-import regex as re
+import re
+from typing import Any, List, Optional, TypedDict, TypeGuard
 
 
 class Pattern(TypedDict, total=True):
     name: str
     expressions: List[str]
+    substitutions: Optional[List[str]]
 
 
 class PatternGroups(TypedDict, total=True):
@@ -18,6 +18,7 @@ class PatternGroups(TypedDict, total=True):
 class CompiledPattern(TypedDict, total=True):
     name: str
     expressions: List[re.Pattern[str]]
+    substitutions: Optional[List[str]]
 
 
 class CompiledPatternGroups(TypedDict):
@@ -62,6 +63,7 @@ def _compile_pattern_groups(pattern_groups: PatternGroups) -> CompiledPatternGro
             {
                 "name": pattern["name"],
                 "expressions": [re.compile(expr) for expr in pattern["expressions"]],
+                "substitutions": pattern["substitutions"] if "substitutions" in pattern else None,
             }
             for pattern in pattern_groups["patterns"]
         ]

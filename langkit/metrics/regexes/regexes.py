@@ -173,3 +173,52 @@ def get_custom_regex_modules(file_path_or_pattern: Union[str, CompiledPatternGro
         response_custom_regex_module=response_custom_regex_module,
         prompt_response_custom_regex_module=[prompt_custom_regex_module, response_custom_regex_module],
     )
+
+
+# TODO can have a metric that returns multiple features, one being the substitution
+def __pattern_substitution_match(patterns: CompiledPatternGroups, group_name: str, input: str) -> Optional[str]:
+    pattern = next((it for it in patterns["patterns"] if it["name"] == group_name), None)
+
+    if pattern is None:
+        raise ValueError(f"Pattern group {group_name} not found in {patterns}")
+
+    expressions = pattern["expressions"]
+    substitutions = pattern["substitutions"]
+
+    if not substitutions:
+        # Validate for this at metric creation time as well
+        raise ValueError(f"Pattern group {group_name} does not have substitutions")
+
+    sub_str = input
+    for expr, sub in zip(expressions, substitutions):
+        sub_str = expr.sub(sub, sub_str)
+
+    return sub_str if sub_str != input else None
+
+
+def __single_substitution_metric(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> Metric:
+    def udf(text: pd.DataFrame) -> MetricResult:
+        metrics = [__pattern_substitution_match(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
+        return MetricResult(metrics)
+
+    return Metric(
+        name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
+        input_name=column_name,
+        evaluate=udf,
+    )
+
+
+def get_custom_substitutions(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+    """
+    Using this to create a custom regex module will result in the generated metrics
+    appearing as `prompt.<pattern_name>` and `response.<pattern_name>`, or whatever you supply
+    for the column_name parameter.
+
+    This function lets you specify any column name you want, rather than just prompt/response.
+    """
+    if isinstance(file_or_patterns, str):
+        patterns = load_patterns_file(file_or_patterns)
+    else:
+        patterns = file_or_patterns
+
+    return lambda: [__single_substitution_metric(column_name, patterns, pattern["name"]) for pattern in patterns["patterns"]]

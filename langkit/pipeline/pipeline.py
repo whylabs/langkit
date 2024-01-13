@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Mapping
 
 import pandas as pd
 
@@ -23,11 +23,13 @@ class EvaluationResult:
 # Basically, any side effect that doesn't mutate the inputs is fine here
 class Hook(ABC):
     @abstractmethod
-    def post_evaluation(self, metric_results: Dict[str, MetricResult]) -> None:
+    def post_evaluation(self, metric_results: Mapping[str, MetricResult]) -> None:
         pass
 
     @abstractmethod
-    def post_validation(self, metric_results: Dict[str, MetricResult], validation_results: List[ValidationResult]) -> None:
+    def post_validation(
+        self, metric_results: Mapping[str, MetricResult], results: pd.DataFrame, validation_results: List[ValidationResult]
+    ) -> None:
         # Can send a notification or call a webhook or log or whatever
         pass
 
@@ -35,6 +37,15 @@ class Hook(ABC):
 # TODO questions
 # - do we want to allow multiple outputs or do we want to restrict people to a single series as an output?
 # - maybe validation and feature extraction are just separate things? Or maybe validation just has to take place on the final combined df
+
+
+# TODO requirements
+# - async/sync. What even makes sense here? How do you do async feature extraction? Where would you get the results?
+# - metric timeout and default actions
+# - handle error metrics. Probably in a similar way to metric timeouts
+# - templated responses
+# - traces. Probably just a trace hook
+# - DONE replace PII with <redacted>
 
 
 class EvaluationWorkflow:
@@ -83,6 +94,10 @@ class EvaluationWorkflow:
             result2 = validator.validate_result(condensed)
             if result2 and result2.report:
                 validation_results.append(result2)
+
+        # Post validation hook
+        for action in self.hooks:
+            action.post_validation(metric_results, full_df.copy(), validation_results)
 
         return EvaluationResult(full_df, self._condense_validation_results(validation_results))
 

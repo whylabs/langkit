@@ -48,16 +48,25 @@ class UdfInput:
         return self.text[column_name]
 
 
+MetricResultType = Union[
+    Sequence[Optional[int]],
+    Sequence[Optional[float]],
+    Sequence[Optional[str]],
+    Sequence[int],
+    Sequence[float],
+    Sequence[str],
+]
+
+
 @dataclass(frozen=True)
 class MetricResult:
     """
     This is the type that all of the UDFs should return.
     """
 
-    # TODO should this just be a series/dataframe?
-    metrics: Union[
-        Sequence[Optional[int]], Sequence[Optional[float]], Sequence[Optional[str]], Sequence[int], Sequence[float], Sequence[str]
-    ]
+    metrics: Union[MetricResultType, Dict[str, MetricResultType]]
+    # TODO think more about the dict. The contract here would be that the dict entries appear in the dataframe as
+    # metric_name.dict_key
 
 
 # This is a UDF

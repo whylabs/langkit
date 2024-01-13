@@ -1,10 +1,13 @@
+import re
 from pprint import pprint
-from typing import Dict, List
+from typing import Dict, List, Mapping
 
 import pandas as pd
 
 from langkit.metrics import lib
 from langkit.metrics.metric import EvaluationConfifBuilder, MetricResult
+from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
+from langkit.metrics.regexes.regexes import get_custom_substitutions
 from langkit.pipeline.pipeline import EvaluationWorkflow, Hook
 from langkit.pipeline.validation import ValidationResult, create_validator
 
@@ -13,13 +16,15 @@ pd.set_option("display.width", None)
 
 
 class MyHook(Hook):
-    def post_evaluation(self, metric_results: Dict[str, MetricResult]) -> None:
+    def post_evaluation(self, metric_results: Mapping[str, MetricResult]) -> None:
         print()
         print("## POST_EVALUATION")
         # pprint(metric_results)
         print()
 
-    def post_validation(self, metric_results: Dict[str, MetricResult], validation_results: List[ValidationResult]) -> None:
+    def post_validation(
+        self, metric_results: Mapping[str, MetricResult], results: pd.DataFrame, validation_results: List[ValidationResult]
+    ) -> None:
         print()
         print("## POST_VALIDATION")
         # pprint(metric_results)
@@ -29,6 +34,12 @@ class MyHook(Hook):
 
 hooks: List[Hook] = [MyHook()]
 
+patterns = CompiledPatternGroups(
+    patterns=[
+        CompiledPattern(name="pii_substitution", expressions=[re.compile("foobar")], substitutions=["<redacted>"]),
+    ]
+)
+
 # TODO maybe this could be used for everything?
 metrics = (
     EvaluationConfifBuilder()
@@ -36,6 +47,7 @@ metrics = (
     .add(lib.text_stat.char_count.response())
     .add(lib.text_stat.reading_ease.response())
     .add(lib.text_stat.reading_ease.custom("gunning_fog", "prompt"))
+    .add(get_custom_substitutions("prompt", file_or_patterns=patterns))
     .build()
 )
 
@@ -59,8 +71,8 @@ if __name__ == "__main__":
     # Evaluating prompts (or whatever)
     prompts_and_responses_df = pd.DataFrame(
         {
-            "prompt": ["This is a prompt", "This is another prompt", "good"],
-            "response": ["This is a response", "This is another response", "nice"],
+            "prompt": ["This is a prompt", "This is another prompt", "good", "I'm going to say foobar, I'll do it."],
+            "response": ["This is a response", "This is another response", "nice", "bro don't"],
         }
     )
 
