@@ -4,7 +4,7 @@ from typing import Dict, List, Mapping
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationConfig, Metric, MetricResult
+from langkit.metrics.metric import EvaluationConfifBuilder, Metric, MetricCreator, MetricResult
 from langkit.pipeline.validation import ValidationResult, Validator
 
 
@@ -49,8 +49,8 @@ class Hook(ABC):
 
 
 class EvaluationWorkflow:
-    def __init__(self, config: EvaluationConfig, hooks: List[Hook], validators: List[Validator]) -> None:
-        self.config = config
+    def __init__(self, metrics: List[MetricCreator], hooks: List[Hook], validators: List[Validator]) -> None:
+        self.metrics = EvaluationConfifBuilder().add(metrics).build()
         self.hooks = hooks
         self.validators = validators
 
@@ -69,7 +69,7 @@ class EvaluationWorkflow:
     def evaluate(self, df: pd.DataFrame) -> EvaluationResult:
         # Evaluation
         metric_results: Dict[str, MetricResult] = {}
-        for metric in self.config.metrics:
+        for metric in self.metrics.metrics:
             result = metric.evaluate(df)
             self._validate_evaluate(df, metric, result)
             metric_results[metric.name] = result

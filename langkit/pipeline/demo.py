@@ -1,13 +1,12 @@
 import re
 from pprint import pprint
-from typing import Dict, List, Mapping
+from typing import List, Mapping
 
 import pandas as pd
 
 from langkit.metrics import lib
-from langkit.metrics.metric import EvaluationConfifBuilder, MetricResult
+from langkit.metrics.metric import MetricResult
 from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
-from langkit.metrics.regexes.regexes import get_custom_substitutions
 from langkit.pipeline.pipeline import EvaluationWorkflow, Hook
 from langkit.pipeline.validation import ValidationResult, create_validator
 
@@ -40,16 +39,14 @@ patterns = CompiledPatternGroups(
     ]
 )
 
-# TODO maybe this could be used for everything?
-metrics = (
-    EvaluationConfifBuilder()
-    .add(lib.text_stat.char_count.prompt())
-    .add(lib.text_stat.char_count.response())
-    .add(lib.text_stat.reading_ease.response())
-    .add(lib.text_stat.reading_ease.custom("gunning_fog", "prompt"))
-    .add(get_custom_substitutions("prompt", file_or_patterns=patterns))
-    .build()
-)
+metrics = [
+    lib.text_stat.char_count.prompt(),
+    lib.text_stat.char_count.response(),
+    lib.text_stat.reading_ease.response(),
+    lib.text_stat.reading_ease.create("gunning_fog", "prompt"),
+    lib.substitutions.prompt(file_or_patterns=patterns),
+    lib.substitutions.response(file_or_patterns=patterns),
+]
 
 
 # TODO make enum of common names for the metrics so they aren't just strings
@@ -72,7 +69,7 @@ if __name__ == "__main__":
     prompts_and_responses_df = pd.DataFrame(
         {
             "prompt": ["This is a prompt", "This is another prompt", "good", "I'm going to say foobar, I'll do it."],
-            "response": ["This is a response", "This is another response", "nice", "bro don't"],
+            "response": ["This is a response", "This is another response", "nice", "bro don't say foobar"],
         }
     )
 
