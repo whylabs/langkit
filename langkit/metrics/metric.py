@@ -116,7 +116,7 @@ class EvaluationConfig:
     metrics: List[Metric]
 
 
-class MetricNameGetter:
+class MetricNameCapture:
     """
     Nice little wrapper that evaluates metric creators for you under the hood while allowing
     you get get the metric name references.

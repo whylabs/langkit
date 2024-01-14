@@ -5,7 +5,7 @@ from typing import List, Mapping
 import pandas as pd
 
 from langkit.metrics import lib
-from langkit.metrics.metric import MetricCreator, MetricNameGetter, MetricResult, MultiMetric, MultiMetricResult
+from langkit.metrics.metric import MetricCreator, MetricNameCapture, MetricResult, MultiMetric, MultiMetricResult
 from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
 from langkit.pipeline.pipeline import EvaluationWorkflow, Hook
 from langkit.pipeline.validation import ValidationResult, create_validator
@@ -53,7 +53,7 @@ def my_multi_metric() -> MetricCreator:
     return lambda: MultiMetric(names=["a", "b", "c"], input_name="prompt", evaluate=udf)
 
 
-prompt_text_stat = MetricNameGetter(lib.text_stat.prompt())
+prompt_text_stat = MetricNameCapture(lib.text_stat.prompt())
 
 metrics = [
     prompt_text_stat,
