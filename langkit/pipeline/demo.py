@@ -53,6 +53,7 @@ def my_multi_metric() -> MetricCreator:
     return lambda: MultiMetric(names=["a", "b", "c"], input_name="prompt", evaluate=udf)
 
 
+# Keep a reference to this one so we can use it to filtr the output for these metrics later
 prompt_text_stat = MetricNameCapture(lib.text_stat.prompt())
 
 metrics = [

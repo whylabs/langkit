@@ -125,19 +125,27 @@ class MetricNameCapture:
     def __init__(self, creator: MetricCreator) -> None:
         self._creator = creator
         self._metrics = LazyInit(lambda: EvaluationConfifBuilder().add(self._creator).build().metrics)
+        self._metric_names = LazyInit(lambda: MetricNameCapture.__get_metric_names(self._metrics.value))
+
+    @staticmethod
+    def __get_metric_names(metrics: List[Metric]) -> List[str]:
+        print("===================================")
+        print(f"getting metric names from {metrics}")
+        print("===================================")
+        names: List[str] = []
+        for metric in metrics:
+            if isinstance(metric, SingleMetric):
+                names.append(metric.name)
+            else:
+                names.extend(metric.names)
+        return names
 
     def __call__(self) -> MetricCreator:
         return lambda: self._metrics.value
 
     @property
     def metric_names(self) -> List[str]:
-        names: List[str] = []
-        for metric in self._metrics.value:
-            if isinstance(metric, SingleMetric):
-                names.append(metric.name)
-            else:
-                names.extend(metric.names)
-        return names
+        return self._metric_names.value
 
 
 class EvaluationConfifBuilder:

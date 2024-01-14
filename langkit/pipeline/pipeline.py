@@ -147,6 +147,4 @@ class EvaluationWorkflow:
 
         if isinstance(metric_result, MultiMetricResult):
             for result in metric_result.metrics:
-                print(f"length of input: {len(input_df)}")
-                print(f"length of output: {len(result)}")
                 assert len(input_df) == len(result)
