@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from transformers import Pipeline, pipeline  # type: ignore
 
-from langkit.metrics.metric import Metric, MetricCreator, MetricResult, UdfInput
+from langkit.metrics.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.util import LazyInit
 
 __default_topics = ["politics", "economy", "entertainment", "environment"]
@@ -23,11 +23,11 @@ def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False)
 
 
 def __topic_module(column_name: str, topics: List[str]) -> Metric:
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
-        return MetricResult(metrics)
+        return SingleMetricResult(metrics)
 
-    return Metric(
+    return SingleMetric(
         name=f"{column_name}.closest_topic",
         input_name=column_name,
         evaluate=udf,

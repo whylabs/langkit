@@ -4,7 +4,15 @@ from typing import Dict, List, Mapping
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationConfifBuilder, Metric, MetricCreator, MetricResult
+from langkit.metrics.metric import (
+    EvaluationConfifBuilder,
+    Metric,
+    MetricCreator,
+    MetricResult,
+    MultiMetricResult,
+    SingleMetric,
+    SingleMetricResult,
+)
 from langkit.pipeline.validation import ValidationResult, Validator
 
 
@@ -54,14 +62,10 @@ class EvaluationWorkflow:
         self.hooks = hooks
         self.validators = validators
 
-    def _condense_metric_results(self, metric_results: Dict[str, MetricResult]) -> pd.DataFrame:
+    def _condense_metric_results(self, metric_results: Dict[str, SingleMetricResult]) -> pd.DataFrame:
         full_df = pd.DataFrame()
         for metric_name, result in metric_results.items():
-            if isinstance(result.metrics, list):
-                full_df[metric_name] = result.metrics
-            elif isinstance(result.metrics, dict):
-                for k, v in result.metrics.items():
-                    full_df[f"{metric_name}.{k}"] = v
+            full_df[metric_name] = result.metrics
 
         return full_df
 
@@ -72,26 +76,48 @@ class EvaluationWorkflow:
         return result
 
     def get_metric_names(self) -> List[str]:
-        return [it.name for it in self.metrics.metrics]
+        names: List[str] = []
+        for metric in self.metrics.metrics:
+            if isinstance(metric, SingleMetric):
+                names.append(metric.name)
+            else:
+                names.extend(metric.names)
+        return names
 
     def evaluate(self, df: pd.DataFrame) -> EvaluationResult:
         # Evaluation
-        metric_results: Dict[str, MetricResult] = {}
+        metric_results: Dict[str, SingleMetricResult] = {}
         for metric in self.metrics.metrics:
-            result = metric.evaluate(df)
-            self._validate_evaluate(df, metric, result)
-            metric_results[metric.name] = result
+            if isinstance(metric, SingleMetric):
+                result = metric.evaluate(df)
+                self._validate_evaluate(df, metric, result)
+                metric_results[metric.name] = result
 
-            # Metric Validation
-            for validator in self.validators:
-                validation_result = validator.validate_metric(metric.name, result)
-                if validation_result and validation_result.report:
-                    # TODO make this only short circuit the metric, not the whole evaluation. Each row should be evaluated
-                    return EvaluationResult(pd.DataFrame(), validation_result)
+                # Metric Validation
+                for validator in self.validators:
+                    validation_result = validator.validate_metric(metric.name, result)
+                    if validation_result and validation_result.report:
+                        # TODO make this only short circuit the metric, not the whole evaluation. Each row should be evaluated
+                        return EvaluationResult(pd.DataFrame(), validation_result)
+
+            else:
+                # MultiMetrics are basically just converted into single metrics asap.
+                result = metric.evaluate(df)
+                self._validate_evaluate(df, metric, result)
+                for metric_name, metric_result in zip(metric.names, result.metrics):
+                    single_metric = SingleMetricResult(metric_result)
+                    metric_results[metric_name] = single_metric
+
+                    # Metric Validation
+                    for validator in self.validators:
+                        validation_result = validator.validate_metric(metric_name, single_metric)
+                        if validation_result and validation_result.report:
+                            # TODO make this only short circuit the metric, not the whole evaluation. Each row should be evaluated
+                            return EvaluationResult(pd.DataFrame(), validation_result)
 
         # Hooks
         for action in self.hooks:
-            action.post_evaluation(metric_results)  # TODO maybe use copies to avoid side effects?
+            action.post_evaluation(metric_results)
 
         # Validation
         condensed = self._condense_metric_results(metric_results)
@@ -110,4 +136,17 @@ class EvaluationWorkflow:
         return EvaluationResult(full_df, self._condense_validation_results(validation_results))
 
     def _validate_evaluate(self, input_df: pd.DataFrame, metric: Metric, metric_result: MetricResult) -> None:
-        assert len(input_df) == len(metric_result.metrics)
+        """
+        Validate the oultput of the metrics
+        """
+
+        if isinstance(metric, SingleMetric):
+            assert len(input_df) == len(metric_result.metrics)
+        else:
+            assert len(metric.names) == len(metric_result.metrics)
+
+        if isinstance(metric_result, MultiMetricResult):
+            for result in metric_result.metrics:
+                print(f"length of input: {len(input_df)}")
+                print(f"length of output: {len(result)}")
+                assert len(input_df) == len(result)

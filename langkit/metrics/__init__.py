@@ -9,8 +9,10 @@ from langkit.metrics.text_statistics import (
     TextStat,
     prompt_char_count_module,
     prompt_reading_ease_module,
+    prompt_textstat_module,
     response_char_count_module,
     response_reading_ease_module,
+    response_textstat_module,
     textstat_module,
 )
 
@@ -21,6 +23,14 @@ class lib:
         @staticmethod
         def create(stat: TextStat, prompt_or_response: str) -> MetricCreator:
             return lambda: textstat_module(stat, prompt_or_response)
+
+        @staticmethod
+        def prompt() -> MetricCreator:
+            return prompt_textstat_module
+
+        @staticmethod
+        def response() -> MetricCreator:
+            return response_textstat_module
 
         class char_count:
             @staticmethod

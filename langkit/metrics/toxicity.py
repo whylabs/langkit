@@ -13,7 +13,7 @@ from transformers import (
     TextClassificationPipeline,
 )
 
-from langkit.metrics.metric import Metric, MetricResult, UdfInput
+from langkit.metrics.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 
 
 def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:
@@ -47,12 +47,12 @@ def __toxicity_module(column_name: str) -> Metric:
     # TODO test/error handling
     max_length = cast(int, tokenizer.model_max_length)
 
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         col = list(UdfInput(text).iter_column_rows(column_name))
         metrics = __toxicity(pipeline, max_length, col)
-        return MetricResult(metrics=metrics)
+        return SingleMetricResult(metrics=metrics)
 
-    return Metric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
+    return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
 
 
 prompt_toxicity_module = partial(__toxicity_module, "prompt")

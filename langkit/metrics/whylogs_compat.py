@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationConfig, Metric
+from langkit.metrics.metric import EvaluationConfig, Metric, SingleMetric, SingleMetricResult
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
@@ -34,30 +34,30 @@ class UdfSchemaArgs:
     udf_specs: Optional[List[UdfSpec]] = None
 
 
-def to_udf_schema_args(conf: Metric) -> UdfSchemaArgs:
+def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         if isinstance(text, pd.DataFrame):
-            return conf.evaluate(text).metrics
+            return metric.evaluate(text).metrics
         else:
-            return conf.evaluate(pd.DataFrame(text)).metrics
+            return metric.evaluate(pd.DataFrame(text)).metrics
 
-    if "has_patterns" in conf.name or "closest_topic" in conf.name:
+    if "has_patterns" in metric.name or "closest_topic" in metric.name:
         resolvers = [
             ResolverSpec(
-                column_name=conf.name,
+                column_name=metric.name,
                 metrics=[MetricSpec(StandardMetric.frequent_items.value)],
             )
         ]
     else:
         resolvers = NO_FI_RESOLVER
 
-    if "relevance_to_prompt" in conf.name:
+    if "relevance_to_prompt" in metric.name:
         # This is the only way to make it workout correctlyfor input_output_similarity, which is fine for now
         types = {"prompt": str, "response": str}
         column_names = ["prompt", "response"]
     else:
-        types = {conf.input_name: str}
-        column_names = [conf.input_name]
+        types = {metric.input_name: str}
+        column_names = [metric.input_name]
 
     schema = UdfSchemaArgs(
         types=types,
@@ -65,7 +65,7 @@ def to_udf_schema_args(conf: Metric) -> UdfSchemaArgs:
         udf_specs=[
             UdfSpec(
                 column_names=column_names,
-                udfs={conf.name: udf},
+                udfs={metric.name: udf},
             )
         ],
     )
@@ -73,8 +73,29 @@ def to_udf_schema_args(conf: Metric) -> UdfSchemaArgs:
     return schema
 
 
+def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
+    metrics: List[SingleMetric] = []
+
+    if isinstance(metric, SingleMetric):
+        metrics.append(metric)
+    else:
+        for i, name in enumerate(metric.names):
+            # Whylogs doesn't support multi-metrics, so we have to convert them to single metrics. This is lame because
+            # the only real way to do this is to re-evaluate the metric for each name, which is wasteful, but at least
+            # its possible. It just won't be advised to use multi metrics when using whylogs.
+            def _lame_udf(text: pd.DataFrame) -> SingleMetricResult:
+                result = metric.evaluate(text)
+                return SingleMetricResult(metrics=result.metrics[i])
+
+            metrics.append(SingleMetric(name=name, input_name=metric.input_name, evaluate=_lame_udf))
+
+    return [_to_udf_schema_args_single(it) for it in metrics]
+
+
 def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
-    args = reduce(combine_schemas, [to_udf_schema_args(it) for it in eval_conf.metrics])
+    metrics = [to_udf_schema_args(it) for it in eval_conf.metrics]
+    flattened_metrics = reduce(lambda a, b: a + b, metrics)
+    args = reduce(combine_schemas, flattened_metrics)
 
     return UdfSchema(
         resolvers=args.resolvers,

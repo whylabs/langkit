@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from sentence_transformers import SentenceTransformer
 
-from langkit.metrics.metric import Metric, MetricResult, UdfInput
+from langkit.metrics.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 
 
 class EmbeddingEncoder(Protocol):
@@ -43,17 +43,17 @@ def __input_output_similarity_module(
     else:
         encoder = embedding_encoder
 
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         in_np = UdfInput(text).to_list(input_column_name)
         out_np = UdfInput(text).to_list(output_column_name)
         similarity = __compute_embedding_similarity(encoder, in_np, out_np)
 
         if len(similarity.shape) == 1:
-            return MetricResult(similarity.tolist())  # type: ignore[reportUnknownVariableType]
+            return SingleMetricResult(similarity.tolist())  # type: ignore[reportUnknownVariableType]
         else:
-            return MetricResult(similarity.squeeze(dim=0).tolist())  # type: ignore[reportUnknownVariableType]
+            return SingleMetricResult(similarity.squeeze(dim=0).tolist())  # type: ignore[reportUnknownVariableType]
 
-    return Metric(
+    return SingleMetric(
         name=f"{output_column_name}.relevance_to_{input_column_name}",
         input_name=input_column_name,
         evaluate=udf,

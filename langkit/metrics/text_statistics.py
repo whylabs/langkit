@@ -4,7 +4,7 @@ from typing import Literal
 import pandas as pd
 from textstat import textstat
 
-from langkit.metrics.metric import Metric, MetricCreator, MetricResult, UdfInput
+from langkit.metrics.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
 
 TextStat = Literal[
     "flesch_kincaid_grade",
@@ -34,12 +34,12 @@ TextStat = Literal[
 
 
 def textstat_module(stat: TextStat, column_name: str) -> Metric:
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         stat_func = getattr(textstat, stat)
         metrics = [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return MetricResult(metrics)
+        return SingleMetricResult(metrics)
 
-    return Metric(
+    return SingleMetric(
         name=f"{column_name}.{stat}",
         input_name=column_name,
         evaluate=udf,

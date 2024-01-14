@@ -59,34 +59,43 @@ MetricResultType = Union[
 
 
 @dataclass(frozen=True)
-class MetricResult:
+class SingleMetricResult:
     """
     This is the type that all of the UDFs should return.
     """
 
-    # TODO with the ability to generate multiple metrics and metric names, we lose the ability to know metric names until actual
-    # metrics are evaluated against real data.
-    metrics: Union[MetricResultType, Dict[str, MetricResultType]]
-    """
-    The metrics that are returned by the UDF. This can be a list of values or a dict of values.
-    A dict would be used to generate multiple metrics at once. The name in the dict would be appended
-    to the metric name to create the full metric name, separrated by a dot.
-    """
-
-
-# This is a UDF
-EvaluateFn = Callable[[pd.DataFrame], MetricResult]
+    metrics: MetricResultType
 
 
 @dataclass(frozen=True)
-class Metric:
+class MultiMetricResult:
+    """
+    This is the type that all of the UDFs should return.
+    """
+
+    metrics: Sequence[MetricResultType]
+
+
+MetricResult = Union[SingleMetricResult, MultiMetricResult]
+
+
+@dataclass(frozen=True)
+class SingleMetric:
     name: str  # Basically the output name
     input_name: str
-    evaluate: EvaluateFn
+    evaluate: Callable[[pd.DataFrame], SingleMetricResult]
 
-    def __str__(self) -> str:
-        return self.name
 
+@dataclass(frozen=True)
+class MultiMetric:
+    # Splitting the metric into single/multi can be a bit verbose, but it lets us know all of the metric names
+    # that are going to be generated upfront without having to evaluate all of the metrics to find out.
+    names: List[str]
+    input_name: str
+    evaluate: Callable[[pd.DataFrame], MultiMetricResult]
+
+
+Metric = Union[SingleMetric, MultiMetric]
 
 # Don't allow a raw Metric to be a Module because wrapping it in a callable of some kind
 # lets us defer/manage side effects.

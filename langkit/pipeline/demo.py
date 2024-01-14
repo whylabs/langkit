@@ -5,7 +5,7 @@ from typing import List, Mapping
 import pandas as pd
 
 from langkit.metrics import lib
-from langkit.metrics.metric import MetricResult
+from langkit.metrics.metric import MetricResult, MultiMetric, MultiMetricResult
 from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
 from langkit.pipeline.pipeline import EvaluationWorkflow, Hook
 from langkit.pipeline.validation import ValidationResult, create_validator
@@ -40,14 +40,27 @@ patterns = CompiledPatternGroups(
 )
 
 
+def my_multi_metric() -> MultiMetric:
+    def udf(text: pd.DataFrame) -> MultiMetricResult:
+        # for every row in text, create a list of ints
+        metrics: List[int] = []
+        for i, _row in text.iterrows():  # type: ignore
+            metrics.append(1000)
+
+        # 3 of them, because we have 3 names in the output
+        return MultiMetricResult(metrics=[metrics, metrics, metrics])
+
+    return MultiMetric(names=["a", "b", "c"], input_name="prompt", evaluate=udf)
+
 
 metrics = [
-    lib.text_stat.char_count.prompt(),
+    lib.text_stat.prompt(),
     lib.text_stat.char_count.response(),
     lib.text_stat.reading_ease.response(),
     lib.text_stat.reading_ease.create("gunning_fog", "prompt"),
     lib.substitutions.prompt(file_or_patterns=patterns),
     lib.substitutions.response(file_or_patterns=patterns),
+    my_multi_metric,
 ]
 
 # TODO make enum of common names for the metrics so they aren't just strings
@@ -101,9 +114,9 @@ if __name__ == "__main__":
     failed_rows = result.get_failed_rows()
     print(failed_rows.transpose())  # type: ignore
 
+    m = my_multi_metric()
     # Get specific metric series. This is the metric output for each row
-    # name = get_metric_name(lib.substitutions.prompt)
-    # print()
-    # print(f"## CHAR COUNT PROMPT FEATURES: {name }")
-    # feature = result.features[name]
-    # print(feature)  # type: ignore
+    print()
+    print(f"## CHAR COUNT PROMPT FEATURES: {m.names}")
+    feature = result.features[m.names]
+    print(feature)  # type: ignore

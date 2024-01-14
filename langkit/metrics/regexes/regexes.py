@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import Metric, MetricCreator, MetricResult, UdfInput
+from langkit.metrics.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, load_patterns_file
 
 __current_module_path = os.path.dirname(__file__)
@@ -42,11 +42,11 @@ def __has_pattern(patterns: CompiledPatternGroups, group_name: str, input: str) 
 
 
 def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatternGroups) -> Metric:
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         metric = [__has_any_patterns(patterns, it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return MetricResult(metric)
+        return SingleMetricResult(metric)
 
-    return Metric(
+    return SingleMetric(
         name=f"{column_name}.has_patterns",
         input_name=column_name,
         evaluate=udf,
@@ -107,11 +107,11 @@ def get_custom_regex_frequent_items_modules(file_or_patterns: Union[str, Compile
 
 
 def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> Metric:
-    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> MetricResult:
+    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> SingleMetricResult:
         metrics = [__has_pattern(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return MetricResult(metrics)
+        return SingleMetricResult(metrics)
 
-    return Metric(
+    return SingleMetric(
         name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
         input_name=column_name,
         evaluate=udf,
@@ -197,11 +197,11 @@ def __pattern_substitution_match(patterns: CompiledPatternGroups, group_name: st
 
 
 def __single_substitution_metric(column_name: str, patterns: CompiledPatternGroups, pattern_name: str) -> Metric:
-    def udf(text: pd.DataFrame) -> MetricResult:
+    def udf(text: pd.DataFrame) -> SingleMetricResult:
         metrics = [__pattern_substitution_match(patterns, pattern_name, it) for it in UdfInput(text).iter_column_rows(column_name)]
-        return MetricResult(metrics)
+        return SingleMetricResult(metrics)
 
-    return Metric(
+    return SingleMetric(
         name=f"{column_name}.substitutions.{__sanitize_name_for_metric(pattern_name)}",
         input_name=column_name,
         evaluate=udf,
