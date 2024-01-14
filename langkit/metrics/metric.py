@@ -64,9 +64,14 @@ class MetricResult:
     This is the type that all of the UDFs should return.
     """
 
+    # TODO with the ability to generate multiple metrics and metric names, we lose the ability to know metric names until actual
+    # metrics are evaluated against real data.
     metrics: Union[MetricResultType, Dict[str, MetricResultType]]
-    # TODO think more about the dict. The contract here would be that the dict entries appear in the dataframe as
-    # metric_name.dict_key
+    """
+    The metrics that are returned by the UDF. This can be a list of values or a dict of values.
+    A dict would be used to generate multiple metrics at once. The name in the dict would be appended
+    to the metric name to create the full metric name, separrated by a dot.
+    """
 
 
 # This is a UDF
@@ -74,14 +79,16 @@ EvaluateFn = Callable[[pd.DataFrame], MetricResult]
 
 
 @dataclass(frozen=True)
-# TODO maybe make this a generic of the literal name? Then we can do nice stuff in the pipeline to help actions
 class Metric:
     name: str  # Basically the output name
     input_name: str
     evaluate: EvaluateFn
 
+    def __str__(self) -> str:
+        return self.name
 
-# Don't allow a raw UdfSchemaArgs to be a Module because wrapping it in a callable of some kind
+
+# Don't allow a raw Metric to be a Module because wrapping it in a callable of some kind
 # lets us defer/manage side effects.
 MetricCreator = Union[
     List["MetricCreator"],
@@ -99,9 +106,9 @@ class EvaluationConfig:
 
 
 class EvaluationConfifBuilder:
-    def __init__(self) -> None:
+    def __init__(self, metric_creators: Optional[List[MetricCreator]] = None) -> None:
         super().__init__()
-        self._modules: List[MetricCreator] = []
+        self._modules: List[MetricCreator] = metric_creators or []
 
     def add(self, module: MetricCreator) -> "EvaluationConfifBuilder":
         if isinstance(module, list):

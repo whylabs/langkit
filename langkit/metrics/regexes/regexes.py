@@ -202,7 +202,7 @@ def __single_substitution_metric(column_name: str, patterns: CompiledPatternGrou
         return MetricResult(metrics)
 
     return Metric(
-        name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
+        name=f"{column_name}.substitutions.{__sanitize_name_for_metric(pattern_name)}",
         input_name=column_name,
         evaluate=udf,
     )

@@ -43,7 +43,7 @@ class Hook(ABC):
 # - async/sync. What even makes sense here? How do you do async feature extraction? Where would you get the results?
 # - metric timeout and default actions
 # - handle error metrics. Probably in a similar way to metric timeouts
-# - templated responses
+# - templated responses.
 # - traces. Probably just a trace hook
 # - DONE replace PII with <redacted>
 
@@ -57,7 +57,12 @@ class EvaluationWorkflow:
     def _condense_metric_results(self, metric_results: Dict[str, MetricResult]) -> pd.DataFrame:
         full_df = pd.DataFrame()
         for metric_name, result in metric_results.items():
-            full_df[metric_name] = result.metrics
+            if isinstance(result.metrics, list):
+                full_df[metric_name] = result.metrics
+            elif isinstance(result.metrics, dict):
+                for k, v in result.metrics.items():
+                    full_df[f"{metric_name}.{k}"] = v
+
         return full_df
 
     def _condense_validation_results(self, validation_results: List[ValidationResult]) -> ValidationResult:
@@ -65,6 +70,9 @@ class EvaluationWorkflow:
         for validation_result in validation_results:
             result.report.extend(validation_result.report)
         return result
+
+    def get_metric_names(self) -> List[str]:
+        return [it.name for it in self.metrics.metrics]
 
     def evaluate(self, df: pd.DataFrame) -> EvaluationResult:
         # Evaluation

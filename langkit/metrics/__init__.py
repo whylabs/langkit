@@ -1,4 +1,5 @@
-from functools import partialmethod
+from __future__ import annotations
+
 from typing import Union
 
 from langkit.metrics.metric import MetricCreator
@@ -6,10 +7,10 @@ from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.regexes.regexes import get_custom_substitutions
 from langkit.metrics.text_statistics import (
     TextStat,
+    prompt_char_count_module,
     prompt_reading_ease_module,
-    prompt_textstat_module,
+    response_char_count_module,
     response_reading_ease_module,
-    response_textstat_module,
     textstat_module,
 )
 
@@ -24,18 +25,20 @@ class lib:
         class char_count:
             @staticmethod
             def prompt() -> MetricCreator:
-                return prompt_textstat_module
+                return prompt_char_count_module
 
             @staticmethod
             def response() -> MetricCreator:
-                return response_textstat_module
+                return response_char_count_module
 
         class reading_ease:
             @staticmethod
+            # @metric_name("prompt.reading_ease")
             def prompt() -> MetricCreator:
                 return prompt_reading_ease_module
 
             @staticmethod
+            # @metric_name("response.reading_ease")
             def response() -> MetricCreator:
                 return response_reading_ease_module
 
@@ -48,5 +51,10 @@ class lib:
         def create(input_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
             return get_custom_substitutions(input_name, file_or_patterns=file_or_patterns)
 
-        prompt = partialmethod(create, input_name="prompt")
-        response = partialmethod(create, input_name="response")
+        @staticmethod
+        def prompt(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+            return get_custom_substitutions("prompt", file_or_patterns=file_or_patterns)
+
+        @staticmethod
+        def response(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+            return get_custom_substitutions("response", file_or_patterns=file_or_patterns)

@@ -35,9 +35,11 @@ hooks: List[Hook] = [MyHook()]
 
 patterns = CompiledPatternGroups(
     patterns=[
-        CompiledPattern(name="pii_substitution", expressions=[re.compile("foobar")], substitutions=["<redacted>"]),
+        CompiledPattern(name="my_pii", expressions=[re.compile("foobar")], substitutions=["<redacted>"]),
     ]
 )
+
+
 
 metrics = [
     lib.text_stat.char_count.prompt(),
@@ -47,7 +49,6 @@ metrics = [
     lib.substitutions.prompt(file_or_patterns=patterns),
     lib.substitutions.response(file_or_patterns=patterns),
 ]
-
 
 # TODO make enum of common names for the metrics so they aren't just strings
 # TODO do a custom metric
@@ -75,11 +76,13 @@ if __name__ == "__main__":
 
     result = wf.evaluate(prompts_and_responses_df)
 
+    print()
+    print("## METRIC NAMES")
+    pprint(wf.get_metric_names())
+
     # Using the outputs
     combined_df = pd.concat([prompts_and_responses_df, result.features], axis=1)  # type: ignore
 
-    print()
-    print(result)
     print()
     print("## FEATURES")
     print(result.features.transpose())  # type: ignore
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     print(combined_df.transpose())  # type: ignore
     print()
     print("## VALIDATION RESULTS")
-    pprint(result.validation_results)
+    pprint(result.validation_results, width=200)
 
     failed_row_ids = set([it.id for it in result.validation_results.report])
     print()
@@ -97,3 +100,10 @@ if __name__ == "__main__":
     print()
     failed_rows = result.get_failed_rows()
     print(failed_rows.transpose())  # type: ignore
+
+    # Get specific metric series. This is the metric output for each row
+    # name = get_metric_name(lib.substitutions.prompt)
+    # print()
+    # print(f"## CHAR COUNT PROMPT FEATURES: {name }")
+    # feature = result.features[name]
+    # print(feature)  # type: ignore
