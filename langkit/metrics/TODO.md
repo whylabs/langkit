@@ -12,7 +12,6 @@
 - Should we rethink the way that we name metrics now that we're free of whylogs? The problem with our current naming scheme is that it's
   impossible to know what the name is going to be programatically. The user has to just know that it's going to end up as foo.something
   maybe. And sometimes its even more complicated, ending up as patterns.<name_from_regex_json>.
-
   - One idea: Don't hard code the metric output names? Force them to pick one and use a default value that propagates down? At least that
     way there would always be some method to determine what this thing would end up as.
   - The problem with that is that creating groups of metrics becomes really weird. You can't have the current nice array groupings that
@@ -20,7 +19,10 @@
     get around names entirely? Need to see the cases where you would want to actually use the metric names at all. Maybe the
     Moderator/Blocker abstraction just deliver judgements for you based on a config and you never even care about their exact names.
 
-- In the prototype, the pattern for making metrics is this
+- The next blocker for people being able to retrieve specific metrics is the fact that I'm taking in functions that create metrics, rather
+  than metrics. This means that people can't get a hold of the metric to use as an index into the dataframe, it doesn't exist outside of
+  the workflow.
+
 
 ```python
 metrics = [

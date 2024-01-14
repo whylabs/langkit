@@ -6,6 +6,8 @@ from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Unio
 import numpy as np
 import pandas as pd
 
+from langkit.metrics.util import LazyInit
+
 
 # TODO make this generic and add a filter ability to ensure that it only delivers the things
 # you want instead of a bunch of Any
@@ -112,6 +114,30 @@ MetricCreator = Union[
 @dataclass(frozen=True)
 class EvaluationConfig:
     metrics: List[Metric]
+
+
+class MetricNameGetter:
+    """
+    Nice little wrapper that evaluates metric creators for you under the hood while allowing
+    you get get the metric name references.
+    """
+
+    def __init__(self, creator: MetricCreator) -> None:
+        self._creator = creator
+        self._metrics = LazyInit(lambda: EvaluationConfifBuilder().add(self._creator).build().metrics)
+
+    def __call__(self) -> MetricCreator:
+        return lambda: self._metrics.value
+
+    @property
+    def metric_names(self) -> List[str]:
+        names: List[str] = []
+        for metric in self._metrics.value:
+            if isinstance(metric, SingleMetric):
+                names.append(metric.name)
+            else:
+                names.extend(metric.names)
+        return names
 
 
 class EvaluationConfifBuilder:
