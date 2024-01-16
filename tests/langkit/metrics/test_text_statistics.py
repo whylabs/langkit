@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.metrics.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,

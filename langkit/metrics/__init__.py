@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Union
 
-from langkit.metrics.metric import MetricCreator
+from langkit.core.metric import MetricCreator
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.regexes.regexes import get_custom_substitutions
 from langkit.metrics.text_statistics import (

@@ -9,7 +9,7 @@ import pandas as pd
 import regex as re
 
 import whylogs as why
-from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, PatternGroups
 from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_for_column_module,

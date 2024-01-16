@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import MetricResult
+from langkit.core.metric import MetricResult
 
 
 @dataclass(frozen=True)

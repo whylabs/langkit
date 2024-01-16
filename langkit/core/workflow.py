@@ -4,7 +4,7 @@ from typing import Dict, List, Mapping
 
 import pandas as pd
 
-from langkit.metrics.metric import (
+from langkit.core.metric import (
     EvaluationConfifBuilder,
     Metric,
     MetricCreator,
@@ -13,7 +13,7 @@ from langkit.metrics.metric import (
     SingleMetric,
     SingleMetricResult,
 )
-from langkit.pipeline.validation import ValidationResult, Validator
+from langkit.core.validation import ValidationResult, Validator
 
 
 @dataclass(frozen=True)

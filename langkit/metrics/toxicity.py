@@ -13,7 +13,7 @@ from transformers import (
     TextClassificationPipeline,
 )
 
-from langkit.metrics.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
+from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 
 
 def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:

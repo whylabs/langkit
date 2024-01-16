@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.metrics.metric import EvaluationConfig, Metric, SingleMetric, SingleMetricResult
+from langkit.core.metric import EvaluationConfig, Metric, SingleMetric, SingleMetricResult
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig

@@ -5,7 +5,7 @@ import pandas as pd
 
 import whylogs as why
 from langkit.metrics.input_output_similarity import input_output_similarity_module
-from langkit.metrics.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
