@@ -31,11 +31,6 @@ ipywidgets = {version = "^8.1.1", optional = true}
 [tool.poetry.group.dev.dependencies]
 ipykernel = { version = ">=6.25.2", python = ">=3.8.1,<4" }
 pytest =  { version ="^7.3.1", python = ">=3.8.1,<4" }
-mypy = { version ="^1.4.1", python = ">=3.8.1,<4" }
-flake8 = { version = "^6.1.0", python = ">=3.8.1,<4" }
-black = { version = "^23.9.1", python = ">=3.8.1,<4" }
-pre-commit = { version = "^3.4.0", python = ">=3.8.1,<4" }
-types-setuptools = { version = ">=68.2.0.0", python = ">=3.8.1,<4" }
 bump2version = { version = "^1.0.1", python = ">=3.8.1,<4" }
 pyright = "^1.1.339"
 ruff = "^0.1.7"
@@ -58,13 +53,8 @@ all = [
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-
-[tool.black]
-line-length = 140
-exclude = ["langkit/metrics/",  "langkit/pipeline/", "tests/"]
-
 [tool.pyright]
-include = ["langkit/metrics/", "langkit/pipeline/", "tests/"]
+include = ["langkit/", "tests/"]
 typeCheckingMode = "strict"
 
 reportMissingTypeStubs = false
@@ -74,12 +64,11 @@ reportMissingTypeArgumet = false
 [tool.ruff]
 line-length = 140
 indent-width = 4
-include = ["./langkit/metrics/**/*.py", "./langkit/pipeline/**/*.py", "./tests/**/*.py"]
+include = ["./langkit/**/*.py", "./tests/**/*.py"]
 select = ["E", "F", "I", "W"]
 
 [tool.ruff.isort]
 known-first-party = ["whylogs", "langkit"]
-
 
 [tool.ruff.lint]
 fixable = ["ALL"]
