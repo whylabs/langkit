@@ -1,0 +1,11 @@
+{
+  "entities": [
+    "CREDIT_CARD",
+    "CRYPTO",
+    "IBAN_CODE",
+    "IP_ADDRESS",
+    "PHONE_NUMBER",
+    "MEDICAL_LICENSE",
+    "URL"
+  ]
+}

@@ -49,3 +49,38 @@ class PatternLoader:
 
     def get_regex_groups(self):
         return self.regex_groups
+
+
+class PresidioEntityLoader:
+    def __init__(self, config: Optional[LangKitConfig] = None):
+        self.config: LangKitConfig = config or deepcopy(lang_config)
+        self.entities = self.load_entities()
+
+    def load_entities(self):
+        json_path = self.config.pii_entities_file_path
+        try:
+            skip = False
+            with open(json_path, "r") as myfile:
+                _ENTITIES = json.load(myfile)
+            entities = []
+            for entity in _ENTITIES['entities']:
+                entities.append(entity)
+                diagnostic_logger.info(f"Loaded entity pattern for {entity}")
+        except FileNotFoundError:
+            skip = True
+            diagnostic_logger.warning(f"Could not find {json_path}")
+        except json.decoder.JSONDecodeError as json_error:
+            skip = True
+            diagnostic_logger.warning(f"Could not parse {json_path}: {json_error}")
+        if not skip:
+            return entities
+        return None
+
+    def set_config(self, config: LangKitConfig):
+        self.config = config
+
+    def update_entities(self):
+        self.entities = self.load_entities()
+
+    def get_entities(self):
+        return self.entities

@@ -7,7 +7,7 @@ from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from typing import Dict, List, Optional
-
+from langkit.utils import _unregister_metric_udf
 diagnostic_logger = getLogger(__name__)
 
 pattern_loader = PatternLoader()
@@ -38,17 +38,6 @@ def _wrapper(column):
 _registered: List[str] = []
 
 
-def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
-    from whylogs.experimental.core.udf_schema import _multicolumn_udfs
-
-    if _multicolumn_udfs is None or namespace not in _multicolumn_udfs:
-        return
-
-    _multicolumn_udfs[namespace] = [
-        udf
-        for udf in _multicolumn_udfs[namespace]
-        if list(udf.udfs.keys())[0] != old_name
-    ]
 
 
 def _register_udfs(config: Optional[LangKitConfig] = None):

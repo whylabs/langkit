@@ -26,6 +26,8 @@ sentence-transformers = {version ="^2.2.2", optional = true}
 evaluate = {version = "^0.4.0", optional = true}
 faiss-cpu = {version = "^1.7.1", optional = true}
 ipywidgets = {version = "^8.1.1", optional = true}
+presidio-analyzer = "^2.2.351"
+h5py = "^3.10.0"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -49,6 +51,8 @@ all = [
     "evaluate",
     "faiss-cpu",
     "ipywidgets",
+    "presidio-analyzer",
+    "h5py",
 ]
 
 [build-system]
