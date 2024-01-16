@@ -4,11 +4,11 @@ from typing import List, Mapping
 
 import pandas as pd
 
-from langkit.metrics import lib
 from langkit.core.metric import MetricCreator, MetricNameCapture, MetricResult, MultiMetric, MultiMetricResult
-from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
-from langkit.core.workflow import EvaluationWorkflow, Hook
 from langkit.core.validation import ValidationResult, create_validator
+from langkit.core.workflow import EvaluationWorkflow, Hook
+from langkit.metrics import lib
+from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", None)
