@@ -1,6 +1,5 @@
 import pandas as pd
 import pytest
-from langkit import extract, pii  # noqa
 from whylogs.experimental.core.udf_schema import udf_schema
 
 
@@ -21,6 +20,7 @@ def prompts():
 
 @pytest.mark.load
 def test_row_presidio_pii(prompts):
+    from langkit import extract, pii  # noqa
     schema = udf_schema()
 
     data = {"prompt": prompts[0], "response": prompts[-1]}
@@ -37,6 +37,7 @@ def test_row_presidio_pii(prompts):
 
 @pytest.mark.load
 def test_pandas_presidio_pii(prompts):
+    from langkit import extract, pii  # noqa
     schema = udf_schema()
     data = pd.DataFrame({"prompt": prompts, "response": prompts})
     result = extract(

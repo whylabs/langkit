@@ -39,7 +39,7 @@ def _unregister():
 
     global _multicolumn_udfs, _registered
     _multicolumn_udfs[""] = [
-        u for u in _multicolumn_udfs[""] if list(u.udfs.keys())[0] not in _registered
+        u for u in _multicolumn_udfs[""] if list(u.udfs.keys()) and list(u.udfs.keys())[0] not in _registered
     ]
     _registered = set()
 
