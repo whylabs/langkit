@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from langkit import extract, pii
+from langkit import extract, pii  # noqa
 from whylogs.experimental.core.udf_schema import udf_schema
 
 
@@ -23,17 +23,16 @@ def prompts():
 def test_row_presidio_pii(prompts):
     schema = udf_schema()
 
-    data = {"prompt": prompts[0],
-            "response": prompts[-1]}
+    data = {"prompt": prompts[0], "response": prompts[-1]}
     result = extract(
         data,
         schema=schema,
     )
-    assert "CRYPTO" in result['prompt.pii_presidio.result']
-    assert "CREDIT_CARD" in result['prompt.pii_presidio.result']
-    assert result['prompt.pii_presidio.entities_count'] == 2
-    assert result['response.pii_presidio.result'] == '[]'
-    assert result['response.pii_presidio.entities_count'] == 0
+    assert "CRYPTO" in result["prompt.pii_presidio.result"]
+    assert "CREDIT_CARD" in result["prompt.pii_presidio.result"]
+    assert result["prompt.pii_presidio.entities_count"] == 2
+    assert result["response.pii_presidio.result"] == "[]"
+    assert result["response.pii_presidio.entities_count"] == 0
 
 
 @pytest.mark.load
@@ -45,7 +44,5 @@ def test_pandas_presidio_pii(prompts):
         schema=schema,
     )
     assert result.shape == (6, 6)
-    assert result['prompt.pii_presidio.entities_count'].to_list() == [
-        2, 3, 5, 3, 3, 0
-    ]
+    assert result["prompt.pii_presidio.entities_count"].to_list() == [2, 3, 5, 3, 3, 0]
     print(result)

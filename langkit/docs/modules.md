@@ -5,7 +5,7 @@
 |                 [Hallucination](#hallucination)                 |                                                response.hallucination                                                 |       Consistency between response and additional response samples       |           Prompt and Response            |                    Requires Additional LLM Calls                     |     |
 |                    [Injections](#injections)                    |                                                       injection                                                       |  Semantic Similarity from known prompt injections and harmful behaviors  |                  Prompt                  |                                                                      |     |
 |                  [Input/Output](#inputoutput)                   |                                             response.relevance_to_prompt                                              |             Semantic similarity between prompt and response              |           Prompt and Response            |               Default llm metric, Customizable Encoder               |     |
-|                  [PII](#pii)                   |                                             pii_presidio.result, pii_presidio.entities_count                                              |             Private entities identification              |           Prompt and Response            |               Customizable entities list               |     |
+|                           [PII](#pii)                           |                                   pii_presidio.result, pii_presidio.entities_count                                    |                     Private entities identification                      |           Prompt and Response            |                      Customizable entities list                      |     |
 | [Proactive Injection Detection](#proactive-injection-detection) |                                             injection.proactive_detection                                             |          LLM-powered proactive detection for injection attacks           |                  Prompt                  |                    Requires LLM additional calls                     |     |
 |                       [Regexes](#regexes)                       |                                                     has_patterns                                                      |             Regex pattern matching for sensitive information             |           Prompt and Response            |     Default llm metric, light-weight, Customizable Regex Groups      |     |
 |                     [Sentiment](#sentiment)                     |                                                    sentiment_nltk                                                     |                            Sentiment Analysis                            |           Prompt and Response            |                          Default llm metric                          |     |
@@ -124,19 +124,19 @@ The `pii` namespace will detect entities in prompts/responses such as credit car
 Requires [Spacy](https://github.com/explosion/spaCy) as a dependency and Spacy's `en_core_web_lg` model.
 
 The list of searched entities is defined in the `PII_entities.json` under the Langkit folder. Currently, the list of searched entities is: [
-    "CREDIT_CARD",
-    "CRYPTO",
-    "IBAN_CODE",
-    "IP_ADDRESS",
-    "PHONE_NUMBER",
-    "MEDICAL_LICENSE",
-    "URL",
-    "US_BANK_NUMBER",
-    "US_DRIVER_LICENSE",
-    "US_ITIN",
-    "US_PASSPORT",
-    "US_SSN"
-  ]
+"CREDIT_CARD",
+"CRYPTO",
+"IBAN_CODE",
+"IP_ADDRESS",
+"PHONE_NUMBER",
+"MEDICAL_LICENSE",
+"URL",
+"US_BANK_NUMBER",
+"US_DRIVER_LICENSE",
+"US_ITIN",
+"US_PASSPORT",
+"US_SSN"
+]
 
 ### Usage
 
@@ -172,10 +172,9 @@ Example custom entities json file:
 
 ```json
 {
-  "entities": ["US_PASSPORT","PHONE_NUMBER"]
+  "entities": ["US_PASSPORT", "PHONE_NUMBER"]
 }
 ```
-
 
 ## Proactive Injection Detection
 

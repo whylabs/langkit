@@ -21,11 +21,11 @@ analyzer = AnalyzerEngine()
 
 def format_presidio_result(result: RecognizerResult) -> dict:
     return {
-            "type": f"{result.entity_type}",
-            "start": f"{result.start}",
-            "end": f"{result.end}",
-            "score": f"{result.score}",
-            }
+        "type": f"{result.entity_type}",
+        "start": f"{result.start}",
+        "end": f"{result.end}",
+        "score": f"{result.score}",
+    }
 
 
 def analyze_pii(text: str) -> Tuple[str, int]:
@@ -99,8 +99,7 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
 
 
 def init(
-    entities_file_path: Optional[str] = None,
-    config: Optional[LangKitConfig] = None
+    entities_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
 ):
     config = deepcopy(config or lang_config)
     if entities_file_path:
