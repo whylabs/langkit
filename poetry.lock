@@ -4343,14 +4343,14 @@ test = ["pytest (>=6.0.0)", "setuptools (>=65)"]
 
 [[package]]
 name = "whylabs-client"
-version = "0.5.8"
+version = "0.5.10"
 description = "WhyLabs API client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "whylabs-client-0.5.8.tar.gz", hash = "sha256:7f71a036f88fc2e21d89e56246db7e42547b40bf1f45bb74c28532e173206525"},
-    {file = "whylabs_client-0.5.8-py3-none-any.whl", hash = "sha256:26b6b481eb806ed006ff29c4ed8845acdba3fccc84333419aad628a7540a9dec"},
+    {file = "whylabs-client-0.5.10.tar.gz", hash = "sha256:267e5ef9e5811953e83ccd5dbe4ece21b4da2aa26adcc851b95da104c1f4cf7c"},
+    {file = "whylabs_client-0.5.10-py3-none-any.whl", hash = "sha256:41a87e973e6e4410bc33e7f13d2cdd40ac4787f060cbd973ab16828cb144fd35"},
 ]
 
 [package.dependencies]
@@ -4359,14 +4359,14 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.3.13"
+version = "1.3.21"
 description = "Profile and monitor your ML data pipeline end-to-end"
 category = "main"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.3.13-py3-none-any.whl", hash = "sha256:b2b25519624d39f82094657507c7518a2f8ac8661b153949fb009122ef17d610"},
-    {file = "whylogs-1.3.13.tar.gz", hash = "sha256:ea366c3c2dc00579f7565314fb4b26ac6bad62b9a66defe90427aa6c13fa9fbe"},
+    {file = "whylogs-1.3.21-py3-none-any.whl", hash = "sha256:981a5c0b758ebe60f8bef254455357024f05667f26c1f5fbf2ef915bf36bf557"},
+    {file = "whylogs-1.3.21.tar.gz", hash = "sha256:62226a50d1173bc1ef9eeb18ce68e6cbbacc6ad37a618346214c660c3885302a"},
 ]
 
 [package.dependencies]
@@ -4375,7 +4375,7 @@ protobuf = ">=3.19.4"
 requests = ">=2.27,<3.0"
 types-requests = ">=2.30.0.0,<3.0.0.0"
 typing-extensions = {version = ">=3.10", markers = "python_version < \"4\""}
-whylabs-client = ">=0.5.6,<0.6.0"
+whylabs-client = ">=0.5.10,<0.6.0"
 whylogs-sketching = ">=3.4.1.dev3"
 
 [package.extras]
@@ -4690,9 +4690,9 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["datasets", "evaluate", "faiss-cpu", "ipywidgets", "nltk", "numpy", "openai", "presidio-analyzer", "sentence-transformers", "torch"]
+all = ["datasets", "evaluate", "faiss-cpu", "h5py", "ipywidgets", "nltk", "numpy", "openai", "presidio-analyzer", "sentence-transformers", "torch"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "86806c03aa53fb37fab1ae3329bf6f5abff07cfe5bfdab7110181b1115585eec"
+content-hash = "27cb9458a68a4a24d577ca7cddb338fabda5b24c2b8e1f9af373aff1a34aa7e0"

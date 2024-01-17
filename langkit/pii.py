@@ -1,7 +1,8 @@
 from copy import deepcopy
 from presidio_analyzer import AnalyzerEngine
 from whylogs.experimental.core.udf_schema import (
-    register_dataset_udf
+    register_dataset_udf,
+    register_multioutput_udf,
 )
 import pandas as pd
 from typing import Dict, List, Optional
@@ -10,6 +11,7 @@ from langkit.pattern_loader import PresidioEntityLoader
 from langkit.utils import _unregister_metric_udf
 from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
+import json
 
 _registered: List[str] = []
 
@@ -20,7 +22,7 @@ entity_loader = PresidioEntityLoader()
 analyzer = AnalyzerEngine()
 
 
-def analyze_pii(text: str) -> List[Dict[str, str]]:
+def analyze_pii(text: str) -> str:
     global analyzer
     global entity_loader
 
@@ -38,13 +40,26 @@ def analyze_pii(text: str) -> List[Dict[str, str]]:
             "score": f"{ent.score}",
         } for ent in results
     ]
-    return dict_results
+    return (json.dumps(dict_results), len(dict_results))
 
 
 def _wrapper(column):
     def wrappee(text):
-        return [analyze_pii(input) for input in text[column]]
-
+        analyzer_results: List[tuple] = []
+        for input in text[column]:
+            analyzer_results.append(analyze_pii(input))
+        if isinstance(text, pd.DataFrame):
+            return pd.DataFrame(
+                {
+                    "result": [x[0] for x in analyzer_results],
+                    "entities_count": [x[1] for x in analyzer_results],
+                }
+            )
+        else:
+            return {
+                "result": [x[0] for x in analyzer_results],
+                "entities_count": [x[1] for x in analyzer_results]
+            }
     return wrappee
 
 
@@ -76,10 +91,9 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
     if entity_loader.get_entities() is not None:
         for column in [prompt_column, response_column]:
             udf_name = f"{column}.{entity_metric_name}"
-            register_dataset_udf(
+            register_multioutput_udf(
                 [column],
-                udf_name=udf_name,
-                metrics=[MetricSpec(FrequentItemsMetric)],
+                prefix=udf_name,
             )(_wrapper(column))
             _registered.append(udf_name)
 

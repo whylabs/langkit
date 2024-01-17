@@ -6,6 +6,11 @@
     "IP_ADDRESS",
     "PHONE_NUMBER",
     "MEDICAL_LICENSE",
-    "URL"
+    "URL",
+    "US_BANK_NUMBER",
+    "US_DRIVER_LICENSE",
+    "US_ITIN",
+    "US_PASSPORT",
+    "US_SSN"
   ]
 }
