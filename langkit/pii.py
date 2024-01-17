@@ -1,16 +1,13 @@
 from copy import deepcopy
-from presidio_analyzer import AnalyzerEngine
+from presidio_analyzer import AnalyzerEngine, RecognizerResult
 from whylogs.experimental.core.udf_schema import (
-    register_dataset_udf,
     register_multioutput_udf,
 )
 import pandas as pd
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
 from langkit.pattern_loader import PresidioEntityLoader
 from langkit.utils import _unregister_metric_udf
-from whylogs.core.metrics.metrics import FrequentItemsMetric
-from whylogs.core.resolvers import MetricSpec
 import json
 
 _registered: List[str] = []
@@ -22,7 +19,16 @@ entity_loader = PresidioEntityLoader()
 analyzer = AnalyzerEngine()
 
 
-def analyze_pii(text: str) -> str:
+def format_presidio_result(result: RecognizerResult) -> dict:
+    return {
+            "type": f"{result.entity_type}",
+            "start": f"{result.start}",
+            "end": f"{result.end}",
+            "score": f"{result.score}",
+            }
+
+
+def analyze_pii(text: str) -> Tuple[str, int]:
     global analyzer
     global entity_loader
 
@@ -32,14 +38,7 @@ def analyze_pii(text: str) -> str:
         entities=entities,
         language="en",
     )
-    dict_results = [
-        {
-            "type": f"{ent.entity_type}",
-            "start": f"{ent.start}",
-            "end": f"{ent.end}",
-            "score": f"{ent.score}",
-        } for ent in results
-    ]
+    dict_results = [format_presidio_result(entity) for entity in results]
     return (json.dumps(dict_results), len(dict_results))
 
 
@@ -58,8 +57,9 @@ def _wrapper(column):
         else:
             return {
                 "result": [x[0] for x in analyzer_results],
-                "entities_count": [x[1] for x in analyzer_results]
+                "entities_count": [x[1] for x in analyzer_results],
             }
+
     return wrappee
 
 
@@ -99,7 +99,8 @@ def _register_udfs(config: Optional[LangKitConfig] = None):
 
 
 def init(
-    entities_file_path: Optional[str] = None, config: Optional[LangKitConfig] = None
+    entities_file_path: Optional[str] = None,
+    config: Optional[LangKitConfig] = None
 ):
     config = deepcopy(config or lang_config)
     if entities_file_path:

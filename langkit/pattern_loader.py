@@ -63,7 +63,7 @@ class PresidioEntityLoader:
             with open(json_path, "r") as myfile:
                 _ENTITIES = json.load(myfile)
             entities = []
-            for entity in _ENTITIES['entities']:
+            for entity in _ENTITIES["entities"]:
                 entities.append(entity)
                 diagnostic_logger.info(f"Loaded entity pattern for {entity}")
         except FileNotFoundError:
