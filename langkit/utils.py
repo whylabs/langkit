@@ -24,8 +24,13 @@ def _unregister_metric_udf(old_name: str, namespace: Optional[str] = ""):
     if _multicolumn_udfs is None or namespace not in _multicolumn_udfs:
         return
 
-    _multicolumn_udfs[namespace] = [
-        udf
-        for udf in _multicolumn_udfs[namespace]
-        if list(udf.udfs.keys())[0] != old_name
-    ]
+    new_multicolumn_udfs = []
+    for udf in _multicolumn_udfs[namespace]:
+        udfs_cols = list(udf.udfs.keys())
+        if udfs_cols and udfs_cols[0] != old_name:
+            new_multicolumn_udfs.append(udf)
+        # added to account for multicolumn udfs
+        elif udf.udf and udf.prefix != old_name:
+            new_multicolumn_udfs.append(udf)
+
+    _multicolumn_udfs[namespace] = new_multicolumn_udfs

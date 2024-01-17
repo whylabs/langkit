@@ -104,7 +104,7 @@ def init(
 ):
     config = deepcopy(config or lang_config)
     if entities_file_path:
-        config.pattern_file_path = entities_file_path
+        config.pii_entities_file_path = entities_file_path
 
     global entity_loader
     entity_loader = PresidioEntityLoader(config)
