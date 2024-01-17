@@ -5,6 +5,7 @@
 |                 [Hallucination](#hallucination)                 |                                                response.hallucination                                                 |       Consistency between response and additional response samples       |           Prompt and Response            |                    Requires Additional LLM Calls                     |     |
 |                    [Injections](#injections)                    |                                                       injection                                                       |  Semantic Similarity from known prompt injections and harmful behaviors  |                  Prompt                  |                                                                      |     |
 |                  [Input/Output](#inputoutput)                   |                                             response.relevance_to_prompt                                              |             Semantic similarity between prompt and response              |           Prompt and Response            |               Default llm metric, Customizable Encoder               |     |
+|                  [PII](#pii)                   |                                             pii_presidio.result, pii_presidio.entities_count                                              |             Private entities identification              |           Prompt and Response            |               Customizable entities list               |     |
 | [Proactive Injection Detection](#proactive-injection-detection) |                                             injection.proactive_detection                                             |          LLM-powered proactive detection for injection attacks           |                  Prompt                  |                    Requires LLM additional calls                     |     |
 |                       [Regexes](#regexes)                       |                                                     has_patterns                                                      |             Regex pattern matching for sensitive information             |           Prompt and Response            |     Default llm metric, light-weight, Customizable Regex Groups      |     |
 |                     [Sentiment](#sentiment)                     |                                                    sentiment_nltk                                                     |                            Sentiment Analysis                            |           Prompt and Response            |                          Default llm metric                          |     |
@@ -115,6 +116,66 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
 
 The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+
+## PII
+
+The `pii` namespace will detect entities in prompts/responses such as credit card numbers, phone numbers, SSNs, passport number, etc. It uses [Microsoft's Presidio](https://github.com/microsoft/presidio/) as an engine for PII identification.
+
+Requires [Spacy](https://github.com/explosion/spaCy) as a dependency and Spacy's `en_core_web_lg` model.
+
+The list of searched entities is defined in the `PII_entities.json` under the Langkit folder. Currently, the list of searched entities is: [
+    "CREDIT_CARD",
+    "CRYPTO",
+    "IBAN_CODE",
+    "IP_ADDRESS",
+    "PHONE_NUMBER",
+    "MEDICAL_LICENSE",
+    "URL",
+    "US_BANK_NUMBER",
+    "US_DRIVER_LICENSE",
+    "US_ITIN",
+    "US_PASSPORT",
+    "US_SSN"
+  ]
+
+### Usage
+
+```python
+from langkit import extract, pii
+
+data = {"prompt": "My passport: 191280342 and my phone number: (212) 555-1234."}
+result = extract(data)
+```
+
+### `pii_presidio.result`
+
+This will return a JSON formatted string with the list of detected entities in the given prompt/response. Each element in the list represents a single detected entity, with information such as start and end index, entity type and confidence score.
+
+### `pii_presidio.entities_count`
+
+This will return the number of detected entities in the given prompt/response. It is equal to the length of the list returned by `pii_presidio.result`.
+
+#### Configuration
+
+The user can provide its json file to define the entities to search for. The file should be formatted as the default `PII_entities.json` file. To provide a custom file, the user can do so like this:
+
+```python
+from langkit import extract, pii
+
+pii.init(entities_file_path="my_custom_entities.json")
+
+data = {"prompt": "My passport: 191280342 and my phone number: (212) 555-1234."}
+result = extract(data)
+```
+
+Example custom entities json file:
+
+```json
+{
+  "entities": ["US_PASSPORT","PHONE_NUMBER"]
+}
+```
+
 
 ## Proactive Injection Detection
 
