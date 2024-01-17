@@ -7,7 +7,7 @@ import pandas as pd
 from langkit.core.metric import MetricCreator, MetricNameCapture, MetricResult, MultiMetric, MultiMetricResult
 from langkit.core.validation import ValidationResult, create_validator
 from langkit.core.workflow import EvaluationWorkflow, Hook
-from langkit.metrics import lib
+from langkit.metrics.library import lib
 from langkit.metrics.regexes.regex_loader import CompiledPattern, CompiledPatternGroups
 
 pd.set_option("display.max_columns", None)
