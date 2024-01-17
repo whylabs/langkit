@@ -8,6 +8,7 @@ from whylogs.core.metrics.metrics import FrequentItemsMetric
 from whylogs.core.resolvers import MetricSpec
 from typing import Dict, List, Optional
 from langkit.utils import _unregister_metric_udf
+
 diagnostic_logger = getLogger(__name__)
 
 pattern_loader = PatternLoader()
@@ -36,8 +37,6 @@ def _wrapper(column):
 
 
 _registered: List[str] = []
-
-
 
 
 def _register_udfs(config: Optional[LangKitConfig] = None):
