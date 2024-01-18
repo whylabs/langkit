@@ -1,36 +1,10 @@
 from functools import partial
-from typing import Literal
 
 import pandas as pd
 from textstat import textstat
 
 from langkit.core.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
-
-TextStat = Literal[
-    "flesch_kincaid_grade",
-    "flesch_reading_ease",
-    "smog_index",
-    "coleman_liau_index",
-    "automated_readability_index",
-    "dale_chall_readability_score",
-    "linsear_write_formula",
-    "gunning_fog",
-    "text_standard",
-    "fernandez_huerta",
-    "szigriszt_pazos",
-    "gutierrez_polini",
-    "crawford",
-    "gulpease_index",
-    "osman",
-    "syllable_count",
-    "lexicon_count",
-    "sentence_count",
-    "char_count",
-    "letter_count",
-    "polysyllabcount",
-    "monosyllabcount",
-    "difficult_words",
-]
+from langkit.metrics.text_statistics_types import TextStat
 
 
 def textstat_module(stat: TextStat, column_name: str) -> Metric:

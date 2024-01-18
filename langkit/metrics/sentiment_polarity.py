@@ -7,7 +7,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 
 
-def __sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon") -> Metric:
+def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") -> Metric:
     # TODO Does this have built in idempotency?
     nltk.download(lexicon)  # type: ignore[reportUnknownMemberType]
     analyzer = SentimentIntensityAnalyzer()
@@ -23,6 +23,6 @@ def __sentiment_polarity_module(column_name: str, lexicon: str = "vader_lexicon"
     )
 
 
-promp_sentiment_polarity = partial(__sentiment_polarity_module, "prompt")
-response_sentiment_polarity = partial(__sentiment_polarity_module, "response")
+promp_sentiment_polarity = partial(sentiment_polarity_metric, "prompt")
+response_sentiment_polarity = partial(sentiment_polarity_metric, "response")
 promp_response_sentiment_polarity = [promp_sentiment_polarity, response_sentiment_polarity]

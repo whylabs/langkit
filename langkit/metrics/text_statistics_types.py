@@ -1,0 +1,27 @@
+from typing import Literal
+
+TextStat = Literal[
+    "flesch_kincaid_grade",
+    "flesch_reading_ease",
+    "smog_index",
+    "coleman_liau_index",
+    "automated_readability_index",
+    "dale_chall_readability_score",
+    "linsear_write_formula",
+    "gunning_fog",
+    "text_standard",
+    "fernandez_huerta",
+    "szigriszt_pazos",
+    "gutierrez_polini",
+    "crawford",
+    "gulpease_index",
+    "osman",
+    "syllable_count",
+    "lexicon_count",
+    "sentence_count",
+    "char_count",
+    "letter_count",
+    "polysyllabcount",
+    "monosyllabcount",
+    "difficult_words",
+]

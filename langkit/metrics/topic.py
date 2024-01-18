@@ -9,6 +9,7 @@ from transformers import Pipeline, pipeline  # type: ignore
 from langkit.core.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.util import LazyInit
 
+# TODO these default topics are not very good. We should update these to something reasonable that people would use.
 __default_topics = ["politics", "economy", "entertainment", "environment"]
 
 __classifier: LazyInit[Pipeline] = LazyInit(
@@ -18,11 +19,18 @@ __classifier: LazyInit[Pipeline] = LazyInit(
 )
 
 
+def pre_init():
+    """
+    Optionally pre-initialize and download the model to avoid doing it in the first call to the metric.
+    """
+    __classifier.value
+
+
 def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False) -> str:
     return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
 
 
-def __topic_module(column_name: str, topics: List[str]) -> Metric:
+def topic_metric(column_name: str, topics: List[str]) -> Metric:
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
         return SingleMetricResult(metrics)
@@ -34,8 +42,8 @@ def __topic_module(column_name: str, topics: List[str]) -> Metric:
     )
 
 
-prompt_topic_module = partial(__topic_module, "prompt", __default_topics)
-response_topic_module = partial(__topic_module, "response", __default_topics)
+prompt_topic_module = partial(topic_metric, "prompt", __default_topics)
+response_topic_module = partial(topic_metric, "response", __default_topics)
 prompt_response_topic_module = [prompt_topic_module, response_topic_module]
 
 
@@ -47,8 +55,8 @@ class CustomTopicModules:
 
 
 def get_custom_topic_modules(topics: List[str]) -> CustomTopicModules:
-    prompt_topic_module = partial(__topic_module, "prompt", topics)
-    response_topic_module = partial(__topic_module, "response", topics)
+    prompt_topic_module = partial(topic_metric, "prompt", topics)
+    response_topic_module = partial(topic_metric, "response", topics)
     return CustomTopicModules(
         prompt_topic_module=prompt_topic_module,
         response_topic_module=response_topic_module,
