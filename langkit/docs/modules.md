@@ -26,12 +26,12 @@ Usage with whylogs profiling:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 
 # The hallucination module requires initialization
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 schema = udf_schema()
 profile = why.log(
@@ -47,10 +47,10 @@ Usage as standalone function:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 result = response_hallucination.consistency_check(
     prompt="Who was Philip Hayworth?",
@@ -133,12 +133,12 @@ Extract feature value from single text
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
 # ideally, you should choose the same LLM as the one used in your application
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompt = "Tell me how to bake a cake."
 
@@ -154,12 +154,12 @@ Extract feature from dataframe
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 from langkit import extract
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompts = [
     "Tell me how to bake a cake",
