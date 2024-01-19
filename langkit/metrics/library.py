@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 from langkit.core.metric import MetricCreator
-from langkit.metrics.input_output_similarity_types import EmbeddingEncoder
+from langkit.metrics.embeddings_types import EmbeddingEncoder
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.text_statistics_types import TextStat
 
@@ -17,7 +17,7 @@ class lib:
             prompt_response_phone_number_regex_module,
             prompt_response_ssn_regex_module,
         )
-        from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity
+        from langkit.metrics.sentiment_polarity import prompt_response_sentiment_polarity
         from langkit.metrics.text_statistics import (
             prompt_textstat_module,
             response_textstat_module,
@@ -33,7 +33,7 @@ class lib:
             prompt_response_phone_number_regex_module,
             prompt_response_mailing_address_regex_module,
             prompt_response_email_address_regex_module,
-            promp_response_sentiment_polarity,
+            prompt_response_sentiment_polarity,
             prompt_response_topic_module,
             prompt_response_toxicity_module,
             prompt_response_input_output_similarity_module,
@@ -238,9 +238,9 @@ class lib:
 
         @staticmethod
         def prompt(lexicon: str = "vader_lexicon") -> MetricCreator:
-            from langkit.metrics.sentiment_polarity import promp_sentiment_polarity
+            from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity
 
-            return lambda: promp_sentiment_polarity(lexicon=lexicon)
+            return lambda: prompt_sentiment_polarity(lexicon=lexicon)
 
         @staticmethod
         def response(lexicon: str = "vader_lexicon") -> MetricCreator:
@@ -250,9 +250,9 @@ class lib:
 
         @staticmethod
         def default() -> MetricCreator:
-            from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity
+            from langkit.metrics.sentiment_polarity import prompt_response_sentiment_polarity
 
-            return promp_response_sentiment_polarity
+            return prompt_response_sentiment_polarity
 
     class topic:
         @staticmethod
@@ -320,3 +320,53 @@ class lib:
             from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
 
             return prompt_response_input_output_similarity_module
+
+    class themes:
+        @staticmethod
+        def create(input_name: str, themes: List[str]) -> MetricCreator:
+            from langkit.metrics.topic import topic_metric
+
+            return lambda: topic_metric(column_name=input_name, topics=themes)
+
+        @staticmethod
+        def prompt(themes: List[str]) -> MetricCreator:
+            from langkit.metrics.topic import topic_metric
+
+            return lambda: topic_metric(column_name="prompt", topics=themes)
+
+        @staticmethod
+        def response(themes: List[str]) -> MetricCreator:
+            from langkit.metrics.topic import topic_metric
+
+            return lambda: topic_metric(column_name="response", topics=themes)
+
+        @staticmethod
+        def default() -> MetricCreator:
+            from langkit.metrics.topic import prompt_response_topic_module
+
+            return prompt_response_topic_module
+
+    class pii_presidio:
+        @staticmethod
+        def create(input_name: str) -> MetricCreator:
+            from langkit.metrics.pii import pii_presidio_metric
+
+            return lambda: pii_presidio_metric(input_name)
+
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.pii import prompt_presidio_pii_module
+
+            return prompt_presidio_pii_module
+
+        @staticmethod
+        def response() -> MetricCreator:
+            from langkit.metrics.pii import response_presidio_pii_module
+
+            return response_presidio_pii_module
+
+        @staticmethod
+        def default() -> MetricCreator:
+            from langkit.metrics.pii import prompt_response_presidio_pii_module
+
+            return prompt_response_presidio_pii_module

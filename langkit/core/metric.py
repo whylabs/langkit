@@ -108,8 +108,11 @@ MetricCreator = Union[
     Callable[[], "MetricCreator"],
     Callable[[], List["MetricCreator"]],
     Callable[[], Metric],
+    Callable[[], MultiMetric],
     Callable[[], List[Metric]],
+    Callable[[], List[MultiMetric]],
     List[Callable[[], Metric]],
+    List[Callable[[], MultiMetric]],
 ]
 
 
@@ -126,7 +129,7 @@ class MetricNameCapture:
 
     def __init__(self, creator: MetricCreator) -> None:
         self._creator = creator
-        self._metrics = LazyInit(lambda: EvaluationConfifBuilder().add(self._creator).build().metrics)
+        self._metrics = LazyInit(lambda: EvaluationConfigBuilder().add(self._creator).build().metrics)
         self._metric_names = LazyInit(lambda: MetricNameCapture.__get_metric_names(self._metrics.value))
 
     @staticmethod
@@ -150,18 +153,18 @@ class MetricNameCapture:
         return self._metric_names.value
 
 
-class EvaluationConfifBuilder:
+class EvaluationConfigBuilder:
     def __init__(self, metric_creators: Optional[List[MetricCreator]] = None) -> None:
         super().__init__()
         self._modules: List[MetricCreator] = metric_creators or []
 
-    def add(self, module: MetricCreator) -> "EvaluationConfifBuilder":
+    def add(self, module: MetricCreator) -> "EvaluationConfigBuilder":
         if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
             self._modules.append(module)
         else:
-            self._modules.extend(module)
+            self._modules.append(module)
 
         return self
 
@@ -170,11 +173,11 @@ class EvaluationConfifBuilder:
         for module in modules:
             if callable(module):
                 schema = module()
-                if isinstance(schema, Metric):
+                if isinstance(schema, SingleMetric) or isinstance(schema, MultiMetric):
                     schemas.append(schema)
                 elif isinstance(schema, list):
                     for s in schema:
-                        if isinstance(s, Metric):
+                        if isinstance(s, SingleMetric) or isinstance(s, MultiMetric):
                             schemas.append(s)
                         else:
                             schemas.extend(self._build_metrics([s]))

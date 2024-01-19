@@ -4,8 +4,8 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
-from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity, promp_sentiment_polarity, response_sentiment_polarity
+from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
+from langkit.metrics.sentiment_polarity import prompt_response_sentiment_polarity, prompt_sentiment_polarity, response_sentiment_polarity
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
@@ -64,7 +64,7 @@ def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
 
 
 def test_prompt_sentiment_neutral():
-    schema = EvaluationConfifBuilder().add(promp_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_sentiment_polarity).build()
     row = {"prompt": "Hi, how are you doing today?", "response": "I'm doing great, how about you?"}
 
     actual = _log(row, schema)
@@ -81,7 +81,7 @@ def test_prompt_sentiment_neutral():
 
 
 def test_prompt_sentiment_negative():
-    schema = EvaluationConfifBuilder().add(promp_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_sentiment_polarity).build()
 
     row = {"prompt": "Hello, you suck and you're the worst. this is horrible...", "response": "I'm doing great, how about you?"}
 
@@ -99,7 +99,7 @@ def test_prompt_sentiment_negative():
 
 
 def test_prompt_sentiment_postive():
-    schema = EvaluationConfifBuilder().add(promp_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_sentiment_polarity).build()
 
     row = {"prompt": "Hello, you are great, everything is so nice! You're the best.", "response": "I'm doing great, how about you?"}
 
@@ -117,7 +117,7 @@ def test_prompt_sentiment_postive():
 
 
 def test_response_sentiment_neutral():
-    schema = EvaluationConfifBuilder().add(response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(response_sentiment_polarity).build()
     row = {"prompt": "Hi, how are you doing today?", "response": "good?"}
 
     actual = _log(row, schema)
@@ -137,7 +137,7 @@ def test_response_sentiment_neutral():
 
 
 def test_response_sentiment_negative():
-    schema = EvaluationConfifBuilder().add(response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(response_sentiment_polarity).build()
     row = {"prompt": "Hi, how are you doing today?", "response": "bad!"}
 
     actual = _log(row, schema)
@@ -154,7 +154,7 @@ def test_response_sentiment_negative():
 
 
 def test_response_sentiment_positive():
-    schema = EvaluationConfifBuilder().add(response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(response_sentiment_polarity).build()
     row = {"prompt": "Hi, how are you doing today?", "response": "the best ever!!"}
 
     actual = _log(row, schema)
@@ -171,7 +171,7 @@ def test_response_sentiment_positive():
 
 
 def test_prompt_response_sentiment_neutral():
-    schema = EvaluationConfifBuilder().add(promp_response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_sentiment_polarity).build()
     row = {"prompt": "Hi, how are you doing today?", "response": "good?"}
 
     actual = _log(row, schema)
@@ -195,7 +195,7 @@ def test_prompt_response_sentiment_neutral():
 
 
 def test_prompt_response_sentiment_negative():
-    schema = EvaluationConfifBuilder().add(promp_response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_sentiment_polarity).build()
     row = {"prompt": "you're actually teh worst, this sucks, i hate you", "response": "lul u suck actuly, this is the horrible"}
 
     actual = _log(row, schema)
@@ -214,7 +214,7 @@ def test_prompt_response_sentiment_negative():
 
 
 def test_prompt_response_sentiment_positive():
-    schema = EvaluationConfifBuilder().add(promp_response_sentiment_polarity).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_sentiment_polarity).build()
     row = {"prompt": "you're actually teh best, this is great, i love you", "response": "lul u r teh best, this is the best"}
 
     actual = _log(row, schema)

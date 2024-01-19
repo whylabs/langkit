@@ -5,7 +5,7 @@ from typing import Dict, List, Mapping, Optional, Set
 import pandas as pd
 
 from langkit.core.metric import (
-    EvaluationConfifBuilder,
+    EvaluationConfigBuilder,
     Metric,
     MetricCreator,
     MetricResult,
@@ -64,8 +64,8 @@ class EvaluationWorkflow:
         validators: Optional[List[Validator]] = None,
         lazy_init=False,
     ) -> None:
-        self.metrics = EvaluationConfifBuilder().add(metrics).build()
         self.hooks = callbacks or []
+        self.metrics = EvaluationConfigBuilder().add(metrics).build()
         self.validators = validators or []
         self._initialized = False
 

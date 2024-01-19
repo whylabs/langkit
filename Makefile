@@ -7,6 +7,7 @@ dist: ## Build the wheel
 
 install: ## Install all dependencies and extras
 	poetry install -E all
+	poetry run python -c "import nltk; nltk.download('vader_lexicon')"
 
 clean:  ## Clean the project and generated files
 	rm -rf ./dist/

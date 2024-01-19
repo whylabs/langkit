@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, List, Optional, TypedDict, TypeGuard
+from typing import Any, List, Optional, TypedDict
 
 
 class Pattern(TypedDict, total=True):
@@ -38,11 +38,11 @@ def load_pattern_string(pattern_file_content: str) -> CompiledPatternGroups:
 
 
 def load_patterns_file(file_path: str) -> CompiledPatternGroups:
-    with open(file_path, "r") as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         return load_pattern_string(f.read())
 
 
-def _is_pattern(obj: Any) -> TypeGuard[Pattern]:
+def _is_pattern(obj: Any) -> bool:
     return (
         isinstance(obj, dict)
         and "name" in obj
@@ -53,7 +53,7 @@ def _is_pattern(obj: Any) -> TypeGuard[Pattern]:
     )
 
 
-def _is_pattern_group(obj: Any) -> TypeGuard[List[Pattern]]:
+def _is_pattern_group(obj: Any) -> bool:
     return isinstance(obj, list) and all(_is_pattern(item) for item in obj)  # type: ignore[reportUnknownVariableType]
 
 

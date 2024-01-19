@@ -42,9 +42,14 @@ jobs:
         run: echo 'poetry cache hit, skipping poetry install'
       - name: Configure whylogs
         run: mkdir ~/.whylogs && echo \"\" >> ~/.whylogs/disable_telemetry
-      - name: Run pre-commit checks
+      - name: Run lint
         if: ${{ matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest' }}
-        run: poetry run pre-commit run --all-files
+        run: poetry run make lint
+      - name: Run format
+        if: ${{ matrix.python-version == 3.8 && matrix.os == 'ubuntu-latest' }}
+        run: poetry run make format
+      - name: Run test
+        run: poetry run pytest tests/
       - name: Run build
         run: poetry build
       - name: Run test
