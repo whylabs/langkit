@@ -47,18 +47,14 @@ def _wrapper(column):
         analyzer_results: List[tuple] = []
         for input in text[column]:
             analyzer_results.append(analyze_pii(input))
+        to_return = {
+            "result": [x[0] for x in analyzer_results],
+            "entities_count": [x[1] for x in analyzer_results],
+        }
         if isinstance(text, pd.DataFrame):
-            return pd.DataFrame(
-                {
-                    "result": [x[0] for x in analyzer_results],
-                    "entities_count": [x[1] for x in analyzer_results],
-                }
-            )
+            return pd.DataFrame(to_return)
         else:
-            return {
-                "result": [x[0] for x in analyzer_results],
-                "entities_count": [x[1] for x in analyzer_results],
-            }
+            return to_return
 
     return wrappee
 
