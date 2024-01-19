@@ -137,7 +137,7 @@ prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_mod
 prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
 
 
-def get_custom_regex_for_column_module(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+def custom_regex_metric(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
     """
     Using this to create a custom regex module will result in the generated metrics
     appearing as `prompt.<pattern_name>` and `response.<pattern_name>`, or whatever you supply
@@ -165,8 +165,8 @@ class CustomRegexModules:
 # Now, if it has "module" as a suffix, you can definitely put it into a schema builder as is.
 def get_custom_regex_modules(file_path_or_pattern: Union[str, CompiledPatternGroups]) -> CustomRegexModules:
     """ """
-    prompt_custom_regex_module = get_custom_regex_for_column_module("prompt", file_path_or_pattern)
-    response_custom_regex_module = get_custom_regex_for_column_module("response", file_path_or_pattern)
+    prompt_custom_regex_module = custom_regex_metric("prompt", file_path_or_pattern)
+    response_custom_regex_module = custom_regex_metric("response", file_path_or_pattern)
 
     return CustomRegexModules(
         prompt_custom_regex_module=prompt_custom_regex_module,

@@ -1,6 +1,7 @@
-from typing import List, Union
+from typing import List, Optional, Union
 
 from langkit.core.metric import MetricCreator
+from langkit.metrics.input_output_similarity_types import EmbeddingEncoder
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.text_statistics_types import TextStat
 
@@ -62,6 +63,120 @@ class lib:
                 from langkit.metrics.text_statistics import prompt_response_reading_ease_module
 
                 return prompt_response_reading_ease_module
+
+    class regexes:
+        @staticmethod
+        def create(input_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+            from langkit.metrics.regexes.regexes import custom_regex_metric
+
+            return lambda: custom_regex_metric(input_name, file_or_patterns=file_or_patterns)
+
+        @staticmethod
+        def prompt(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+            from langkit.metrics.regexes.regexes import custom_regex_metric
+
+            return lambda: custom_regex_metric("prompt", file_or_patterns=file_or_patterns)
+
+        @staticmethod
+        def response(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+            from langkit.metrics.regexes.regexes import custom_regex_metric
+
+            return lambda: custom_regex_metric("response", file_or_patterns=file_or_patterns)
+
+        class ssn:
+            @staticmethod
+            def prompt() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_ssn_regex_module
+
+                return prompt_ssn_regex_module
+
+            @staticmethod
+            def response() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_ssn_regex_module
+
+                return response_ssn_regex_module
+
+            @staticmethod
+            def default() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_response_ssn_regex_module
+
+                return prompt_response_ssn_regex_module
+
+        class phone_number:
+            @staticmethod
+            def prompt() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_phone_number_regex_module
+
+                return prompt_phone_number_regex_module
+
+            @staticmethod
+            def response() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_phone_number_regex_module
+
+                return response_phone_number_regex_module
+
+            @staticmethod
+            def default() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_response_phone_number_regex_module
+
+                return prompt_response_phone_number_regex_module
+
+        class email_address:
+            @staticmethod
+            def prompt() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_email_address_regex_module
+
+                return prompt_email_address_regex_module
+
+            @staticmethod
+            def response() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_email_address_regex_module
+
+                return response_email_address_regex_module
+
+            @staticmethod
+            def default() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_response_email_address_regex_module
+
+                return prompt_response_email_address_regex_module
+
+        class mailing_address:
+            @staticmethod
+            def prompt() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_mailing_address_regex_module
+
+                return prompt_mailing_address_regex_module
+
+            @staticmethod
+            def response() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_mailing_address_regex_module
+
+                return response_mailing_address_regex_module
+
+            @staticmethod
+            def default() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_response_mailing_address_regex_module
+
+                return prompt_response_mailing_address_regex_module
+
+        class credit_card_number:
+            @staticmethod
+            def prompt() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_credit_card_number_regex_module
+
+                return prompt_credit_card_number_regex_module
+
+            @staticmethod
+            def response() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_credit_card_number_regex_module
+
+                return response_credit_card_number_regex_module
+
+            @staticmethod
+            def default() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_response_credit_card_number_regex_module
+
+                return prompt_response_credit_card_number_regex_module
 
     class substitutions:
         @staticmethod
@@ -135,3 +250,45 @@ class lib:
 
             pre_init()
             return prompt_response_topic_module
+
+    class toxicity:
+        @staticmethod
+        def create(input_name: str, model_path: str = "martin-ha/toxic-comment-model") -> MetricCreator:
+            from langkit.metrics.toxicity import toxicity_metric
+
+            return lambda: toxicity_metric(column_name=input_name, model_path=model_path)
+
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.toxicity import prompt_toxicity_module
+
+            return prompt_toxicity_module
+
+        @staticmethod
+        def response() -> MetricCreator:
+            from langkit.metrics.toxicity import response_toxicity_module
+
+            return response_toxicity_module
+
+        @staticmethod
+        def default() -> MetricCreator:
+            from langkit.metrics.toxicity import prompt_response_toxicity_module
+
+            return prompt_response_toxicity_module
+
+    class input_output:
+        @staticmethod
+        def similarity(
+            input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
+        ) -> MetricCreator:
+            from langkit.metrics.input_output_similarity import input_output_similarity_metric
+
+            return lambda: input_output_similarity_metric(
+                input_column_name=input_column_name, output_column_name=output_column_name, embedding_encoder=embedding_encoder
+            )
+
+        @staticmethod
+        def default() -> MetricCreator:
+            from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
+
+            return prompt_response_input_output_similarity_module

@@ -86,6 +86,7 @@ class SingleMetric:
     name: str  # Basically the output name
     input_name: str
     evaluate: Callable[[pd.DataFrame], SingleMetricResult]
+    init: Optional[Callable[[], None]] = None
 
 
 @dataclass(frozen=True)
@@ -95,6 +96,7 @@ class MultiMetric:
     names: List[str]
     input_name: str
     evaluate: Callable[[pd.DataFrame], MultiMetricResult]
+    init: Optional[Callable[[], None]] = None
 
 
 Metric = Union[SingleMetric, MultiMetric]

@@ -57,10 +57,20 @@ class Hook(ABC):
 
 
 class EvaluationWorkflow:
-    def __init__(self, metrics: List[MetricCreator], hooks: List[Hook], validators: List[Validator]) -> None:
+    def __init__(self, metrics: List[MetricCreator], hooks: List[Hook], validators: List[Validator], lazy_init=False) -> None:
         self.metrics = EvaluationConfifBuilder().add(metrics).build()
         self.hooks = hooks
         self.validators = validators
+
+        if not lazy_init:
+            self.init()
+
+    def init(self) -> None:
+        # TODO Maybe we should keep track of which already were initialized and only init the ones that weren't in this pipeline?
+        # I prefer init just be idempotent but it might be hard for people to get right.
+        for metric in self.metrics.metrics:
+            if metric.init:
+                metric.init()
 
     def _condense_metric_results(self, metric_results: Dict[str, SingleMetricResult]) -> pd.DataFrame:
         full_df = pd.DataFrame()

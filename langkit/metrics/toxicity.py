@@ -1,8 +1,9 @@
 # pyright: reportUnknownMemberType=none
 # pyright: reportUnknownVariableType=none
+# pyright: reportUnknownLambdaType=none
 import os
 from functools import partial
-from typing import List, Optional, cast
+from typing import List, cast
 
 import pandas as pd
 import torch
@@ -14,48 +15,44 @@ from transformers import (
 )
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
+from langkit.metrics.util import DynamicLazyInit
 
 
 def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List[str]) -> List[float]:
-    # TODO lots of error handling here
     results = pipeline(text, truncation=True, max_length=max_length)
     return [result["score"] if result["label"] == "toxic" else 1.0 - result["score"] for result in results]  # type: ignore
 
 
-__model: Optional[PreTrainedTokenizerBase] = None
-__tokenizer: Optional[PreTrainedTokenizerBase] = None
+__model: DynamicLazyInit[str, PreTrainedTokenizerBase] = DynamicLazyInit(
+    lambda model_path: AutoModelForSequenceClassification.from_pretrained(model_path)
+)
+__tokenizer: DynamicLazyInit[str, PreTrainedTokenizerBase] = DynamicLazyInit(lambda model_path: AutoTokenizer.from_pretrained(model_path))
+__use_cuda = torch.cuda.is_available() and not bool(os.environ.get("LANGKIT_NO_CUDA", False))
+__pipeline: DynamicLazyInit[str, TextClassificationPipeline] = DynamicLazyInit(
+    lambda model_path: TextClassificationPipeline(
+        model=__model.value(model_path), tokenizer=__tokenizer.value(model_path), device=0 if __use_cuda else -1
+    )
+)
 
 
-def __toxicity_module(column_name: str) -> Metric:
-    global __model, __tokenizer
-    model_path = "martin-ha/toxic-comment-model"
-
-    if __model is None:
-        model = AutoModelForSequenceClassification.from_pretrained(model_path)
-        __model = model
-    else:
-        model = __model
-
-    if __tokenizer is None:
-        tokenizer = AutoTokenizer.from_pretrained(model_path)
-        __tokenizer = tokenizer
-    else:
-        tokenizer = __tokenizer
-
-    use_cuda = torch.cuda.is_available() and not bool(os.environ.get("LANGKIT_NO_CUDA", False))
-    pipeline = TextClassificationPipeline(model=model, tokenizer=tokenizer, device=0 if use_cuda else -1)  # type: ignore[reportUnknownArgumentType]
-    # TODO test/error handling
-    max_length = cast(int, tokenizer.model_max_length)
+def toxicity_metric(column_name: str, model_path="martin-ha/toxic-comment-model") -> Metric:
+    def init():
+        __model.value(model_path)
+        __tokenizer.value(model_path)
+        __pipeline.value(model_path)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
+        _tokenizer = __tokenizer.value(model_path)
+        _pipeline = __pipeline.value(model_path)
+
         col = list(UdfInput(text).iter_column_rows(column_name))
-        metrics = __toxicity(pipeline, max_length, col)
+        max_length = cast(int, _tokenizer.model_max_length)
+        metrics = __toxicity(_pipeline, max_length, col)
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf)
+    return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf, init=init)
 
 
-prompt_toxicity_module = partial(__toxicity_module, "prompt")
-response_toxicity_module = partial(__toxicity_module, "response")
-# TODO this has to be a readonly list
+prompt_toxicity_module = partial(toxicity_metric, "prompt")
+response_toxicity_module = partial(toxicity_metric, "response")
 prompt_response_toxicity_module = [prompt_toxicity_module, response_toxicity_module]

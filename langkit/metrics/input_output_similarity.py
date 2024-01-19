@@ -1,27 +1,14 @@
 from functools import partial
-from typing import Any, List, Optional, Protocol, Union
+from typing import List, Optional
 
-import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
 from sentence_transformers import SentenceTransformer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
-
-
-class EmbeddingEncoder(Protocol):
-    def encode(self, text: List[str]) -> Union[torch.Tensor, np.ndarray[Any, Any]]:
-        ...
-
-
-class TransformerEmbeddingAdapter:
-    def __init__(self, transformer: SentenceTransformer):
-        self._transformer = transformer
-
-    def encode(self, text: List[str]) -> torch.Tensor:
-        assert isinstance(text, list)
-        return torch.as_tensor(self._transformer.encode(sentences=text))  # type: ignore[reportUnknownMemberType]
+from langkit.metrics.input_output_similarity_types import EmbeddingEncoder, TransformerEmbeddingAdapter
+from langkit.metrics.util import LazyInit
 
 
 def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _out: List[str]) -> torch.Tensor:
@@ -34,14 +21,18 @@ def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _o
     return sim
 
 
-def __input_output_similarity_module(
+__transformer = LazyInit(
+    lambda: SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu")
+)
+
+
+def input_output_similarity_metric(
     input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
 ) -> Metric:
-    if embedding_encoder is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        encoder = TransformerEmbeddingAdapter(SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device))
-    else:
-        encoder = embedding_encoder
+    encoder = embedding_encoder or TransformerEmbeddingAdapter(__transformer.value)
+
+    def init():
+        __transformer.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         in_np = UdfInput(text).to_list(input_column_name)
@@ -57,7 +48,8 @@ def __input_output_similarity_module(
         name=f"{output_column_name}.relevance_to_{input_column_name}",
         input_name=input_column_name,
         evaluate=udf,
+        init=init,
     )
 
 
-input_output_similarity_module = partial(__input_output_similarity_module, "prompt", "response", None)
+prompt_response_input_output_similarity_module = partial(input_output_similarity_metric, "prompt", "response", None)
