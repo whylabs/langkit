@@ -8,3 +8,14 @@
   from the library creator methods.
 - Update the default topics in the topic metric so they're useful. Right now, you woud always want to specify your own.
 - Document the metric names in the default metrics, and how to get them programatically
+- Figure out what's wrong with the automatic datasetschema convertsion. There are warnings in the tests for
+    - WARNING:whylogs.core.resolvers:Conflicting resolvers for counts metric in column 'response.upper_case_char_count' of type int
+- Make sure frequent items metrics are never enabled on prompt/response/input col name
+- pre-init for vader
+```
+[nltk_data] Downloading package vader_lexicon to /root/nltk_data...
+[nltk_data]   Package vader_lexicon is already up-to-date!
+[nltk_data] Downloading package vader_lexicon to /root/nltk_data...
+[nltk_data]   Package vader_lexicon is already up-to-date!
+```
+- Fail if the validators is trying to validate a column that will never exist 
