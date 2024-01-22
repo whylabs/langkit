@@ -28,10 +28,7 @@ def test_vader_sentiment():
     view = why.log(df, schema=schema).view()
     print(view.get_columns().keys())
     for column in ["prompt", "response"]:
-        dist = (
-            view.get_column(f"{column}.vader_sentiment")
-            .get_metric("distribution")
-        )
+        dist = view.get_column(f"{column}.vader_sentiment").get_metric("distribution")
         assert "mean" in dist.to_summary_dict()
         TEST_LOGGER.debug(f"{column}.vader_sentiment has {dist.to_summary_dict()}")
         assert dist.avg > -0.4
@@ -62,9 +59,6 @@ def test_vader_sentiment_with_llm_metrics():
     view = why.log(df, schema=schema).view()
     TEST_LOGGER.debug(view.get_columns().keys())
     for column in ["prompt", "response"]:
-        dist = (
-            view.get_column(f"{column}.vader_sentiment")
-            .get_metric("distribution")
-        )
+        dist = view.get_column(f"{column}.vader_sentiment").get_metric("distribution")
         assert "mean" in dist.to_summary_dict()
         assert dist.min < 0

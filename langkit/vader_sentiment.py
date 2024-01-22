@@ -1,9 +1,8 @@
-from copy import deepcopy
 from logging import getLogger
-from typing import Optional
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from whylogs.experimental.core.udf_schema import register_dataset_udf
-from langkit import LangKitConfig, lang_config, prompt_column, response_column
+from langkit import prompt_column, response_column
 
 
 _prompt = prompt_column
@@ -13,11 +12,12 @@ diagnostic_logger = getLogger(__name__)
 
 
 def vader_sentiment(text: str) -> float:
+    global _vader_sentiment_analyzer
     if _vader_sentiment_analyzer is None:
         diagnostic_logger.info(
             "vader_sentiment called before init, using default initialization."
         )
-        init()
+        _vader_sentiment_analyzer = init()
     return _vader_sentiment_analyzer.polarity_scores(text)["compound"]
 
 
@@ -31,9 +31,7 @@ def response_sentiment(text):
     return [vader_sentiment(t) for t in text[_response]]
 
 
-def init(config: Optional[LangKitConfig] = None):
-    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-
-    config = config or deepcopy(lang_config)
+def init() -> SentimentIntensityAnalyzer:
     global _vader_sentiment_analyzer
     _vader_sentiment_analyzer = SentimentIntensityAnalyzer()
+    return _vader_sentiment_analyzer
