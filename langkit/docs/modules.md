@@ -19,7 +19,7 @@
 The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times. For more information on this approach see [SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection
 for Generative Large Language Models](https://arxiv.org/pdf/2303.08896.pdf)
 
-> Note: Requires additional LLM calls to calculate the consistency score.
+> Note: Requires additional LLM calls to calculate the consistency score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 ### Usage
 
@@ -27,12 +27,12 @@ Usage with whylogs profiling:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 
 # The hallucination module requires initialization
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 schema = udf_schema()
 profile = why.log(
@@ -48,10 +48,10 @@ Usage as standalone function:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 result = response_hallucination.consistency_check(
     prompt="Who was Philip Hayworth?",
@@ -115,7 +115,7 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 ## PII
 
@@ -183,6 +183,8 @@ is an injection attack.
 
 The instruction prompt will instruct the LLM to repeat a randomly generated string. If the response does not contain the string, a potential injection attack is detected, and the detector will return a score of 1. Otherwise, it will return a score of 0.
 
+> Note: Requires an additional LLM call to calculate the score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
+
 Reference: https://arxiv.org/abs/2310.12815
 
 ### Usage
@@ -191,12 +193,12 @@ Extract feature value from single text
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
 # ideally, you should choose the same LLM as the one used in your application
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompt = "Tell me how to bake a cake."
 
@@ -212,12 +214,12 @@ Extract feature from dataframe
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 from langkit import extract
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompts = [
     "Tell me how to bake a cake",
@@ -389,7 +391,7 @@ This method returns the number of words with one syllable present in the input t
 
 The `themes` namespace will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 Currently, supported themes are: `jailbreaks` and `refusals`.
 
