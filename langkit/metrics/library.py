@@ -7,6 +7,38 @@ from langkit.metrics.text_statistics_types import TextStat
 
 
 class lib:
+    @staticmethod
+    def all_metrics() -> MetricCreator:
+        from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
+        from langkit.metrics.regexes.regexes import (
+            prompt_response_credit_card_number_regex_module,
+            prompt_response_email_address_regex_module,
+            prompt_response_mailing_address_regex_module,
+            prompt_response_phone_number_regex_module,
+            prompt_response_ssn_regex_module,
+        )
+        from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity
+        from langkit.metrics.text_statistics import (
+            prompt_textstat_module,
+            response_textstat_module,
+        )
+        from langkit.metrics.topic import prompt_response_topic_module
+        from langkit.metrics.toxicity import prompt_response_toxicity_module
+
+        return [
+            prompt_textstat_module,
+            response_textstat_module,
+            prompt_response_ssn_regex_module,
+            prompt_response_credit_card_number_regex_module,
+            prompt_response_phone_number_regex_module,
+            prompt_response_mailing_address_regex_module,
+            prompt_response_email_address_regex_module,
+            promp_response_sentiment_polarity,
+            prompt_response_topic_module,
+            prompt_response_toxicity_module,
+            prompt_response_input_output_similarity_module,
+        ]
+
     class text_stat:
         @staticmethod
         def create(stat: TextStat, prompt_or_response: str) -> MetricCreator:
