@@ -14,6 +14,9 @@ class LangKitConfig:
     pattern_file_path: str = field(
         default_factory=lambda: _resource_filename("pattern_groups.json")
     )
+    pii_entities_file_path: str = field(
+        default_factory=lambda: _resource_filename("PII_entities.json")
+    )
     metric_name_map: Dict[str, str] = field(default_factory=dict)
     theme_file_path: str = field(
         default_factory=lambda: _resource_filename("themes.json")

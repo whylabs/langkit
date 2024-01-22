@@ -5,6 +5,7 @@
 |                 [Hallucination](#hallucination)                 |                                                response.hallucination                                                 |       Consistency between response and additional response samples       |           Prompt and Response            |                    Requires Additional LLM Calls                     |     |
 |                    [Injections](#injections)                    |                                                       injection                                                       |  Semantic Similarity from known prompt injections and harmful behaviors  |                  Prompt                  |                                                                      |     |
 |                  [Input/Output](#inputoutput)                   |                                             response.relevance_to_prompt                                              |             Semantic similarity between prompt and response              |           Prompt and Response            |               Default llm metric, Customizable Encoder               |     |
+|                           [PII](#pii)                           |                                   pii_presidio.result, pii_presidio.entities_count                                    |                     Private entities identification                      |           Prompt and Response            |                      Customizable entities list                      |     |
 | [Proactive Injection Detection](#proactive-injection-detection) |                                             injection.proactive_detection                                             |          LLM-powered proactive detection for injection attacks           |                  Prompt                  |                    Requires LLM additional calls                     |     |
 |                       [Regexes](#regexes)                       |                                                     has_patterns                                                      |             Regex pattern matching for sensitive information             |           Prompt and Response            |     Default llm metric, light-weight, Customizable Regex Groups      |     |
 |                     [Sentiment](#sentiment)                     |                                                    sentiment_nltk                                                     |                            Sentiment Analysis                            |           Prompt and Response            |                          Default llm metric                          |     |
@@ -18,7 +19,7 @@
 The `hallucination` namespace will compute the consistency between the target response and a group of additional response samples. It will create a new column named `response.hallucination`. The premise is that if the LLM has knowledge of the topic, then it should be able to generate similar and consistent responses when asked the same question multiple times. For more information on this approach see [SELFCHECKGPT: Zero-Resource Black-Box Hallucination Detection
 for Generative Large Language Models](https://arxiv.org/pdf/2303.08896.pdf)
 
-> Note: Requires additional LLM calls to calculate the consistency score.
+> Note: Requires additional LLM calls to calculate the consistency score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 ### Usage
 
@@ -26,12 +27,12 @@ Usage with whylogs profiling:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 import whylogs as why
 from whylogs.experimental.core.udf_schema import udf_schema
 
 # The hallucination module requires initialization
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 schema = udf_schema()
 profile = why.log(
@@ -47,10 +48,10 @@ Usage as standalone function:
 
 ```python
 from langkit import response_hallucination
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 
-response_hallucination.init(llm=OpenAIDavinci(model="text-davinci-003"), num_samples=1)
+response_hallucination.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"), num_samples=1)
 
 result = response_hallucination.consistency_check(
     prompt="Who was Philip Hayworth?",
@@ -114,7 +115,66 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from both prompt and response. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
+
+## PII
+
+The `pii` namespace will detect entities in prompts/responses such as credit card numbers, phone numbers, SSNs, passport number, etc. It uses [Microsoft's Presidio](https://github.com/microsoft/presidio/) as an engine for PII identification.
+
+Requires [Spacy](https://github.com/explosion/spaCy) as a dependency and Spacy's `en_core_web_lg` model.
+
+The list of searched entities is defined in the `PII_entities.json` under the Langkit folder. Currently, the list of searched entities is: [
+"CREDIT_CARD",
+"CRYPTO",
+"IBAN_CODE",
+"IP_ADDRESS",
+"PHONE_NUMBER",
+"MEDICAL_LICENSE",
+"URL",
+"US_BANK_NUMBER",
+"US_DRIVER_LICENSE",
+"US_ITIN",
+"US_PASSPORT",
+"US_SSN"
+]
+
+### Usage
+
+```python
+from langkit import extract, pii
+
+data = {"prompt": "My passport: 191280342 and my phone number: (212) 555-1234."}
+result = extract(data)
+```
+
+### `pii_presidio.result`
+
+This will return a JSON formatted string with the list of detected entities in the given prompt/response. Each element in the list represents a single detected entity, with information such as start and end index, entity type and confidence score.
+
+### `pii_presidio.entities_count`
+
+This will return the number of detected entities in the given prompt/response. It is equal to the length of the list returned by `pii_presidio.result`.
+
+#### Configuration
+
+The user can provide its json file to define the entities to search for. The file should be formatted as the default `PII_entities.json` file. To provide a custom file, the user can do so like this:
+
+```python
+from langkit import extract, pii
+
+pii.init(entities_file_path="my_custom_entities.json")
+
+data = {"prompt": "My passport: 191280342 and my phone number: (212) 555-1234."}
+result = extract(data)
+```
+
+Example custom entities json file:
+
+```json
+{
+  "entities": ["US_PASSPORT", "PHONE_NUMBER"]
+}
+```
 
 ## Proactive Injection Detection
 
@@ -122,6 +182,8 @@ This detector is based on the assumption that, under a prompt injection attack, 
 is an injection attack.
 
 The instruction prompt will instruct the LLM to repeat a randomly generated string. If the response does not contain the string, a potential injection attack is detected, and the detector will return a score of 1. Otherwise, it will return a score of 0.
+
+> Note: Requires an additional LLM call to calculate the score. Currently, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`, and `OpenAIAzure`.
 
 Reference: https://arxiv.org/abs/2310.12815
 
@@ -131,12 +193,12 @@ Extract feature value from single text
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
 # ideally, you should choose the same LLM as the one used in your application
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompt = "Tell me how to bake a cake."
 
@@ -152,12 +214,12 @@ Extract feature from dataframe
 
 ```python
 from langkit import proactive_injection_detection
-from langkit.openai import OpenAIDavinci
+from langkit.openai import OpenAILegacy
 from langkit import extract
 
 os.environ["OPENAI_API_KEY"] = "<your-openai-key>"
 
-proactive_injection_detection.init(llm=OpenAIDavinci(model="text-davinci-003"))
+proactive_injection_detection.init(llm=OpenAILegacy(model="gpt-3.5-turbo-instruct"))
 
 prompts = [
     "Tell me how to bake a cake",
@@ -329,7 +391,7 @@ This method returns the number of words with one syllable present in the input t
 
 The `themes` namespace will compute similarity scores for every column of type `String` against a set of themes. The themes are defined in `themes.json`, and can be customized by the user. It will create a new udf submetric with the name of each theme defined in the json file.
 
-The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model `sentence-transformers/all-MiniLM-L6-v2`.
+The similarity score is computed by calculating the cosine similarity between embeddings generated from the target text and set of themes. For each theme, the returned score is the maximum score found for all the examples in the related set. The embeddings are generated using the hugginface's model [sentence-transformers/all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2).
 
 Currently, supported themes are: `jailbreaks` and `refusals`.
 

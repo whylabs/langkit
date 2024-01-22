@@ -1,5 +1,11 @@
 # Frequently Asked Questions
 
+**Q**: Does Langkit integrate with which Large Language Models?
+
+**A**: Most of Langkit's metrics require only the presence of one of two (or both) specific columns: a `prompt` column and a `response` column. You can use any LLM you wish with Langkit, as long as you provide the prompt and response columns. There are, however, two modules that require additional LLM calls to calculate metrics: `response_hallucination` and `proactive_injection_detection`. For these two modules, only OpenAI models are supported through `langkit.openai`'s `OpenAILegacy`, `OpenAIDefault`, and `OpenAIGPT4`. Azure-hosted OpenAI models are also supported through `OpenAIAzure`.
+
+---
+
 **Q**: Can I choose individual metrics in LangKit?
 
 **A**: The finest granularity with which you can enable metrics is by metric namespaces. For example, you can import the `textstat` namespace, which will calculate all the text quality metrics (automated_readability_index,flesch_kincaid_grade, etc.) defined in that namespace. You can't, for example, pick the single metric `flesch_kincaid_grade`.
