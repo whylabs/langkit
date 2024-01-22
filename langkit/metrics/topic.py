@@ -19,13 +19,6 @@ __classifier: LazyInit[Pipeline] = LazyInit(
 )
 
 
-def pre_init():
-    """
-    Optionally pre-initialize and download the model to avoid doing it in the first call to the metric.
-    """
-    __classifier.value
-
-
 def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False) -> str:
     return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
 
@@ -35,10 +28,14 @@ def topic_metric(column_name: str, topics: List[str]) -> Metric:
         metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
         return SingleMetricResult(metrics)
 
+    def init():
+        __classifier.value
+
     return SingleMetric(
         name=f"{column_name}.closest_topic",
         input_name=column_name,
         evaluate=udf,
+        init=init,
     )
 
 

@@ -2,11 +2,11 @@
 import json
 import math
 import os
+import re
 import tempfile
 from typing import Any
 
 import pandas as pd
-import regex as re
 
 import whylogs as why
 from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
@@ -873,7 +873,7 @@ def test_custom_regex_frequent_item():
         }
     )
 
-    regexes: PatternGroups = {"patterns": [{"name": "password detector", "expressions": [r"\bpassword\b"]}]}
+    regexes: PatternGroups = {"patterns": [{"name": "password detector", "expressions": [r"\bpassword\b"], "substitutions": []}]}
 
     with tempfile.NamedTemporaryFile(mode="w+", delete=False) as f:
         json.dump(regexes["patterns"], f)
@@ -920,13 +920,13 @@ def test_custom_regex():
 
     password_detector: CompiledPatternGroups = {
         "patterns": [
-            {"name": "password detector", "expressions": [re.compile(r"\bpassword\b")]},
+            {"name": "password detector", "expressions": [re.compile(r"\bpassword\b")], "substitutions": []},
         ]
     }
 
     foo_detector: CompiledPatternGroups = {
         "patterns": [
-            {"name": "foo detector", "expressions": [re.compile(r"\bfoo\b")]},
+            {"name": "foo detector", "expressions": [re.compile(r"\bfoo\b")], "substitutions": []},
         ]
     }
 
@@ -974,13 +974,13 @@ def test_custom_regex_custom_columns():
 
     password_detector: CompiledPatternGroups = {
         "patterns": [
-            {"name": "password detector", "expressions": [re.compile(r"\bpassword\b")]},
+            {"name": "password detector", "expressions": [re.compile(r"\bpassword\b")], "substitutions": []},
         ]
     }
 
     foo_detector: CompiledPatternGroups = {
         "patterns": [
-            {"name": "foo detector", "expressions": [re.compile(r"\bfoo\b")]},
+            {"name": "foo detector", "expressions": [re.compile(r"\bfoo\b")], "substitutions": []},
         ]
     }
 

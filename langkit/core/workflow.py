@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping
+from typing import Dict, List, Mapping, Optional
 
 import pandas as pd
 
@@ -57,10 +57,16 @@ class Hook(ABC):
 
 
 class EvaluationWorkflow:
-    def __init__(self, metrics: List[MetricCreator], hooks: List[Hook], validators: List[Validator], lazy_init=False) -> None:
+    def __init__(
+        self,
+        metrics: List[MetricCreator],
+        hooks: Optional[List[Hook]] = None,
+        validators: Optional[List[Validator]] = None,
+        lazy_init=False,
+    ) -> None:
         self.metrics = EvaluationConfifBuilder().add(metrics).build()
-        self.hooks = hooks
-        self.validators = validators
+        self.hooks = hooks or []
+        self.validators = validators or []
 
         if not lazy_init:
             self.init()

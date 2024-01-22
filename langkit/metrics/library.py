@@ -225,30 +225,26 @@ class lib:
     class topic:
         @staticmethod
         def create(input_name: str, topics: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import pre_init, topic_metric
+            from langkit.metrics.topic import topic_metric
 
-            pre_init()
             return lambda: topic_metric(column_name=input_name, topics=topics)
 
         @staticmethod
         def prompt(topics: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import pre_init, topic_metric
+            from langkit.metrics.topic import topic_metric
 
-            pre_init()
             return lambda: topic_metric(column_name="prompt", topics=topics)
 
         @staticmethod
         def response(topics: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import pre_init, topic_metric
+            from langkit.metrics.topic import topic_metric
 
-            pre_init()
             return lambda: topic_metric(column_name="response", topics=topics)
 
         @staticmethod
         def default() -> MetricCreator:
-            from langkit.metrics.topic import pre_init, prompt_response_topic_module
+            from langkit.metrics.topic import prompt_response_topic_module
 
-            pre_init()
             return prompt_response_topic_module
 
     class toxicity:
