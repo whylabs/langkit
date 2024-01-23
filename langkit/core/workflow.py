@@ -119,6 +119,9 @@ class EvaluationWorkflow:
         return names
 
     def evaluate(self, df: pd.DataFrame) -> EvaluationResult:
+        if not self._initialized:
+            self.init()
+
         # Evaluation
         metric_results: Dict[str, SingleMetricResult] = {}
         for metric in self.metrics.metrics:
@@ -161,7 +164,7 @@ class EvaluationWorkflow:
         for validator in self.validators:
             # Only pass the series that the validator asks for to the validator. This ensrues that the target names in the validator
             # actually mean something so we can use them for valdation.
-            target_subset = condensed[validator.get_target_metric_names()]
+            target_subset = condensed[validator.get_target_metric_names() + ["id"]]
             result2 = validator.validate_result(target_subset)
             if result2 and result2.report:
                 validation_results.append(result2)
