@@ -51,6 +51,8 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
     else:
         resolvers = NO_FI_RESOLVER
 
+    # TODO evaluate these names and make sure they match up with the metric names that we end up with, and unit test it.
+    # This entire function just hard coded looks for metric names and knows how to translate things.
     if "relevance_to_prompt" in metric.name:
         # This is the only way to make it workout correctlyfor input_output_similarity, which is fine for now
         types = {"prompt": str, "response": str}

@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List, Optional, Union
 
@@ -23,7 +24,11 @@ class ValidationResult:
     report: List[ValidationFailure] = field(default_factory=list)
 
 
-class Validator:
+class Validator(ABC):
+    @abstractmethod
+    def get_target_metric_names(self) -> List[str]:
+        raise NotImplementedError()
+
     # TODO do we allow validation to filter things out? It would need to be exclusively row based if we did or you would end up with
     # MetricResults of varying lengths, which you really couldn't combine into a single one anymore
     # WELL, it would be ok if we just made the failures None I guess, that would preserve cardinatlity/shape
@@ -52,8 +57,9 @@ class Validator:
 
 def create_validator(target_metric: str, upper_threshold: Optional[float] = None, lower_threshold: Optional[float] = None) -> Validator:
     class _Validator(Validator):
-        # TODO this works but it doesn't do aggregate metrics, but maybe it doesn't make sense for us to do that here because this
-        # is more of a real time logger than a batch evaluation framework. The current batch's aggregations are kind of arbitrary.
+        def get_target_metric_names(self) -> List[str]:
+            return [target_metric]
+
         def validate_result(self, df: pd.DataFrame):
             failures: List[ValidationFailure] = []
             for _index, row in df.iterrows():  # type: ignore

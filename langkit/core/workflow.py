@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional
+from typing import Dict, List, Mapping, Optional, Set
 
 import pandas as pd
 
@@ -67,16 +67,34 @@ class EvaluationWorkflow:
         self.metrics = EvaluationConfifBuilder().add(metrics).build()
         self.hooks = hooks or []
         self.validators = validators or []
+        self._initialized = False
 
         if not lazy_init:
             self.init()
 
     def init(self) -> None:
+        if self._initialized:
+            return
+
+        self._initialized = True
         # TODO Maybe we should keep track of which already were initialized and only init the ones that weren't in this pipeline?
         # I prefer init just be idempotent but it might be hard for people to get right.
+        metric_names: Set[str] = set()
         for metric in self.metrics.metrics:
             if metric.init:
                 metric.init()
+
+            if isinstance(metric, SingleMetric):
+                metric_names.add(metric.name)
+            else:
+                metric_names.update(metric.names)
+
+        for validator in self.validators:
+            targets = validator.get_target_metric_names()
+            if not set(targets).issubset(metric_names):
+                raise ValueError(
+                    f"Validator {validator} has target metric names ({targets}) that are not in the list of metrics: {metric_names}"
+                )
 
     def _condense_metric_results(self, metric_results: Dict[str, SingleMetricResult]) -> pd.DataFrame:
         full_df = pd.DataFrame()
@@ -141,7 +159,10 @@ class EvaluationWorkflow:
         full_df = condensed.copy()  # guard against mutations
         validation_results: List[ValidationResult] = []
         for validator in self.validators:
-            result2 = validator.validate_result(condensed)
+            # Only pass the series that the validator asks for to the validator. This ensrues that the target names in the validator
+            # actually mean something so we can use them for valdation.
+            target_subset = condensed[validator.get_target_metric_names()]
+            result2 = validator.validate_result(target_subset)
             if result2 and result2.report:
                 validation_results.append(result2)
 
