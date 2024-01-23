@@ -21,3 +21,5 @@
 - Fail if the validators is trying to validate a column that will never exist 
 - Validate the return types of metrics. We should ensure that the return types are native python whenever possible. Numpy/tensors don't
   serialize which just turns into potential issues down the road, especially in reguard to multiprocessing.
+    - Same goes for validators. Anytime they index into the data frame that we provide the output is going to be a numpy type, which is not
+      serializable.

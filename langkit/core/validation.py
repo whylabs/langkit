@@ -71,7 +71,7 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
                             id,
                             target_metric,
                             f"Value {row[target_metric]} is above threshold {upper_threshold}",
-                            value=row[target_metric],  # type: ignore TODO make sure ok
+                            value=row[target_metric].item(),  # type: ignore TODO make sure ok
                             upper_threshold=upper_threshold,
                         )
                     )
@@ -82,7 +82,7 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
                             id,
                             target_metric,
                             f"Value {row[target_metric]} is below threshold {lower_threshold}",
-                            value=row[target_metric],  # type: ignore TODO make sure ok
+                            value=row[target_metric].item(),  # type: ignore TODO make sure ok
                             lower_threshold=lower_threshold,
                         )
                     )
