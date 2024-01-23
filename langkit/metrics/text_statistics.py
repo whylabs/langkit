@@ -10,7 +10,7 @@ from langkit.metrics.text_statistics_types import TextStat
 def textstat_module(stat: TextStat, column_name: str) -> Metric:
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         stat_func = getattr(textstat, stat)
-        metrics = [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
+        metrics = [stat_func(it).item() for it in UdfInput(text).iter_column_rows(column_name)]
         return SingleMetricResult(metrics)
 
     return SingleMetric(

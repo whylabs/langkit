@@ -19,3 +19,5 @@
 [nltk_data]   Package vader_lexicon is already up-to-date!
 ```
 - Fail if the validators is trying to validate a column that will never exist 
+- Validate the return types of metrics. We should ensure that the return types are native python whenever possible. Numpy/tensors don't
+  serialize which just turns into potential issues down the road, especially in reguard to multiprocessing.
