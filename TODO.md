@@ -23,3 +23,6 @@
   serialize which just turns into potential issues down the road, especially in reguard to multiprocessing.
     - Same goes for validators. Anytime they index into the data frame that we provide the output is going to be a numpy type, which is not
       serializable.
+- Regexes are the odd man out with respect to config. I think we should get rid of the concept of a json file for regexes and treat it like
+  any other metric. The version control and policy options should all be in one place: the platform/container.
+- Validator structure might need to be more flexible, allowing for gte, ==, for example.
