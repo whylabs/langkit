@@ -26,3 +26,9 @@
 - Regexes are the odd man out with respect to config. I think we should get rid of the concept of a json file for regexes and treat it like
   any other metric. The version control and policy options should all be in one place: the platform/container.
 - Validator structure might need to be more flexible, allowing for gte, ==, for example.
+- Make use of the input_name in metrics. It's left over for whylogs schema generation but nothing in the new api needs it. It could be used
+  like the target_names in validators to narrow down the data frame that gets passed into the metric udf, then you would have to declare
+  what you need and we would have more validation power.
+- Add async versions of the hook apis. Adds some complexity interfacing with the asyncio loop.
+- How do segments fit into this? No segment notion in langkit atm and we can't automatically assume anything about segments in the
+  whylogs_compat thing. I think we would need to force more manual whylogs setup for the advanced cases and avoid the auto stuff.

@@ -15,7 +15,7 @@ test:  ## Run the tests
 	poetry run pytest tests -o log_level=INFO -o log_cli=true
 
 load-test:
-	poetry run pytest langkit/tests -o log_level=WARN -o log_cli=true --load
+	poetry run pytest -vvv langkit/tests -o log_level=WARN -o log_cli=true --load
 
 lint: ## Check for type issues with pyright
 	@{ echo "Running pyright\n"; poetry run pyright; PYRIGHT_EXIT_CODE=$$?; } ; \

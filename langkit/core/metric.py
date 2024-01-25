@@ -84,7 +84,7 @@ MetricResult = Union[SingleMetricResult, MultiMetricResult]
 @dataclass(frozen=True)
 class SingleMetric:
     name: str  # Basically the output name
-    input_name: str
+    input_name: str  # TODO the input_name isn't really used anywhere yet besides whylogs compat.
     evaluate: Callable[[pd.DataFrame], SingleMetricResult]
     init: Optional[Callable[[], None]] = None
 

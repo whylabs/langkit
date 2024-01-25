@@ -53,9 +53,9 @@ def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatt
     )
 
 
-prompt_default_regexes_module = partial(__get_regexes_frequent_items_module, "prompt", __default_patterns)
+prompt_default_regexes_enum_metric = partial(__get_regexes_frequent_items_module, "prompt", __default_patterns)
 response_default_regexes_module = partial(__get_regexes_frequent_items_module, "response", __default_patterns)
-prompt_response_default_regexes_module = [prompt_default_regexes_module, response_default_regexes_module]
+prompt_response_default_regexes_module = [prompt_default_regexes_enum_metric, response_default_regexes_module]
 
 
 def get_custom_regex_frequent_items_for_column_module(

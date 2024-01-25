@@ -35,6 +35,8 @@ class UdfSchemaArgs:
 
 
 def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
+    # TODO evaluate these names and make sure they match up with the metric names that we end up with, and unit test it.
+    # This entire function just hard coded looks for metric names and knows how to translate things.
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         if isinstance(text, pd.DataFrame):
             return metric.evaluate(text).metrics
@@ -49,12 +51,15 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
             )
         ]
     else:
-        resolvers = NO_FI_RESOLVER
+        # We only want to add resolvers here if they're different from the default ones. Otherwise, we'll
+        # load up the final schema with a bunch of standard resolvers to cover all normal cases and avoid
+        # duplicates
+        resolvers = []
 
-    # TODO evaluate these names and make sure they match up with the metric names that we end up with, and unit test it.
-    # This entire function just hard coded looks for metric names and knows how to translate things.
     if "relevance_to_prompt" in metric.name:
-        # This is the only way to make it workout correctlyfor input_output_similarity, which is fine for now
+        # This is the only way to make it workout correctlyfor input_output_similarity, which is fine for now. Generally, we'll
+        # need metrics to be able to declare multiple inputs if this is going to work for custom metrics. We can probably continue
+        # to assume str type for inputs though.
         types = {"prompt": str, "response": str}
         column_names = ["prompt", "response"]
     else:
@@ -97,7 +102,7 @@ def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
 def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
     metrics = [to_udf_schema_args(it) for it in eval_conf.metrics]
     flattened_metrics = reduce(lambda a, b: a + b, metrics)
-    args = reduce(combine_schemas, flattened_metrics)
+    args = reduce(combine_schemas, flattened_metrics, UdfSchemaArgs(resolvers=NO_FI_RESOLVER))
 
     return UdfSchema(
         resolvers=args.resolvers,
@@ -119,13 +124,13 @@ def combine_type_mappers(a: TypeMapper, b: TypeMapper) -> TypeMapper:
 
 def combine_schemas(a: UdfSchemaArgs, b: UdfSchemaArgs) -> UdfSchemaArgs:
     return UdfSchemaArgs(
-        resolvers=a.resolvers + b.resolvers if a.resolvers is not None and b.resolvers is not None else None,
-        types=a.types if a.types is not None else b.types,
+        resolvers=[*(a.resolvers or []), *(b.resolvers or [])],
+        types={**(a.types or {}), **(b.types or {})},
         default_config=a.default_config if a.default_config is not None else b.default_config,
         type_mapper=combine_type_mappers(a.type_mapper, b.type_mapper) if a.type_mapper is not None and b.type_mapper is not None else None,
         cache_size=max(a.cache_size, b.cache_size),  # TODO verify this is correct
         schema_based_automerge=a.schema_based_automerge or b.schema_based_automerge,  # TODO verify this is correct
         segments=a.segments if a.segments is not None else b.segments,
-        validators=a.validators if a.validators is not None else b.validators,
-        udf_specs=a.udf_specs + b.udf_specs if a.udf_specs is not None and b.udf_specs is not None else None,
+        validators={**(a.validators or {}), **(b.validators or {})},
+        udf_specs=[*(a.udf_specs or []), *(b.udf_specs or [])],
     )

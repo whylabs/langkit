@@ -16,7 +16,7 @@ from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_modules,
     get_custom_regex_modules,
     prompt_credit_card_number_regex_module,
-    prompt_default_regexes_module,
+    prompt_default_regexes_enum_metric,
     prompt_email_address_regex_module,
     prompt_mailing_address_regex_module,
     prompt_phone_number_regex_module,
@@ -665,12 +665,40 @@ def test_prompt_regex_df_default():
         }
     )
 
-    schema = EvaluationConfifBuilder().add(prompt_default_regexes_module).build()
+    # This version of the metric isn't a number, it's an enum, so we want frequent items for it.
+    schema = EvaluationConfifBuilder().add(prompt_default_regexes_enum_metric).build()
 
     actual = _log(df, schema)
     expected = [
+        "cardinality/est",
+        "cardinality/lower_1",
+        "cardinality/upper_1",
+        "counts/inf",
+        "counts/n",
+        "counts/nan",
+        "counts/null",
+        "distribution/max",
+        "distribution/mean",
+        "distribution/median",
+        "distribution/min",
+        "distribution/n",
+        "distribution/q_01",
+        "distribution/q_05",
+        "distribution/q_10",
+        "distribution/q_25",
+        "distribution/q_75",
+        "distribution/q_90",
+        "distribution/q_95",
+        "distribution/q_99",
+        "distribution/stddev",
         "frequent_items/frequent_strings",
         "type",
+        "types/boolean",
+        "types/fractional",
+        "types/integral",
+        "types/object",
+        "types/string",
+        "types/tensor",
     ]
 
     assert sorted(list(actual.columns)) == sorted(expected)  # type: ignore
@@ -713,9 +741,37 @@ def test_response_regex_df_default():
     schema = EvaluationConfifBuilder().add(response_default_regexes_module).build()
 
     actual = _log(df, schema)
+
     expected = [
+        "cardinality/est",
+        "cardinality/lower_1",
+        "cardinality/upper_1",
+        "counts/inf",
+        "counts/n",
+        "counts/nan",
+        "counts/null",
+        "distribution/max",
+        "distribution/mean",
+        "distribution/median",
+        "distribution/min",
+        "distribution/n",
+        "distribution/q_01",
+        "distribution/q_05",
+        "distribution/q_10",
+        "distribution/q_25",
+        "distribution/q_75",
+        "distribution/q_90",
+        "distribution/q_95",
+        "distribution/q_99",
+        "distribution/stddev",
         "frequent_items/frequent_strings",
         "type",
+        "types/boolean",
+        "types/fractional",
+        "types/integral",
+        "types/object",
+        "types/string",
+        "types/tensor",
     ]
 
     assert sorted(list(actual.columns)) == sorted(expected)  # type: ignore
@@ -760,8 +816,35 @@ def test_prompt_response_regex_df_default():
 
     actual = _log(df, schema)
     expected = [
+        "cardinality/est",
+        "cardinality/lower_1",
+        "cardinality/upper_1",
+        "counts/inf",
+        "counts/n",
+        "counts/nan",
+        "counts/null",
+        "distribution/max",
+        "distribution/mean",
+        "distribution/median",
+        "distribution/min",
+        "distribution/n",
+        "distribution/q_01",
+        "distribution/q_05",
+        "distribution/q_10",
+        "distribution/q_25",
+        "distribution/q_75",
+        "distribution/q_90",
+        "distribution/q_95",
+        "distribution/q_99",
+        "distribution/stddev",
         "frequent_items/frequent_strings",
         "type",
+        "types/boolean",
+        "types/fractional",
+        "types/integral",
+        "types/object",
+        "types/string",
+        "types/tensor",
     ]
 
     assert sorted(list(actual.columns)) == sorted(expected)  # type: ignore

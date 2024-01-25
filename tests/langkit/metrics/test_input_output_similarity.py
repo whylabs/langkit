@@ -68,6 +68,8 @@ def test_input_output():
         "response.relevance_to_prompt",
     ]
 
+    pd.set_option("display.max_columns", None)
+
     assert actual.index.tolist() == expected_columns
     assert actual["distribution/max"]["response.relevance_to_prompt"] > 0.5
     assert actual["distribution/min"]["response.relevance_to_prompt"] > 0.5
