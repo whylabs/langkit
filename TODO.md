@@ -32,3 +32,4 @@
 - Add async versions of the hook apis. Adds some complexity interfacing with the asyncio loop.
 - How do segments fit into this? No segment notion in langkit atm and we can't automatically assume anything about segments in the
   whylogs_compat thing. I think we would need to force more manual whylogs setup for the advanced cases and avoid the auto stuff.
+- Implement real multi metric conversion in the whylogs_compat file. Jamie said that whylogs actually can return multiple metrics at once.

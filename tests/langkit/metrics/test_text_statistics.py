@@ -2,9 +2,10 @@
 from typing import Any
 
 import pandas as pd
+from textstat import textstat
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig, Metric, MultiMetric, MultiMetricResult, UdfInput
 from langkit.metrics.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
@@ -15,6 +16,7 @@ from langkit.metrics.text_statistics import (
     response_reading_ease_module,
     response_textstat_module,
 )
+from langkit.metrics.text_statistics_types import TextStat
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
@@ -321,3 +323,58 @@ def test_custom_module_combination():
     assert actual.index.tolist() == expected_columns
     assert actual["distribution/max"]["prompt.char_count"] == len(row["prompt"].replace(" ", ""))
     assert actual["distribution/max"]["response.char_count"] == len(row["response"].replace(" ", ""))
+
+
+def test_multi_text_stat_metric():
+    def multi_metric(stat: TextStat, column_name: str) -> Metric:
+        def udf(text: pd.DataFrame) -> MultiMetricResult:
+            stat_func = getattr(textstat, stat)
+            metrics = [stat_func(it) for it in UdfInput(text).iter_column_rows(column_name)]
+            # double the original metrics
+            metrics2 = [it * 2 for it in metrics]
+            return MultiMetricResult([metrics, metrics2])  # Just both the same thing
+
+        return MultiMetric(
+            names=[f"{column_name}.custom_textstat1", f"{column_name}.custom_textstat2"],
+            input_name=column_name,
+            evaluate=udf,
+        )
+
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "Hi, how are you doing today?",
+                "Hi, there how are you doing today?",
+                "Hi",
+                "Hi?",
+            ],
+            "response": [
+                "I'm doing great, how about you?",
+                "I'm doing great, how about you?",
+                "I'm doing great, how about you?",
+                "I'm doing great, how about you?",
+            ],
+        }
+    )
+
+    config = EvaluationConfifBuilder().add(prompt_char_count_module).add(lambda: multi_metric("letter_count", "prompt")).build()
+    actual = _log(df, config)
+
+    pd.set_option("display.max_columns", None)
+    pd.set_option("display.width", None)
+    print(actual.transpose())
+
+    expected_columns = [
+        "prompt",
+        "prompt.char_count",
+        "prompt.custom_textstat1",
+        "prompt.custom_textstat2",
+        "response",
+    ]
+
+    assert actual.index.tolist() == expected_columns
+    assert actual["distribution/max"]["prompt.char_count"] == 28
+    assert actual["distribution/min"]["prompt.custom_textstat1"] == 2
+    assert actual["distribution/max"]["prompt.custom_textstat1"] == 26
+    assert actual["distribution/min"]["prompt.custom_textstat2"] == 4
+    assert actual["distribution/max"]["prompt.custom_textstat2"] == 52

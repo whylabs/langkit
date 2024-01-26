@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import reduce
+from functools import partial, reduce
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
@@ -90,11 +90,13 @@ def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
             # Whylogs doesn't support multi-metrics, so we have to convert them to single metrics. This is lame because
             # the only real way to do this is to re-evaluate the metric for each name, which is wasteful, but at least
             # its possible. It just won't be advised to use multi metrics when using whylogs.
-            def _lame_udf(text: pd.DataFrame) -> SingleMetricResult:
+            def _lame_udf(index: int, text: pd.DataFrame) -> SingleMetricResult:
                 result = metric.evaluate(text)
-                return SingleMetricResult(metrics=result.metrics[i])
 
-            metrics.append(SingleMetric(name=name, input_name=metric.input_name, evaluate=_lame_udf))
+                return SingleMetricResult(metrics=result.metrics[index])
+
+            print(f"Adding metric {i} {name}")
+            metrics.append(SingleMetric(name=name, input_name=metric.input_name, evaluate=partial(_lame_udf, i)))
 
     return [_to_udf_schema_args_single(it) for it in metrics]
 
