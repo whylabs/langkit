@@ -14,17 +14,18 @@ _device = 0 if _USE_CUDA else -1
 
 _prompt = prompt_column
 _response = response_column
-_toxicity_model: Optional['ToxicityModel'] = None
+_toxicity_model: Optional["ToxicityModel"] = None
 
 
 class ToxicityModel:
-    def predict(self, text: str):
+    def predict(self, text: str) -> float:
         raise NotImplementedError("Subclasses must implement the predict method")
 
 
 class DetoxifyModel(ToxicityModel):
     def __init__(self, model_name: str):
         from detoxify import Detoxify
+
         self.detox_model = Detoxify(model_name)
 
     def predict(self, text: str):
@@ -45,18 +46,19 @@ class ToxicCommentModel(ToxicityModel):
             model=model, tokenizer=self.toxicity_tokenizer, device=_device
         )
 
-    def predict(self, text: str):
+    def predict(self, text: str) -> float:
         result = self.toxicity_pipeline(
-            text,
-            truncation=True,
-            max_length=self.toxicity_tokenizer.model_max_length
-            )
+            text, truncation=True, max_length=self.toxicity_tokenizer.model_max_length
+        )
         return (
-            result[0]["score"] if result[0]["label"] == "toxic" else 1 - result[0]["score"]
+            result[0]["score"]
+            if result[0]["label"] == "toxic"
+            else 1 - result[0]["score"]
         )
 
 
 def toxicity(text: str) -> float:
+    assert _toxicity_model is not None
     return _toxicity_model.predict(text)
 
 
@@ -75,7 +77,7 @@ def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = Non
     model_path = model_path or config.toxicity_model_path
     global _toxicity_model
     if model_path == "martin-ha/toxic-comment-model":
-        _toxicity_model = ToxicCommentModel(model_path)       
+        _toxicity_model = ToxicCommentModel(model_path)
     elif model_path == "detoxify/unbiased":
         _toxicity_model = DetoxifyModel("unbiased")
     elif model_path == "detoxify/original":
