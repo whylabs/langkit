@@ -6,6 +6,8 @@ from textstat import textstat
 
 import whylogs as why
 from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig, Metric, MultiMetric, MultiMetricResult, UdfInput
+from langkit.core.validation import ValidationFailure, ValidationResult, create_validator
+from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.text_statistics import (
     prompt_char_count_module,
     prompt_reading_ease_module,
@@ -250,6 +252,41 @@ def test_prompt_char_count_module():
         "prompt.char_count",
         "response",
     ]
+
+
+def test_prompt_char_count_0_module():
+    wf = EvaluationWorkflow(
+        metrics=[prompt_char_count_module, response_char_count_module],
+        validators=[create_validator("prompt.char_count", lower_threshold=2)],
+    )
+
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                " ",
+            ],
+            "response": [
+                "I'm doing great, how about you?",
+            ],
+        }
+    )
+    actual = wf.evaluate(df)
+
+    assert actual.features.columns.tolist() == [
+        "prompt.char_count",
+        "response.char_count",
+        "id",
+    ]
+
+    print(actual.features.transpose())
+    assert actual.features["prompt.char_count"][0] == 0
+    assert actual.validation_results == ValidationResult(
+        report=[
+            ValidationFailure(
+                id=0, metric="prompt.char_count", details="Value 0 is below threshold 2", value=0, upper_threshold=None, lower_threshold=2
+            )
+        ]
+    )
 
 
 def test_response_char_count_module():

@@ -5,6 +5,7 @@ import pandas as pd
 
 import whylogs as why
 from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
@@ -81,6 +82,50 @@ def test_topic():
         FrequentItem(value="entertainment", est=1, upper=1, lower=1),
         FrequentItem(value="economy", est=1, upper=1, lower=1),
     ]
+
+
+def test_topic_empty_input():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "",
+            ],
+            "response": [
+                "George Washington is the president of the United States.",
+            ],
+        }
+    )
+
+    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
+
+    actual = _log(df, schema)
+
+    expected_columns = [
+        "prompt",
+        "prompt.closest_topic",
+        "response",
+    ]
+
+    assert actual.index.tolist() == expected_columns
+    assert actual["frequent_items/frequent_strings"]["prompt.closest_topic"] == []
+
+
+def test_topic_empty_input_wf():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "",
+            ],
+            "response": [
+                "George Washington is the president of the United States.",
+            ],
+        }
+    )
+
+    wf = EvaluationWorkflow(metrics=[prompt_topic_module])
+    actual = wf.evaluate(df)
+
+    assert actual.features["prompt.closest_topic"][0] is None
 
 
 def test_topic_row():

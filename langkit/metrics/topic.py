@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import List
+from typing import List, Optional
 
 import pandas as pd
 import torch
@@ -19,7 +19,9 @@ __classifier: LazyInit[Pipeline] = LazyInit(
 )
 
 
-def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False) -> str:
+def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False) -> Optional[str]:
+    if not text:
+        return None
     return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
 
 
