@@ -1,4 +1,7 @@
+import os
 from typing import Callable, Dict, Generic, Optional, TypeVar
+
+from langkit.core.config import data_folder
 
 Out = TypeVar("Out")
 
@@ -28,3 +31,12 @@ class DynamicLazyInit(Generic[In, Out]):
             self.__cache[arg] = self.__init(arg)
 
         return self.__cache[arg]
+
+
+def get_data_home() -> str:
+    package_dir: str = os.path.dirname(__file__)
+    data_path: str = os.path.join(package_dir, data_folder)
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+
+    return data_path

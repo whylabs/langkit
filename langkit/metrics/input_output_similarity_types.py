@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingEncoder(Protocol):
-    def encode(self, text: List[str]) -> Union[torch.Tensor, np.ndarray[Any, Any]]:
+    def encode(self, text: List[str]) -> Union[torch.Tensor, "np.ndarray[Any, Any]"]:
         ...
 
 

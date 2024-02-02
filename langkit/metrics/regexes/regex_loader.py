@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Any, List, Optional, TypedDict, TypeGuard
+from typing import Any, List, Optional, TypedDict
+
+from typing_extensions import TypeGuard
 
 
 class Pattern(TypedDict, total=True):

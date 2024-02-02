@@ -170,7 +170,7 @@ class EvaluationConfifBuilder:
         for module in modules:
             if callable(module):
                 schema = module()
-                if isinstance(schema, Metric):
+                if isinstance(schema, SingleMetric) or isinstance(schema, MultiMetric):
                     schemas.append(schema)
                 elif isinstance(schema, list):
                     for s in schema:
@@ -185,7 +185,7 @@ class EvaluationConfifBuilder:
                 for m in module:
                     if callable(m):
                         schema = m()
-                        if isinstance(schema, Metric):
+                        if isinstance(schema, SingleMetric) or isinstance(schema, MultiMetric):
                             schemas.append(schema)
                         elif isinstance(schema, list):
                             for s in schema:
