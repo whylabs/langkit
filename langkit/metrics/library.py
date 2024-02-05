@@ -304,6 +304,14 @@ class lib:
 
             return prompt_response_toxicity_module
 
+    class injections:
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.injections import prompt_injections_module
+
+            return prompt_injections_module
+
+
     class input_output:
         @staticmethod
         def similarity(

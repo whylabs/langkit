@@ -68,6 +68,8 @@ def injections_metric(column_name:str) -> Metric:
         __transformer.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
+        if column_name not in text.columns:
+            raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
         _embeddings = __embeddings.value
         _transformer = __transformer.value
         target_embeddings: npt.NDArray[np.float32] = _transformer.encode(text[column_name]) # type: ignore[reportUnknownMemberType]

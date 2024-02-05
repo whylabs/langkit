@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set
+from typing import Dict, List, Mapping, Optional, Set, Union
 
 import pandas as pd
 
@@ -14,6 +14,7 @@ from langkit.core.metric import (
     SingleMetricResult,
 )
 from langkit.core.validation import ValidationResult, Validator
+from langkit.metrics.util import is_dict_with_strings
 
 
 @dataclass(frozen=True)
@@ -118,10 +119,15 @@ class EvaluationWorkflow:
                 names.extend(metric.names)
         return names
 
-    def evaluate(self, df: pd.DataFrame) -> EvaluationResult:
+    def evaluate(self, data: Union[pd.DataFrame, Dict[str, str]]) -> EvaluationResult:
         if not self._initialized:
             self.init()
-
+        if not isinstance(data, pd.DataFrame):
+            if not is_dict_with_strings(data):
+                raise ValueError("Input must be a pandas DataFrame or a dictionary with string keys and string values")
+            df = pd.DataFrame(data,index=[0])
+        else:
+            df = data
         # Evaluation
         metric_results: Dict[str, SingleMetricResult] = {}
         for metric in self.metrics.metrics:
