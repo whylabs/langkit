@@ -270,16 +270,16 @@ def test_prompt_char_count_0_module():
             ],
         }
     )
-    actual = wf.evaluate(df)
+    actual = wf.run(df)
 
-    assert actual.features.columns.tolist() == [
+    assert actual.metrics.columns.tolist() == [
         "prompt.char_count",
         "response.char_count",
         "id",
     ]
 
-    print(actual.features.transpose())
-    assert actual.features["prompt.char_count"][0] == 0
+    print(actual.metrics.transpose())
+    assert actual.metrics["prompt.char_count"][0] == 0
     assert actual.validation_results == ValidationResult(
         report=[
             ValidationFailure(

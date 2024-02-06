@@ -1,14 +1,14 @@
 
 
 # Release checklist
-- Audit import paths, make sure everything is organized in a sensible fashion.
+- DONE Audit import paths, make sure everything is organized in a sensible fashion.
 - Complete the lib export directory
 - Make sure names are consistent. Module -> Metric most likely
-- Add `pre_init` methods to all of the modules that can download models so we can force downloads upfront. These should probably be called
+- DONE Add `pre_init` methods to all of the modules that can download models so we can force downloads upfront. These should probably be called
   from the library creator methods.
-- Update the default topics in the topic metric so they're useful. Right now, you woud always want to specify your own.
+- DONE Update the default topics in the topic metric so they're useful. Right now, you woud always want to specify your own.
 - Document the metric names in the default metrics, and how to get them programatically
-- Figure out what's wrong with the automatic datasetschema convertsion. There are warnings in the tests for
+- maFigure out what's wrong with the automatic datasetschema convertsion. There are warnings in the tests for
     - WARNING:whylogs.core.resolvers:Conflicting resolvers for counts metric in column 'response.upper_case_char_count' of type int
 - Make sure frequent items metrics are never enabled on prompt/response/input col name
 - pre-init for vader
@@ -30,6 +30,7 @@
   like the target_names in validators to narrow down the data frame that gets passed into the metric udf, then you would have to declare
   what you need and we would have more validation power.
 - Add async versions of the hook apis. Adds some complexity interfacing with the asyncio loop.
-- How do segments fit into this? No segment notion in langkit atm and we can't automatically assume anything about segments in the
+- How do eegments fit into this? No segment notion in langkit atm and we can't automatically assume anything about segments in the
   whylogs_compat thing. I think we would need to force more manual whylogs setup for the advanced cases and avoid the auto stuff.
 - Implement real multi metric conversion in the whylogs_compat file. Jamie said that whylogs actually can return multiple metrics at once.
+- Add validation options for string based metrics like topic. Right now there are only validation creators for numeric things.

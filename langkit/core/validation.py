@@ -4,8 +4,6 @@ from typing import List, Optional, Union
 
 import pandas as pd
 
-from langkit.core.metric import MetricResult
-
 
 @dataclass(frozen=True)
 class ValidationFailure:
@@ -41,16 +39,6 @@ class Validator(ABC):
         Args:
             df: A data frame that contains a series for every metric, as well as the original input data.
             by default, that will include a prompt and a resopnse column if both were supplied to the evaluation.
-        """
-        return None
-
-    # This one would happen on a metric basis and have the chance to short circuit
-    def validate_metric(self, metric_name: str, result: MetricResult) -> Optional[ValidationResult]:
-        """
-        Validate the individual metric results right after they happen.
-
-        This method is different from valdate_result because doing validation here will short circuit the
-        remaining evaluation metrics.
         """
         return None
 
