@@ -6,12 +6,11 @@ from typing import Any, Sequence
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-import torch
-from sentence_transformers import SentenceTransformer
 
 from langkit import get_data_home
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import LazyInit, retry
+from langkit.transformer import sentence_transformer
 
 logger = getLogger(__name__)
 
@@ -20,9 +19,7 @@ __transformer_name = "all-MiniLM-L6-v2"
 __version = "v2"
 __injections_base_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
 __embeddings = LazyInit(lambda: __load_embeddings())
-__transformer = LazyInit(
-    lambda: SentenceTransformer(__transformer_name, device="cuda" if torch.cuda.is_available() else "cpu")
-)
+
 
 @retry(max_attempts=3, wait_seconds=1)
 def __download_parquet(url: str) -> pd.DataFrame:
@@ -75,14 +72,14 @@ def __load_embeddings() -> "np.ndarray[Any, Any]":
 
 def injections_metric(column_name:str) -> Metric:
     def init():
-        __transformer.value
+        sentence_transformer.value(__transformer_name)
         __embeddings.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
             raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
         _embeddings = __embeddings.value
-        _transformer = __transformer.value
+        _transformer = sentence_transformer.value(__transformer_name)
         target_embeddings: npt.NDArray[np.float32] = _transformer.encode(text[column_name]) # type: ignore[reportUnknownMemberType]
         target_norms = target_embeddings / np.linalg.norm(
             target_embeddings, axis=1, keepdims=True

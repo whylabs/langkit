@@ -4,11 +4,10 @@ from typing import List, Optional
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from sentence_transformers import SentenceTransformer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.input_output_similarity_types import EmbeddingEncoder, TransformerEmbeddingAdapter
-from langkit.metrics.util import LazyInit
+from langkit.transformer import sentence_transformer
 
 
 def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _out: List[str]) -> torch.Tensor:
@@ -18,18 +17,14 @@ def __compute_embedding_similarity(encoder: EmbeddingEncoder, _in: List[str], _o
     return sim
 
 
-__transformer = LazyInit(
-    lambda: SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu")
-)
-
-
 def input_output_similarity_metric(
     input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
 ) -> Metric:
-    encoder = embedding_encoder or TransformerEmbeddingAdapter(__transformer.value)
+    transformer_name = "sentence-transformers/all-MiniLM-L6-v2"
+    encoder = embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer.value(transformer_name))
 
     def init():
-        __transformer.value
+        sentence_transformer.value(transformer_name)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         in_np = UdfInput(text).to_list(input_column_name)
