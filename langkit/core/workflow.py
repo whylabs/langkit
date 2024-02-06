@@ -23,25 +23,25 @@ class Row(TypedDict):
 
 @dataclass(frozen=True)
 class EvaluationResult:
-    features: pd.DataFrame
+    metrics: pd.DataFrame
     validation_results: ValidationResult
 
     def get_failed_ids(self) -> List[int]:
         return list(set([it.id for it in self.validation_results.report]))
 
     def get_failed_rows(self) -> pd.DataFrame:
-        return self.features.loc[self.get_failed_ids()]
+        return self.metrics.loc[self.get_failed_ids()]
 
 
 # Basically, any side effect that doesn't mutate the inputs is fine here
-class Hook(ABC):
-    @abstractmethod
-    def post_evaluation(self, metric_results: Mapping[str, MetricResult]) -> None:
-        pass
-
+class Callback(ABC):
     @abstractmethod
     def post_validation(
-        self, metric_results: Mapping[str, MetricResult], results: pd.DataFrame, validation_results: List[ValidationResult]
+        self,
+        df: pd.DataFrame,
+        metric_results: Mapping[str, MetricResult],
+        results: pd.DataFrame,
+        validation_results: List[ValidationResult],
     ) -> None:
         # Can send a notification or call a webhook or log or whatever
         pass
@@ -65,12 +65,12 @@ class EvaluationWorkflow:
     def __init__(
         self,
         metrics: List[MetricCreator],
-        hooks: Optional[List[Hook]] = None,
+        callbacks: Optional[List[Callback]] = None,
         validators: Optional[List[Validator]] = None,
         lazy_init=False,
     ) -> None:
         self.metrics = EvaluationConfifBuilder().add(metrics).build()
-        self.hooks = hooks or []
+        self.hooks = callbacks or []
         self.validators = validators or []
         self._initialized = False
 
@@ -124,7 +124,7 @@ class EvaluationWorkflow:
         return names
 
     @overload
-    def evaluate(self, data: pd.DataFrame) -> EvaluationResult:
+    def run(self, data: pd.DataFrame) -> EvaluationResult:
         """
         This form is intended for batch evaluation,
         where the input is a pandas DataFrame.
@@ -132,7 +132,7 @@ class EvaluationWorkflow:
         ...
 
     @overload
-    def evaluate(self, data: Row) -> EvaluationResult:
+    def run(self, data: Row) -> EvaluationResult:
         """
         This form is intended for single row evaluation,
         where the input is a dictionary with the keys "prompt" and "response".
@@ -140,7 +140,7 @@ class EvaluationWorkflow:
         ...
 
     @overload
-    def evaluate(self, data: Dict[str, str]) -> EvaluationResult:
+    def run(self, data: Dict[str, str]) -> EvaluationResult:
         """
         This form doesn't assume the "prompt" and "response" key names.
         This would be required in cases where the user wants to use different
@@ -148,7 +148,7 @@ class EvaluationWorkflow:
         """
         ...
 
-    def evaluate(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
+    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
         if not self._initialized:
             self.init()
         if not isinstance(data, pd.DataFrame):
@@ -165,13 +165,6 @@ class EvaluationWorkflow:
                 self._validate_evaluate(df, metric, result)
                 metric_results[metric.name] = result
 
-                # Metric Validation
-                for validator in self.validators:
-                    validation_result = validator.validate_metric(metric.name, result)
-                    if validation_result and validation_result.report:
-                        # TODO make this only short circuit the metric, not the whole evaluation. Each row should be evaluated
-                        return EvaluationResult(pd.DataFrame(), validation_result)
-
             else:
                 # MultiMetrics are basically just converted into single metrics asap.
                 result = metric.evaluate(df)
@@ -180,20 +173,13 @@ class EvaluationWorkflow:
                     single_metric = SingleMetricResult(metric_result)
                     metric_results[metric_name] = single_metric
 
-                    # Metric Validation
-                    for validator in self.validators:
-                        validation_result = validator.validate_metric(metric_name, single_metric)
-                        if validation_result and validation_result.report:
-                            # TODO make this only short circuit the metric, not the whole evaluation. Each row should be evaluated
-                            return EvaluationResult(pd.DataFrame(), validation_result)
-
-        # Hooks
-        for action in self.hooks:
-            action.post_evaluation(metric_results)
-
         # Validation
         condensed = self._condense_metric_results(metric_results)
-        condensed["id"] = condensed.index
+        if "id" not in df.columns:
+            condensed["id"] = df.index
+        else:
+            condensed["id"] = df["id"]
+
         full_df = condensed.copy()  # guard against mutations
         validation_results: List[ValidationResult] = []
         for validator in self.validators:
@@ -206,7 +192,7 @@ class EvaluationWorkflow:
 
         # Post validation hook
         for action in self.hooks:
-            action.post_validation(metric_results, full_df.copy(), validation_results)
+            action.post_validation(df.copy(), metric_results, full_df.copy(), validation_results)
 
         return EvaluationResult(full_df, self._condense_validation_results(validation_results))
 

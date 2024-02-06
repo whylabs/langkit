@@ -9,8 +9,21 @@ from transformers import Pipeline, pipeline  # type: ignore
 from langkit.core.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.util import LazyInit
 
-# TODO these default topics are not very good. We should update these to something reasonable that people would use.
-__default_topics = ["politics", "economy", "entertainment", "environment"]
+__default_topics = [
+    "politics",
+    "economy",
+    "entertainment",
+    "environment",
+    "technology",
+    "health & wellness",
+    "sports",
+    "education",
+    "harassment",
+    "hate speech",
+    "spam",
+    "misinformation",
+]
+
 
 __classifier: LazyInit[Pipeline] = LazyInit(
     lambda: pipeline(

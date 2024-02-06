@@ -123,9 +123,9 @@ def test_topic_empty_input_wf():
     )
 
     wf = EvaluationWorkflow(metrics=[prompt_topic_module])
-    actual = wf.evaluate(df)
+    actual = wf.run(df)
 
-    assert actual.features["prompt.closest_topic"][0] is None
+    assert actual.metrics["prompt.closest_topic"][0] is None
 
 
 def test_topic_row():
