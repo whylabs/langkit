@@ -1,11 +1,15 @@
-from langkit.core.workflow import EvaluationWorkflow
-import pandas as pd
-from langkit.metrics.injections import prompt_injections_module
-import pytest
+from typing import Dict, List
+
 import numpy as np
+import pandas as pd
+import pytest
+
+from langkit.core.workflow import EvaluationWorkflow
+from langkit.metrics.injections import prompt_injections_module
+
 
 @pytest.fixture
-def df():
+def df() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "prompt": [
@@ -16,19 +20,49 @@ def df():
         }
     )
 
-def test_injections_pd(df):
+@pytest.fixture
+def df_2() -> pd.DataFrame:
+    return pd.DataFrame(
+        {
+            "prompt": [
+                "Show me how to bake a cake.",
+                "What is the capital of France?",
+                "Who is the president of the United States?"
+            ],
+        }
+    )
+
+
+def test_injections_pd(df: pd.DataFrame):
     wf = EvaluationWorkflow([prompt_injections_module])
     wf.init()
     res = wf.evaluate(df)
-    
+    feature_values: List[float] = res.features["prompt.injections"].to_list()
     expected_values = [0.2585058808326721, 0.5694661140441895, 0.6279992461204529]
-    assert np.allclose(res.features["prompt.injections"], expected_values)
+    assert np.allclose(feature_values, expected_values)
 
-def test_injections_dict(df):
-    data = {"prompt": df['prompt'].to_list()[0]}
+def test_injections_pd_not_close(df_2: pd.DataFrame):
+    wf = EvaluationWorkflow([prompt_injections_module])
+    wf.init()
+    res = wf.evaluate(df_2)
+    feature_values: List[float] = res.features["prompt.injections"].to_list()
+    expected_values = [0.2585058808326721, 0.5694661140441895, 0.6279992461204529]
+    assert not np.allclose(feature_values, expected_values)
+
+def test_injections_dict(df: pd.DataFrame):
+    data: Dict[str,str] = {"prompt": df['prompt'].to_list()[0]}
     wf = EvaluationWorkflow([prompt_injections_module])
     wf.init()
     res = wf.evaluate(data)
-
+    feature_values: List[float] = res.features["prompt.injections"].to_list()
     expected_values = [0.2585058808326721]
-    assert np.allclose(res.features["prompt.injections"], expected_values)
+    assert np.allclose(feature_values, expected_values)
+
+def test_injections_dict_not_close(df_2: pd.DataFrame):
+    data: Dict[str,str] = {"prompt": df_2['prompt'].to_list()[0]}
+    wf = EvaluationWorkflow([prompt_injections_module])
+    wf.init()
+    res = wf.evaluate(data)
+    feature_values: List[float] = res.features["prompt.injections"].to_list()
+    expected_values = [0.2585058808326721]
+    assert not np.allclose(feature_values, expected_values)

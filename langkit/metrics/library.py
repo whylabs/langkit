@@ -9,6 +9,7 @@ from langkit.metrics.text_statistics_types import TextStat
 class lib:
     @staticmethod
     def all_metrics() -> MetricCreator:
+        from langkit.metrics.injections import prompt_injections_module
         from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
         from langkit.metrics.regexes.regexes import (
             prompt_response_credit_card_number_regex_module,
@@ -37,6 +38,7 @@ class lib:
             prompt_response_topic_module,
             prompt_response_toxicity_module,
             prompt_response_input_output_similarity_module,
+            prompt_injections_module,
         ]
 
     class text_stat:

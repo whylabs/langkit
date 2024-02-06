@@ -1,5 +1,6 @@
 import os
 from functools import partial
+from logging import getLogger
 from typing import Any, Sequence
 
 import numpy as np
@@ -8,8 +9,12 @@ import pandas as pd
 import torch
 from sentence_transformers import SentenceTransformer
 
+from langkit import get_data_home
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
-from langkit.metrics.util import LazyInit, get_data_home
+from langkit.metrics.util import LazyInit, retry
+
+logger = getLogger(__name__)
+
 
 __transformer_name = "all-MiniLM-L6-v2"
 __version = "v2"
@@ -19,27 +24,34 @@ __transformer = LazyInit(
     lambda: SentenceTransformer(__transformer_name, device="cuda" if torch.cuda.is_available() else "cpu")
 )
 
-def __load_embeddings() -> "np.ndarray[Any, Any]":
-    filename = f"embeddings_{__transformer_name}_harm_{__version}.parquet"
-    embeddings_url: str = __injections_base_url+filename
-    embeddings_path: str = os.path.join(get_data_home(),filename)
-    try:
-        harm_embeddings = pd.read_parquet(embeddings_path)
-        save_embeddings = False
-    except FileNotFoundError:
-        try:
-            harm_embeddings = pd.read_parquet(embeddings_url)
+@retry(max_attempts=3, wait_seconds=1)
+def __download_parquet(url: str) -> pd.DataFrame:
+    return pd.read_parquet(url)
 
-        except Exception as download_error:
-            raise ValueError(
-                f"Injections - unable to download embeddings from {embeddings_url}. Error: {download_error}"
-            )
-        save_embeddings = True
+def __cache_embeddings(harm_embeddings: pd.DataFrame, embeddings_path_local: str) -> None:
+    try:
+        harm_embeddings.to_parquet(embeddings_path_local)
+    except Exception as serialization_error:
+        logger.warning(f"Injections - unable to serialize embeddings to {embeddings_path_local}. Error: {serialization_error}")
+
+
+def __download_embeddings(filename: str) -> pd.DataFrame:
+    embeddings_path_remote: str = __injections_base_url+filename
+    embeddings_path_local: str = os.path.join(get_data_home(), filename)
+    try:
+        harm_embeddings = pd.read_parquet(embeddings_path_local)
+        return harm_embeddings
+    except FileNotFoundError:
+        harm_embeddings = __download_parquet(embeddings_path_remote)
+        __cache_embeddings(harm_embeddings, embeddings_path_local)
+        return harm_embeddings
     except Exception as load_error:
         raise ValueError(
-            f"Injections - unable to load embeddings from {embeddings_path}. Error: {load_error}"
+            f"Injections - unable to load embeddings from {embeddings_path_local}. Error: {load_error}"
         )
 
+
+def __process_embeddings(harm_embeddings: pd.DataFrame) -> "np.ndarray[Any, Any]":
     try:
         embeddings: Sequence[npt.ArrayLike] = harm_embeddings["sentence_embedding"].values  # type: ignore[reportUnknownMemberType]
         np_embeddings: "np.ndarray[Any, Any]" = np.stack(embeddings).astype(
@@ -48,24 +60,23 @@ def __load_embeddings() -> "np.ndarray[Any, Any]":
         embeddings_norm = np_embeddings / np.linalg.norm(
             np_embeddings, axis=1, keepdims=True
         )
-
-        if save_embeddings:
-            try:
-                harm_embeddings.to_parquet(embeddings_path)
-            except Exception as serialization_error:
-                raise ValueError(
-                    f"Injections - unable to serialize index to {embeddings_path}. Error: {serialization_error}"
-                )
         return embeddings_norm
-    except Exception as deserialization_error:
+    except Exception as e:
         raise ValueError(
-            f"Injections - unable to deserialize index to {embeddings_path}. Error: {deserialization_error}"
+            f"Injections - unable to process embeddings. Error: {e}"
         )
+
+
+def __load_embeddings() -> "np.ndarray[Any, Any]":
+    filename = f"embeddings_{__transformer_name}_harm_{__version}.parquet"
+    harm_embeddings = __download_embeddings(filename)
+    embeddings_norm = __process_embeddings(harm_embeddings)
+    return embeddings_norm
 
 def injections_metric(column_name:str) -> Metric:
     def init():
-        global _filename
         __transformer.value
+        __embeddings.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
