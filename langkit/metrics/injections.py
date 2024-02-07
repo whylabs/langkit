@@ -8,7 +8,6 @@ import numpy.typing as npt
 import pandas as pd
 
 from langkit.config import LANGKIT_INJECTIONS_CACHE
-
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import LazyInit, retry
 from langkit.transformer import sentence_transformer
@@ -75,7 +74,8 @@ def __load_embeddings() -> "np.ndarray[Any, Any]":
     embeddings_norm = __process_embeddings(harm_embeddings)
     return embeddings_norm
 
-def injections_metric(column_name:str) -> Metric:
+
+def injections_metric(column_name: str) -> Metric:
     def init():
         sentence_transformer.value(__transformer_name)
         __embeddings.value
