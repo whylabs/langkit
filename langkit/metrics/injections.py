@@ -7,12 +7,14 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from langkit import get_data_home
+from langkit.config import LANGKIT_INJECTIONS_CACHE
+
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import LazyInit, retry
 from langkit.transformer import sentence_transformer
 
 logger = getLogger(__name__)
+
 
 
 __transformer_name = "all-MiniLM-L6-v2"
@@ -25,8 +27,11 @@ __embeddings = LazyInit(lambda: __load_embeddings())
 def __download_parquet(url: str) -> pd.DataFrame:
     return pd.read_parquet(url)
 
-def __cache_embeddings(harm_embeddings: pd.DataFrame, embeddings_path_local: str) -> None:
+
+def __cache_embeddings(harm_embeddings: pd.DataFrame, embeddings_path: str, filename: str) -> None:
+    embeddings_path_local: str = os.path.join(embeddings_path, filename)
     try:
+        os.makedirs(embeddings_path, exist_ok=True)
         harm_embeddings.to_parquet(embeddings_path_local)
     except Exception as serialization_error:
         logger.warning(f"Injections - unable to serialize embeddings to {embeddings_path_local}. Error: {serialization_error}")
@@ -34,13 +39,13 @@ def __cache_embeddings(harm_embeddings: pd.DataFrame, embeddings_path_local: str
 
 def __download_embeddings(filename: str) -> pd.DataFrame:
     embeddings_path_remote: str = __injections_base_url+filename
-    embeddings_path_local: str = os.path.join(get_data_home(), filename)
+    embeddings_path_local: str = os.path.join(LANGKIT_INJECTIONS_CACHE, filename)
     try:
         harm_embeddings = pd.read_parquet(embeddings_path_local)
         return harm_embeddings
     except FileNotFoundError:
         harm_embeddings = __download_parquet(embeddings_path_remote)
-        __cache_embeddings(harm_embeddings, embeddings_path_local)
+        __cache_embeddings(harm_embeddings, LANGKIT_INJECTIONS_CACHE, filename )
         return harm_embeddings
     except Exception as load_error:
         raise ValueError(
