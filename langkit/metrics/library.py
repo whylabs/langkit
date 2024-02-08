@@ -321,30 +321,19 @@ class lib:
 
             return prompt_response_input_output_similarity_module
 
-    class themes:
+    class jailbreak:
         @staticmethod
-        def create(input_name: str, themes: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import topic_metric
+        def prompt() -> MetricCreator:
+            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
 
-            return lambda: topic_metric(column_name=input_name, topics=themes)
+            return prompt_jailbreak_similarity_metric
 
+    class refusal:
         @staticmethod
-        def prompt(themes: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import topic_metric
+        def prompt() -> MetricCreator:
+            from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
-            return lambda: topic_metric(column_name="prompt", topics=themes)
-
-        @staticmethod
-        def response(themes: List[str]) -> MetricCreator:
-            from langkit.metrics.topic import topic_metric
-
-            return lambda: topic_metric(column_name="response", topics=themes)
-
-        @staticmethod
-        def default() -> MetricCreator:
-            from langkit.metrics.topic import prompt_response_topic_module
-
-            return prompt_response_topic_module
+            return response_refusal_similarity_metric
 
     class pii_presidio:
         @staticmethod

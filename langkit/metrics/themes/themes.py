@@ -86,6 +86,5 @@ def __themes_module(column_name: str, themes_group: str, embedding_encoder: Opti
     )
 
 
-prompt_theme_similarity = partial(__themes_module, column_name="prompt", themes_group="jailbreak")
-response_theme_similarity = partial(__themes_module, column_name="response", themes_group="refusal")
-prompt_response_theme_similarity = [prompt_theme_similarity, response_theme_similarity]
+prompt_jailbreak_similarity_metric = partial(__themes_module, column_name="prompt", themes_group="jailbreak")
+response_refusal_similarity_metric = partial(__themes_module, column_name="response", themes_group="refusal")

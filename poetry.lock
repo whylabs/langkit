@@ -1831,8 +1831,8 @@ files = [
 [package.dependencies]
 numpy = [
     {version = ">=1.20.3", markers = "python_version < \"3.10\""},
-    {version = ">=1.21.0", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
     {version = ">=1.23.2", markers = "python_version >= \"3.11\""},
+    {version = ">=1.21.0", markers = "python_version >= \"3.10\" and python_version < \"3.11\""},
 ]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
@@ -2833,6 +2833,7 @@ optional = true
 python-versions = "*"
 files = [
     {file = "requests-file-2.0.0.tar.gz", hash = "sha256:20c5931629c558fda566cacc10cfe2cd502433e628f568c34c80d96a0cc95972"},
+    {file = "requests_file-2.0.0-py2.py3-none-any.whl", hash = "sha256:3e493d390adb44aa102ebea827a48717336d5268968c370eaf19abaf5cae13bf"},
 ]
 
 [package.dependencies]
@@ -4064,13 +4065,12 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.3.21"
+version = "1.3.23.dev0"
 description = "Profile and monitor your ML data pipeline end-to-end"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.3.21-py3-none-any.whl", hash = "sha256:981a5c0b758ebe60f8bef254455357024f05667f26c1f5fbf2ef915bf36bf557"},
-    {file = "whylogs-1.3.21.tar.gz", hash = "sha256:62226a50d1173bc1ef9eeb18ce68e6cbbacc6ad37a618346214c660c3885302a"},
+    {file = "whylogs-1.3.23.dev0-py3-none-any.whl", hash = "sha256:9dca4258794e8bca8ccde887d99072d10b56406adee782571514b5fb6772112f"},
 ]
 
 [package.dependencies]
@@ -4096,6 +4096,10 @@ proc-mp = ["orjson (>=3.8.10,<4.0.0)", "pandas"]
 s3 = ["boto3 (>=1.22.13,<2.0.0)"]
 spark = ["pyarrow (>=8.0.0,<13)", "pyspark (>=3.0.0,<4.0.0)"]
 viz = ["Pillow (>=9.2.0,<10.0.0)", "ipython", "numpy", "numpy (>=1.23.2)", "pybars3 (>=0.9,<0.10)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
+
+[package.source]
+type = "url"
+url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev0-py3-none-any.whl"
 
 [[package]]
 name = "whylogs-sketching"
@@ -4411,4 +4415,4 @@ all = ["datasets", "evaluate", "faiss-cpu", "ipywidgets", "nltk", "numpy", "open
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "390740d1f4c66012de0858f43a30eb0e6ba2759e3dd7241adb9b67c17cbb3eeb"
+content-hash = "f7883d1d3df16cd0daf39426497e97bcf2fb9d5e6a7cae1a585c36c6e14b0d9e"

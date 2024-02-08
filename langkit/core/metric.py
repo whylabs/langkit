@@ -94,7 +94,7 @@ class MultiMetric:
     # Splitting the metric into single/multi can be a bit verbose, but it lets us know all of the metric names
     # that are going to be generated upfront without having to evaluate all of the metrics to find out.
     names: List[str]
-    input_name: str
+    input_name: str  # TODO this should be a list of input names so allow for things that have to consume both prompt/response
     evaluate: Callable[[pd.DataFrame], MultiMetricResult]
     init: Optional[Callable[[], None]] = None
 
