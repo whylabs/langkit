@@ -348,25 +348,41 @@ class lib:
 
     class pii_presidio:
         @staticmethod
-        def create(input_name: str) -> MetricCreator:
+        def create(
+            input_name: str,
+            language: str = "en",
+            spacy_model: str = "en_core_web_sm",
+            transformers_model: str = "dslim/bert-base-NER",
+            entities: Optional[List[str]] = None,
+        ) -> MetricCreator:
+            """
+            Create a PII metric using the Presidio analyzer.
+
+            :param input_name: The name of the input column.
+            :param language: The language to use for the analyzer.
+            :param spacy_model: The spaCy model to use for the analyzer.
+            :param transformers_model: The transformers model to use for the analyzer.
+            :param entities: The list of entities to analyze for. See https://microsoft.github.io/presidio/supported_entities/.
+            :return: A metric creator.
+            """
             from langkit.metrics.pii import pii_presidio_metric
 
-            return lambda: pii_presidio_metric(input_name)
+            return lambda: pii_presidio_metric(input_name, language, spacy_model, transformers_model, entities)
 
         @staticmethod
         def prompt() -> MetricCreator:
-            from langkit.metrics.pii import prompt_presidio_pii_module
+            from langkit.metrics.pii import prompt_presidio_pii_metric
 
-            return prompt_presidio_pii_module
+            return prompt_presidio_pii_metric
 
         @staticmethod
         def response() -> MetricCreator:
-            from langkit.metrics.pii import response_presidio_pii_module
+            from langkit.metrics.pii import response_presidio_pii_metric
 
-            return response_presidio_pii_module
+            return response_presidio_pii_metric
 
         @staticmethod
         def default() -> MetricCreator:
-            from langkit.metrics.pii import prompt_response_presidio_pii_module
+            from langkit.metrics.pii import prompt_response_presidio_pii_metric
 
-            return prompt_response_presidio_pii_module
+            return prompt_response_presidio_pii_metric

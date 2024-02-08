@@ -108,11 +108,8 @@ MetricCreator = Union[
     Callable[[], "MetricCreator"],
     Callable[[], List["MetricCreator"]],
     Callable[[], Metric],
-    Callable[[], MultiMetric],
     Callable[[], List[Metric]],
-    Callable[[], List[MultiMetric]],
     List[Callable[[], Metric]],
-    List[Callable[[], MultiMetric]],
 ]
 
 
@@ -134,9 +131,6 @@ class MetricNameCapture:
 
     @staticmethod
     def __get_metric_names(metrics: List[Metric]) -> List[str]:
-        print("===================================")
-        print(f"getting metric names from {metrics}")
-        print("===================================")
         names: List[str] = []
         for metric in metrics:
             if isinstance(metric, SingleMetric):
