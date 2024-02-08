@@ -7,4 +7,3 @@ DEFAULT_CACHE_HOME: str = os.path.join(XDG_CACHE_HOME, "langkit")
 
 LANGKIT_CACHE: str = os.path.expanduser(os.getenv("LANGKIT_CACHE", DEFAULT_CACHE_HOME))
 
-LANGKIT_INJECTIONS_CACHE: str = os.path.join(LANGKIT_CACHE, "injections")

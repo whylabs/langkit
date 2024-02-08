@@ -7,14 +7,14 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
-from langkit.config import LANGKIT_INJECTIONS_CACHE
+from langkit.config import LANGKIT_CACHE
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import LazyInit, retry
 from langkit.transformer import sentence_transformer
 
 logger = getLogger(__name__)
 
-
+LANGKIT_INJECTIONS_CACHE: str = os.path.join(LANGKIT_CACHE, "injections")
 
 __transformer_name = "all-MiniLM-L6-v2"
 __version = "v2"
