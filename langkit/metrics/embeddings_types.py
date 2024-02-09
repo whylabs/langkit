@@ -1,6 +1,5 @@
-from typing import Any, List, Protocol, Union
+from typing import List, Protocol
 
-import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
 
@@ -15,5 +14,5 @@ class TransformerEmbeddingAdapter:
 
 
 class EmbeddingEncoder(Protocol):
-    def encode(self, text: List[str]) -> Union["torch.Tensor", "np.ndarray[Any, Any]"]:
+    def encode(self, text: List[str]) -> "torch.Tensor":
         ...
