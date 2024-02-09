@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 from langkit.core.metric import MetricCreator
-from langkit.metrics.input_output_similarity_types import EmbeddingEncoder
+from langkit.metrics.embeddings_types import EmbeddingEncoder
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.text_statistics_types import TextStat
 
@@ -18,7 +18,7 @@ class lib:
             prompt_response_phone_number_regex_module,
             prompt_response_ssn_regex_module,
         )
-        from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity
+        from langkit.metrics.sentiment_polarity import prompt_response_sentiment_polarity
         from langkit.metrics.text_statistics import (
             prompt_textstat_module,
             response_textstat_module,
@@ -34,7 +34,7 @@ class lib:
             prompt_response_phone_number_regex_module,
             prompt_response_mailing_address_regex_module,
             prompt_response_email_address_regex_module,
-            promp_response_sentiment_polarity,
+            prompt_response_sentiment_polarity,
             prompt_response_topic_module,
             prompt_response_toxicity_module,
             prompt_response_input_output_similarity_module,
@@ -240,9 +240,9 @@ class lib:
 
         @staticmethod
         def prompt(lexicon: str = "vader_lexicon") -> MetricCreator:
-            from langkit.metrics.sentiment_polarity import promp_sentiment_polarity
+            from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity
 
-            return lambda: promp_sentiment_polarity(lexicon=lexicon)
+            return lambda: prompt_sentiment_polarity(lexicon=lexicon)
 
         @staticmethod
         def response(lexicon: str = "vader_lexicon") -> MetricCreator:
@@ -252,9 +252,9 @@ class lib:
 
         @staticmethod
         def default() -> MetricCreator:
-            from langkit.metrics.sentiment_polarity import promp_response_sentiment_polarity
+            from langkit.metrics.sentiment_polarity import prompt_response_sentiment_polarity
 
-            return promp_response_sentiment_polarity
+            return prompt_response_sentiment_polarity
 
     class topic:
         @staticmethod
@@ -335,3 +335,58 @@ class lib:
             from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
 
             return prompt_response_input_output_similarity_module
+
+    class jailbreak:
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
+
+            return prompt_jailbreak_similarity_metric
+
+    class refusal:
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.themes.themes import response_refusal_similarity_metric
+
+            return response_refusal_similarity_metric
+
+    class pii_presidio:
+        @staticmethod
+        def create(
+            input_name: str,
+            language: str = "en",
+            spacy_model: str = "en_core_web_sm",
+            transformers_model: str = "dslim/bert-base-NER",
+            entities: Optional[List[str]] = None,
+        ) -> MetricCreator:
+            """
+            Create a PII metric using the Presidio analyzer.
+
+            :param input_name: The name of the input column.
+            :param language: The language to use for the analyzer.
+            :param spacy_model: The spaCy model to use for the analyzer.
+            :param transformers_model: The transformers model to use for the analyzer.
+            :param entities: The list of entities to analyze for. See https://microsoft.github.io/presidio/supported_entities/.
+            :return: A metric creator.
+            """
+            from langkit.metrics.pii import pii_presidio_metric
+
+            return lambda: pii_presidio_metric(input_name, language, spacy_model, transformers_model, entities)
+
+        @staticmethod
+        def prompt() -> MetricCreator:
+            from langkit.metrics.pii import prompt_presidio_pii_metric
+
+            return prompt_presidio_pii_metric
+
+        @staticmethod
+        def response() -> MetricCreator:
+            from langkit.metrics.pii import response_presidio_pii_metric
+
+            return response_presidio_pii_metric
+
+        @staticmethod
+        def default() -> MetricCreator:
+            from langkit.metrics.pii import prompt_response_presidio_pii_metric
+
+            return prompt_response_presidio_pii_metric

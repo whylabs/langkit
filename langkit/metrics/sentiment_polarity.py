@@ -27,6 +27,6 @@ def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") 
     )
 
 
-promp_sentiment_polarity = partial(sentiment_polarity_metric, "prompt")
+prompt_sentiment_polarity = partial(sentiment_polarity_metric, "prompt")
 response_sentiment_polarity = partial(sentiment_polarity_metric, "response")
-promp_response_sentiment_polarity = [promp_sentiment_polarity, response_sentiment_polarity]
+prompt_response_sentiment_polarity = [prompt_sentiment_polarity, response_sentiment_polarity]

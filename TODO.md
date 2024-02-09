@@ -34,3 +34,4 @@
   whylogs_compat thing. I think we would need to force more manual whylogs setup for the advanced cases and avoid the auto stuff.
 - Implement real multi metric conversion in the whylogs_compat file. Jamie said that whylogs actually can return multiple metrics at once.
 - Add validation options for string based metrics like topic. Right now there are only validation creators for numeric things.
+- Add multiple python version builds to the CI matrix. Things like `isinstance(foo, Union[..])` are in the code still.

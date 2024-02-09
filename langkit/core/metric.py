@@ -94,7 +94,7 @@ class MultiMetric:
     # Splitting the metric into single/multi can be a bit verbose, but it lets us know all of the metric names
     # that are going to be generated upfront without having to evaluate all of the metrics to find out.
     names: List[str]
-    input_name: str
+    input_name: str  # TODO this should be a list of input names so allow for things that have to consume both prompt/response
     evaluate: Callable[[pd.DataFrame], MultiMetricResult]
     init: Optional[Callable[[], None]] = None
 
@@ -126,14 +126,11 @@ class MetricNameCapture:
 
     def __init__(self, creator: MetricCreator) -> None:
         self._creator = creator
-        self._metrics = LazyInit(lambda: EvaluationConfifBuilder().add(self._creator).build().metrics)
+        self._metrics = LazyInit(lambda: EvaluationConfigBuilder().add(self._creator).build().metrics)
         self._metric_names = LazyInit(lambda: MetricNameCapture.__get_metric_names(self._metrics.value))
 
     @staticmethod
     def __get_metric_names(metrics: List[Metric]) -> List[str]:
-        print("===================================")
-        print(f"getting metric names from {metrics}")
-        print("===================================")
         names: List[str] = []
         for metric in metrics:
             if isinstance(metric, SingleMetric):
@@ -150,18 +147,18 @@ class MetricNameCapture:
         return self._metric_names.value
 
 
-class EvaluationConfifBuilder:
+class EvaluationConfigBuilder:
     def __init__(self, metric_creators: Optional[List[MetricCreator]] = None) -> None:
         super().__init__()
         self._modules: List[MetricCreator] = metric_creators or []
 
-    def add(self, module: MetricCreator) -> "EvaluationConfifBuilder":
+    def add(self, module: MetricCreator) -> "EvaluationConfigBuilder":
         if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
             self._modules.append(module)
         else:
-            self._modules.extend(module)
+            self._modules.append(module)
 
         return self
 
@@ -174,7 +171,7 @@ class EvaluationConfifBuilder:
                     schemas.append(schema)
                 elif isinstance(schema, list):
                     for s in schema:
-                        if isinstance(s, Metric):
+                        if isinstance(s, SingleMetric) or isinstance(s, MultiMetric):
                             schemas.append(s)
                         else:
                             schemas.extend(self._build_metrics([s]))

@@ -67,7 +67,8 @@ class BearerAuthValidationWebhook(Callback):
         if self.include_input:
             body["input"] = df.to_dict(orient="records")  # pyright: ignore[reportUnknownMemberType]
 
-        headers = {self.auth_header: f"{self.bearer_prefix} {self.auth_token}"}
+        prefix = f"{self.bearer_prefix} " if self.bearer_prefix else ""
+        headers = {self.auth_header: f"{prefix}{self.auth_token}"}
         requests.post(self.url, json=body, headers=headers)
 
 

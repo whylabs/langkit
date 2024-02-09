@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig
+from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
 from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
@@ -65,7 +65,7 @@ def test_topic():
         }
     )
 
-    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(df, schema)
 
@@ -96,7 +96,7 @@ def test_topic_empty_input():
         }
     )
 
-    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(df, schema)
 
@@ -134,7 +134,7 @@ def test_topic_row():
         "response": "George Washington is the president of the United States.",
     }
 
-    schema = EvaluationConfifBuilder().add(prompt_topic_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(row, schema)
 
@@ -169,7 +169,7 @@ def test_custom_topic():
     )
 
     custom_topic_modules = get_custom_topic_modules(["fishing", "boxing", "hiking", "swimming"])
-    schema = EvaluationConfifBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
+    schema = EvaluationConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
 
     actual = _log(df, schema)
 

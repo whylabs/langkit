@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import partial, reduce
+from functools import reduce
 from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.core.metric import EvaluationConfig, Metric, SingleMetric, SingleMetricResult
+from langkit.core.metric import EvaluationConfig, Metric, MultiMetric, SingleMetric
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
@@ -80,25 +80,24 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
     return schema
 
 
+def _to_udf_schema_args_multiple(metric: MultiMetric) -> UdfSchemaArgs:
+    def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
+        wf_input = pd.DataFrame(text) if isinstance(text, dict) else text
+        metrics = metric.evaluate(wf_input).metrics
+        return pd.concat([pd.Series(metric, name=name) for (metric, name) in zip(metrics, metric.names)], axis=1)  # pyright: ignore [reportUnknownMemberType]
+
+    return UdfSchemaArgs(
+        resolvers=[],
+        types={k: str for k in metric.names},
+        udf_specs=[UdfSpec(column_names=[metric.input_name], udf=udf, prefix="")],
+    )
+
+
 def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
-    metrics: List[SingleMetric] = []
-
     if isinstance(metric, SingleMetric):
-        metrics.append(metric)
+        return [_to_udf_schema_args_single(metric)]
     else:
-        for i, name in enumerate(metric.names):
-            # Whylogs doesn't support multi-metrics, so we have to convert them to single metrics. This is lame because
-            # the only real way to do this is to re-evaluate the metric for each name, which is wasteful, but at least
-            # its possible. It just won't be advised to use multi metrics when using whylogs.
-            def _lame_udf(index: int, text: pd.DataFrame) -> SingleMetricResult:
-                result = metric.evaluate(text)
-
-                return SingleMetricResult(metrics=result.metrics[index])
-
-            print(f"Adding metric {i} {name}")
-            metrics.append(SingleMetric(name=name, input_name=metric.input_name, evaluate=partial(_lame_udf, i)))
-
-    return [_to_udf_schema_args_single(it) for it in metrics]
+        return [_to_udf_schema_args_multiple(metric)]
 
 
 def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:

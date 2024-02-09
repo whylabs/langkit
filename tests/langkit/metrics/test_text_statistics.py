@@ -5,7 +5,7 @@ import pandas as pd
 from textstat import textstat
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfifBuilder, EvaluationConfig, Metric, MultiMetric, MultiMetricResult, UdfInput
+from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder, Metric, MultiMetric, MultiMetricResult, UdfInput
 from langkit.core.validation import ValidationFailure, ValidationResult, create_validator
 from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.text_statistics import (
@@ -80,7 +80,7 @@ def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
 
 
 def test_prompt_response_textstat_module():
-    all_textstat_schema = EvaluationConfifBuilder().add(prompt_response_textstat_module).build()
+    all_textstat_schema = EvaluationConfigBuilder().add(prompt_response_textstat_module).build()
 
     actual = _log(row, all_textstat_schema)
 
@@ -123,7 +123,7 @@ def test_prompt_response_textstat_module():
 
 
 def test_prompt_textstat_module():
-    prompt_textstat_schema = EvaluationConfifBuilder().add(prompt_textstat_module).build()
+    prompt_textstat_schema = EvaluationConfigBuilder().add(prompt_textstat_module).build()
 
     actual = _log(row, prompt_textstat_schema)
 
@@ -156,7 +156,7 @@ def test_prompt_textstat_module():
 
 
 def test_response_textstat_module():
-    response_textstat_schema = EvaluationConfifBuilder().add(response_textstat_module).build()
+    response_textstat_schema = EvaluationConfigBuilder().add(response_textstat_module).build()
 
     actual = _log(row, response_textstat_schema)
 
@@ -189,7 +189,7 @@ def test_response_textstat_module():
 
 
 def test_prompt_reading_ease_module():
-    prompt_reading_ease_schema = EvaluationConfifBuilder().add(prompt_reading_ease_module).build()
+    prompt_reading_ease_schema = EvaluationConfigBuilder().add(prompt_reading_ease_module).build()
 
     actual = _log(row, prompt_reading_ease_schema)
 
@@ -206,7 +206,7 @@ def test_prompt_reading_ease_module():
 
 
 def test_response_reading_ease_module():
-    response_reading_ease_schema = EvaluationConfifBuilder().add(response_reading_ease_module).build()
+    response_reading_ease_schema = EvaluationConfigBuilder().add(response_reading_ease_module).build()
 
     actual = _log(row, response_reading_ease_schema)
 
@@ -223,7 +223,7 @@ def test_response_reading_ease_module():
 
 
 def test_prompt_response_flesch_kincaid_grade_level_module():
-    schema = EvaluationConfifBuilder().add(prompt_response_flesch_kincaid_grade_level_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_flesch_kincaid_grade_level_module).build()
 
     actual = _log(row, schema)
 
@@ -241,7 +241,7 @@ def test_prompt_response_flesch_kincaid_grade_level_module():
 
 
 def test_prompt_char_count_module():
-    prompt_char_count_schema = EvaluationConfifBuilder().add(prompt_char_count_module).build()
+    prompt_char_count_schema = EvaluationConfigBuilder().add(prompt_char_count_module).build()
 
     actual = _log(row, prompt_char_count_schema)
 
@@ -290,7 +290,7 @@ def test_prompt_char_count_0_module():
 
 
 def test_response_char_count_module():
-    response_char_count_schema = EvaluationConfifBuilder().add(response_char_count_module).build()
+    response_char_count_schema = EvaluationConfigBuilder().add(response_char_count_module).build()
 
     actual = _log(row, response_char_count_schema)
 
@@ -313,7 +313,7 @@ def test_custom_module_combination():
     )
 
     schema = (
-        EvaluationConfifBuilder()
+        EvaluationConfigBuilder()
         .add(prompt_char_count_module)
         .add(prompt_reading_ease_module)
         .add(prompt_difficult_words_module)
@@ -352,7 +352,7 @@ def test_custom_module_combination():
         response_sentence_count_module,
     ]
 
-    schema = EvaluationConfifBuilder().add(prompt_modules).add(response_modules).build()
+    schema = EvaluationConfigBuilder().add(prompt_modules).add(response_modules).build()
 
     actual = _log(row, schema)
 
@@ -394,7 +394,7 @@ def test_multi_text_stat_metric():
         }
     )
 
-    config = EvaluationConfifBuilder().add(prompt_char_count_module).add(lambda: multi_metric("letter_count", "prompt")).build()
+    config = EvaluationConfigBuilder().add(prompt_char_count_module).add(lambda: multi_metric("letter_count", "prompt")).build()
     actual = _log(df, config)
 
     pd.set_option("display.max_columns", None)
