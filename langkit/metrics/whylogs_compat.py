@@ -101,6 +101,10 @@ def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
 
 
 def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
+    for metric in eval_conf.metrics:
+        if metric.init:
+            metric.init()
+
     metrics = [to_udf_schema_args(it) for it in eval_conf.metrics]
     flattened_metrics = reduce(lambda a, b: a + b, metrics)
     args = reduce(combine_schemas, flattened_metrics, UdfSchemaArgs(resolvers=NO_FI_RESOLVER))

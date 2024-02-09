@@ -21,6 +21,7 @@ class Row(TypedDict):
     prompt: str
     response: str
 
+
 @dataclass(frozen=True)
 class EvaluationResult:
     metrics: pd.DataFrame

@@ -316,8 +316,8 @@ class lib:
         @staticmethod
         def create(input_name: str) -> MetricCreator:
             from langkit.metrics.injections import injections_metric
-            return lambda: injections_metric(column_name=input_name)
 
+            return lambda: injections_metric(column_name=input_name)
 
     class input_output:
         @staticmethod

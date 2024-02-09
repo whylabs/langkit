@@ -1,0 +1,44 @@
+name: "Build the python code and wheels"
+description: "Common Python build steps"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-python@v4
+      name: Install Python
+      with:
+        python-version: "3.10.8"
+
+    - uses: Gr1N/setup-poetry@v8
+      name: Install poetry
+      with:
+        poetry-version: 1.7.1
+
+    - name: Install python dependencies
+      shell: bash
+      run: make install
+
+    - name: Check types
+      shell: bash
+      run: make lint
+
+    - name: Check formatting
+      shell: bash
+      run: make format
+
+    - name: Run test
+      shell: bash
+      run: make test
+
+    - name: Run test
+      shell: bash
+      run: make dist
+
+    - name: Upload python client wheel
+      uses: actions/upload-artifact@v4
+      with:
+        name: langkit-wheel
+        path: dist/*.whl
+

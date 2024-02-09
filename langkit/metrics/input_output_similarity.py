@@ -14,6 +14,7 @@ def input_output_similarity_metric(
 ) -> Metric:
     transformer_name = "sentence-transformers/all-MiniLM-L6-v2"
     encoder = embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer.value(transformer_name))
+
     def init():
         sentence_transformer.value(transformer_name)
 
