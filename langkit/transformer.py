@@ -5,11 +5,18 @@ import numpy as np
 
 import os
 import torch
+import torch
+from sentence_transformers import SentenceTransformer
+from langkit.utils import DynamicLazyInit
 
 _USE_CUDA = torch.cuda.is_available() and not bool(
     os.environ.get("LANGKIT_NO_CUDA", False)
 )
 _device = "cuda" if _USE_CUDA else "cpu"
+
+sentence_transformer: DynamicLazyInit[str, SentenceTransformer] = DynamicLazyInit(
+    lambda model_name: SentenceTransformer(model_name, device=_device)
+)
 
 
 try:
@@ -21,7 +28,6 @@ except ImportError:
 class CustomEncoder:
     def __init__(self, encoder: Callable):
         self.encode = encoder
-
 
 class Encoder:
     def __init__(
@@ -46,13 +52,11 @@ class Encoder:
                 "One of transformer_name or custom_encoder must be specified, none was given."
             )
         if custom_encoder:
-            transformer_model = CustomEncoder(custom_encoder)
-            self.transformer_name = "custom_encoder"
+            self.transformer_name = None
+            self.custom_encoder = CustomEncoder(custom_encoder)    
         if transformer_name:
-            device = _device if not veto_cuda else "cpu"
-            transformer_model = SentenceTransformer(transformer_name, device=device)
             self.transformer_name = transformer_name
-        self.transformer_model = transformer_model
+            self.custom_encoder = None
 
     def encode(self, sentences: Union[List, str]) -> Union[Tensor, np.ndarray, List]:
         """
@@ -64,12 +68,13 @@ class Encoder:
         """
         if isinstance(sentences, str):
             sentences = [sentences]
-        if isinstance(self.transformer_model, SentenceTransformer):
-            embeddings = self.transformer_model.encode(
+        if self.custom_encoder:
+            embeddings = self.custom_encoder.encode(sentences)
+        elif self.transformer_name:
+            transformer_model = sentence_transformer.value(self.transformer_name)
+            embeddings = transformer_model.encode(
                 sentences, convert_to_tensor=True
             )
-        elif isinstance(self.transformer_model, CustomEncoder):
-            embeddings = self.transformer_model.encode(sentences)
         else:
             raise ValueError("Unknown encoder model type")
         if tf and isinstance(embeddings, tf.Tensor):
