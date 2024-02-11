@@ -182,7 +182,7 @@ class EvaluationConfigBuilder:
                 for m in module:
                     if callable(m):
                         schema = m()
-                        if isinstance(schema, Metric):
+                        if isinstance(schema, SingleMetric) or isinstance(schema, MultiMetric):
                             schemas.append(schema)
                         elif isinstance(schema, list):
                             for s in schema:

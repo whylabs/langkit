@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set
+from typing import Dict, List, Mapping, Optional, Set, TypedDict, Union, overload
 
 import pandas as pd
 
@@ -14,6 +14,12 @@ from langkit.core.metric import (
     SingleMetricResult,
 )
 from langkit.core.validation import ValidationResult, Validator
+from langkit.metrics.util import is_dict_with_strings
+
+
+class Row(TypedDict):
+    prompt: str
+    response: str
 
 
 @dataclass(frozen=True)
@@ -118,10 +124,40 @@ class EvaluationWorkflow:
                 names.extend(metric.names)
         return names
 
-    def run(self, df: pd.DataFrame) -> EvaluationResult:
+    @overload
+    def run(self, data: pd.DataFrame) -> EvaluationResult:
+        """
+        This form is intended for batch evaluation,
+        where the input is a pandas DataFrame.
+        """
+        ...
+
+    @overload
+    def run(self, data: Row) -> EvaluationResult:
+        """
+        This form is intended for single row evaluation,
+        where the input is a dictionary with the keys "prompt" and "response".
+        """
+        ...
+
+    @overload
+    def run(self, data: Dict[str, str]) -> EvaluationResult:
+        """
+        This form doesn't assume the "prompt" and "response" key names.
+        This would be required in cases where the user wants to use different
+        column names, for example "question" and "answer", or "input" and "output".
+        """
+        ...
+
+    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
         if not self._initialized:
             self.init()
-
+        if not isinstance(data, pd.DataFrame):
+            if not is_dict_with_strings(data):
+                raise ValueError("Input must be a pandas DataFrame or a dictionary with string keys and string values")
+            df = pd.DataFrame(data, index=[0])
+        else:
+            df = data
         # Evaluation
         metric_results: Dict[str, SingleMetricResult] = {}
         for metric in self.metrics.metrics:

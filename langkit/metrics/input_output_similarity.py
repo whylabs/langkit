@@ -2,26 +2,21 @@ from functools import partial
 from typing import Optional
 
 import pandas as pd
-import torch
-from sentence_transformers import SentenceTransformer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 from langkit.metrics.embeddings_types import EmbeddingEncoder, TransformerEmbeddingAdapter
 from langkit.metrics.embeddings_utils import compute_embedding_similarity
-from langkit.metrics.util import LazyInit
-
-__transformer = LazyInit(
-    lambda: SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device="cuda" if torch.cuda.is_available() else "cpu")
-)
+from langkit.transformer import sentence_transformer
 
 
 def input_output_similarity_metric(
     input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
 ) -> Metric:
-    encoder = embedding_encoder or TransformerEmbeddingAdapter(__transformer.value)
+    transformer_name = "sentence-transformers/all-MiniLM-L6-v2"
+    encoder = embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer.value(transformer_name))
 
     def init():
-        __transformer.value
+        sentence_transformer.value(transformer_name)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         in_np = UdfInput(text).to_list(input_column_name)

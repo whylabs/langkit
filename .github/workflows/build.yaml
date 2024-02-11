@@ -1,0 +1,17 @@
+name: Workflow
+
+on:
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  build:
+    name: Build and run all tests and checks
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Python tests and build
+        uses: ./.github/actions/python-build
