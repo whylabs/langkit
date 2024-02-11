@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.44"
+version = "0.0.45"
 description = "A language toolkit for monitoring LLM interactions"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 homepage = "https://docs.whylabs.ai/docs/large-language-model-monitoring"
@@ -12,7 +12,7 @@ readme = "DESCRIPTION.md"
 python = ">=3.8,<4"
 textstat = "^0.7.3"
 pandas = "*"
-whylogs = {url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev0-py3-none-any.whl"}
+whylogs = {url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev1-py3-none-any.whl"}
 
 
 # optional dependencies
