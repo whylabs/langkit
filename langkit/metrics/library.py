@@ -23,6 +23,7 @@ class lib:
             prompt_textstat_module,
             response_textstat_module,
         )
+        from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
         from langkit.metrics.topic import prompt_response_topic_module
         from langkit.metrics.toxicity import prompt_response_toxicity_module
 
@@ -39,6 +40,8 @@ class lib:
             prompt_response_toxicity_module,
             prompt_response_input_output_similarity_module,
             prompt_injections_module,
+            prompt_jailbreak_similarity_metric,
+            response_refusal_similarity_metric,
         ]
 
     class text_stat:
