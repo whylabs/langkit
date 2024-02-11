@@ -2,6 +2,7 @@ from functools import partial
 
 import nltk
 import pandas as pd
+from nltk.downloader import Downloader
 from nltk.sentiment import SentimentIntensityAnalyzer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
@@ -12,7 +13,9 @@ __analyzer = LazyInit(lambda: SentimentIntensityAnalyzer())
 
 def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") -> Metric:
     def init():
-        nltk.download(lexicon, quiet=True, raise_on_error=True)  # type: ignore[reportUnknownMemberType]
+        downloader = Downloader()
+        if not downloader.is_installed(lexicon):  # pyright: ignore[reportUnknownMemberType]
+            nltk.download(lexicon, raise_on_error=True)  # type: ignore[reportUnknownMemberType]
         __analyzer.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
