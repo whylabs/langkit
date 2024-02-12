@@ -7,7 +7,7 @@ import pandas as pd
 
 @dataclass(frozen=True)
 class ValidationFailure:
-    id: int
+    id: Union[str, int]
     metric: str
     details: str
 
@@ -51,7 +51,7 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
         def validate_result(self, df: pd.DataFrame):
             failures: List[ValidationFailure] = []
             for _index, row in df.iterrows():  # type: ignore
-                id = int(row["id"])  # type: ignore TODO make sure this is ok
+                id = str(row["id"])  # type: ignore TODO make sure this is ok
 
                 if upper_threshold is not None and target_metric in row and row[target_metric] > upper_threshold:
                     failures.append(

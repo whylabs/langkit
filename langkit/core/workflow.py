@@ -27,7 +27,7 @@ class EvaluationResult:
     metrics: pd.DataFrame
     validation_results: ValidationResult
 
-    def get_failed_ids(self) -> List[int]:
+    def get_failed_ids(self) -> List[Union[int, str]]:
         return list(set([it.id for it in self.validation_results.report]))
 
     def get_failed_rows(self) -> pd.DataFrame:
