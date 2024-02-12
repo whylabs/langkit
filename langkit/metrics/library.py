@@ -11,6 +11,7 @@ class lib:
     def all_metrics() -> MetricCreator:
         from langkit.metrics.injections import prompt_injections_module
         from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_module
+        from langkit.metrics.pii import prompt_presidio_pii_metric, response_presidio_pii_metric
         from langkit.metrics.regexes.regexes import (
             prompt_response_credit_card_number_regex_module,
             prompt_response_email_address_regex_module,
@@ -42,6 +43,8 @@ class lib:
             prompt_injections_module,
             prompt_jailbreak_similarity_metric,
             response_refusal_similarity_metric,
+            prompt_presidio_pii_metric,
+            response_presidio_pii_metric,
         ]
 
     class text_stat:
