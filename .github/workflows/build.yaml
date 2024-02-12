@@ -15,3 +15,66 @@ jobs:
 
       - name: Python tests and build
         uses: ./.github/actions/python-build
+
+  enforce_cache_constraint:
+    name: Make sure the cache constraint logic works
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Maximize build space for large container build
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 8000
+          swap-size-mb: 2048
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-haskell: "true"
+          remove-codeql: "true"
+
+      - uses: actions/checkout@v3
+
+      - name: Setup /var/lib/docker
+        env:
+          MOUNT_PATH: ./docker-mount
+        shell: bash
+        run: |
+          # Starting state of docker dir
+          echo "Content of /var/lib/docker/"
+          sudo ls -lh /var/lib/docker/
+
+          # Stop docker first
+          sudo systemctl stop docker
+          sudo systemctl stop docker.socket
+          sudo systemctl stop containerd
+
+          mkdir -p $MOUNT_PATH/
+          touch $MOUNT_PATH/file # test to make sure its working. Should see this in /var/lib/docker now
+          sudo mount --bind ./docker-mount /var/lib/docker
+          sudo systemctl start docker
+
+          echo "Content of $MOUNT_PATH"
+          sudo ls -lh $MOUNT_PATH
+
+          echo "Content of /var/lib/docker/"
+          sudo ls -lh /var/lib/docker/
+
+          echo ""
+          findmnt
+
+      # Unclear what causes the permissions issue. Probably one of the disk space saving hacks.
+      - name: Fix permissions
+        run: |
+          ls -al .
+          sudo chown -R $USER:$USER .
+          sudo chmod -R a+r .
+          ls -al .
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run test
+        run: make test-cache-constraint

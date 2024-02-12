@@ -68,7 +68,7 @@ def __load_embeddings() -> "np.ndarray[Any, Any]":
 
 
 def injections_metric(column_name: str) -> Metric:
-    def init():
+    def cache_assetes():
         sentence_transformer.value(__transformer_name)
         __embeddings.value
 
@@ -85,7 +85,7 @@ def injections_metric(column_name: str) -> Metric:
         metrics = [float(score) for _, score in zip(max_indices, max_similarities)]
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, init=init)
+    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, cache_assets=cache_assetes)
 
 
 prompt_injections_module = partial(injections_metric, "prompt")

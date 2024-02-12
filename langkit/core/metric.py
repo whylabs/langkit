@@ -87,6 +87,7 @@ class SingleMetric:
     input_name: str  # TODO the input_name isn't really used anywhere yet besides whylogs compat.
     evaluate: Callable[[pd.DataFrame], SingleMetricResult]
     init: Optional[Callable[[], None]] = None
+    cache_assets: Optional[Callable[[], None]] = None
 
 
 @dataclass(frozen=True)
@@ -97,6 +98,7 @@ class MultiMetric:
     input_name: str  # TODO this should be a list of input names so allow for things that have to consume both prompt/response
     evaluate: Callable[[pd.DataFrame], MultiMetricResult]
     init: Optional[Callable[[], None]] = None
+    cache_assets: Optional[Callable[[], None]] = None
 
 
 Metric = Union[SingleMetric, MultiMetric]

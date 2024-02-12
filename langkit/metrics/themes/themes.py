@@ -76,9 +76,9 @@ def __themes_metric(
         text_list: List[str] = text[column_name].tolist()
         encoded_text = encoder.encode(text_list)  # (n_input_rows, embedding_dim)
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
-        max_similarities = similarities.max(dim=1)[0]  # (n_input_rows,)
-        similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType]
-        return SingleMetricResult(similarity_list)
+        max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)
+        similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
+        return SingleMetricResult(similarity_list)  # pyright: ignore[reportUnknownArgumentType]
 
     return SingleMetric(
         name=f"{column_name}.{themes_group}_similarity",

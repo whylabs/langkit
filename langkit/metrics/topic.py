@@ -43,14 +43,14 @@ def topic_metric(column_name: str, topics: List[str]) -> Metric:
         metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
         return SingleMetricResult(metrics)
 
-    def init():
+    def cache_assets():
         __classifier.value
 
     return SingleMetric(
         name=f"{column_name}.closest_topic",
         input_name=column_name,
         evaluate=udf,
-        init=init,
+        init=cache_assets,
     )
 
 
