@@ -283,7 +283,7 @@ def test_prompt_char_count_0_module():
     assert actual.validation_results == ValidationResult(
         report=[
             ValidationFailure(
-                id=0, metric="prompt.char_count", details="Value 0 is below threshold 2", value=0, upper_threshold=None, lower_threshold=2
+                id="0", metric="prompt.char_count", details="Value 0 is below threshold 2", value=0, upper_threshold=None, lower_threshold=2
             )
         ]
     )

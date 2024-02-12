@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
+import numpy as np
 import pandas as pd
 
 
 @dataclass(frozen=True)
 class ValidationFailure:
-    id: Union[str, int]
+    id: str
     metric: str
     details: str
 
@@ -52,6 +53,11 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
             failures: List[ValidationFailure] = []
             for _index, row in df.iterrows():  # type: ignore
                 id = str(row["id"])  # type: ignore TODO make sure this is ok
+                value: Any = row[target_metric]
+                if isinstance(value, pd.Series) and value.size == 1:
+                    value = value.item()
+                elif isinstance(value, np.ndarray) and value.size == 1:
+                    value = value.item()
 
                 if upper_threshold is not None and target_metric in row and row[target_metric] > upper_threshold:
                     failures.append(
@@ -59,7 +65,7 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
                             id,
                             target_metric,
                             f"Value {row[target_metric]} is above threshold {upper_threshold}",
-                            value=row[target_metric].item(),  # type: ignore TODO make sure ok
+                            value=value,  # type: ignore
                             upper_threshold=upper_threshold,
                         )
                     )
@@ -70,7 +76,7 @@ def create_validator(target_metric: str, upper_threshold: Optional[float] = None
                             id,
                             target_metric,
                             f"Value {row[target_metric]} is below threshold {lower_threshold}",
-                            value=row[target_metric].item(),  # type: ignore TODO make sure ok
+                            value=value,  # type: ignore
                             lower_threshold=lower_threshold,
                         )
                     )
