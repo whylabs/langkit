@@ -177,7 +177,7 @@ class EvaluationWorkflow:
         # Validation
         condensed = self._condense_metric_results(metric_results)
         if "id" not in df.columns:
-            condensed["id"] = df.index
+            condensed["id"] = df.index.astype(str)
         else:
             condensed["id"] = df["id"]
 
