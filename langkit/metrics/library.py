@@ -348,7 +348,7 @@ class lib:
 
     class refusal:
         @staticmethod
-        def prompt() -> MetricCreator:
+        def response() -> MetricCreator:
             from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
             return response_refusal_similarity_metric
