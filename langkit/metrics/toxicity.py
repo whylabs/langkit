@@ -36,7 +36,7 @@ __pipeline: DynamicLazyInit[str, TextClassificationPipeline] = DynamicLazyInit(
 
 
 def toxicity_metric(column_name: str, model_path="martin-ha/toxic-comment-model") -> Metric:
-    def init():
+    def cache_assets():
         __model.value(model_path)
         __tokenizer.value(model_path)
         __pipeline.value(model_path)
@@ -50,7 +50,7 @@ def toxicity_metric(column_name: str, model_path="martin-ha/toxic-comment-model"
         metrics = __toxicity(_pipeline, max_length, col)
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf, init=init)
+    return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf, cache_assets=cache_assets)
 
 
 prompt_toxicity_module = partial(toxicity_metric, "prompt")

@@ -12,10 +12,12 @@ __analyzer = LazyInit(lambda: SentimentIntensityAnalyzer())
 
 
 def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") -> Metric:
-    def init():
+    def cache_assets():
         downloader = Downloader()
         if not downloader.is_installed(lexicon):  # pyright: ignore[reportUnknownMemberType]
             nltk.download(lexicon, raise_on_error=True)  # type: ignore[reportUnknownMemberType]
+
+    def init():
         __analyzer.value
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
@@ -27,6 +29,7 @@ def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") 
         input_name=column_name,
         evaluate=udf,
         init=init,
+        cache_assets=cache_assets,
     )
 
 

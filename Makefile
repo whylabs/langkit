@@ -14,6 +14,9 @@ clean:  ## Clean the project and generated files
 test:  ## Run the tests
 	poetry run pytest tests -o log_level=INFO -o log_cli=true
 
+test-cache-constraint:
+	docker build -f ./Dockerfile.cache_test . -t langkit_cache_test
+
 load-test:
 	poetry run pytest -vvv langkit/tests -o log_level=WARN -o log_cli=true --load
 

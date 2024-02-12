@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from functools import partial
 from typing import Any, Dict, List, Optional
 
@@ -8,8 +9,32 @@ from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
 
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
+from langkit.metrics.util import DynamicLazyInit, LazyInit
+
+
+@dataclass(frozen=True)
+class PresidioConfig:
+    lang_code: str
+    spacy: str
+    transformers: str
+
+    def to_dict(self) -> List[Dict[str, Any]]:
+        return [
+            {
+                "lang_code": self.lang_code,
+                "model_name": {
+                    "spacy": self.spacy,
+                    "transformers": self.transformers,
+                },
+            }
+        ]
+
 
 __default_entities = ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "IP_ADDRESS"]
+__analyzer = DynamicLazyInit[PresidioConfig, AnalyzerEngine](
+    lambda config: AnalyzerEngine(nlp_engine=TransformersNlpEngine(models=config.to_dict()))
+)
+__anonymizer = LazyInit(lambda: AnonymizerEngine())
 
 
 def __create_pii_metric_name(input_name: str, entity: str) -> str:
@@ -26,19 +51,11 @@ def pii_presidio_metric(
     if entities is None:
         entities = __default_entities.copy()
 
-    # Define which transformers model to use
-    model_config = [
-        {
-            "lang_code": language,
-            "model_name": {
-                "spacy": spacy_model,  # use a small spaCy model for lemmas, tokens etc.
-                "transformers": transformers_model,
-            },
-        }
-    ]
-    nlp_engine = TransformersNlpEngine(models=model_config)
-    analyzer = AnalyzerEngine(nlp_engine=nlp_engine)
-    anonymizer = AnonymizerEngine()
+    analyzer = __analyzer.value(PresidioConfig(language, spacy_model, transformers_model))
+    anonymizer = __anonymizer.value
+
+    def cache_assets() -> None:
+        spacy.load(spacy_model)
 
     def init() -> None:
         spacy.load(spacy_model)
@@ -80,7 +97,7 @@ def pii_presidio_metric(
         return MultiMetricResult(metrics=all_metrics)
 
     metric_names = list(entity_types.values()) + [redacted_metric_name]
-    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, init=init)
+    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, init=init, cache_assets=cache_assets)
 
 
 prompt_presidio_pii_metric = partial(pii_presidio_metric, "prompt")

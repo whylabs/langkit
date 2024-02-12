@@ -1,0 +1,44 @@
+from python:3.10.13-slim 
+RUN groupadd -r whylabs && useradd --no-log-init -m -u 1000 -g whylabs whylabs 
+WORKDIR /opt/whylogs-container
+RUN chown -R whylabs:whylabs /opt/whylogs-container
+USER whylabs
+
+ENV LLM_CONTAINER=True
+ENV CONTAINER_CACHE_BASE=/opt/whylogs-container/.cache
+ENV HF_HOME=$CONTAINER_CACHE_BASE/hf_home/
+ENV NLTK_DATA=$CONTAINER_CACHE_BASE/nltk_data/
+ENV SENTENCE_TRANSFORMERS_HOME=$CONTAINER_CACHE_BASE/sentence_transformers/
+
+RUN mkdir -p $HF_HOME
+RUN mkdir -p $NLTK_DATA
+RUN mkdir -p $SENTENCE_TRANSFORMERS_HOME
+RUN chmod -R a+rw $CONTAINER_CACHE_BASE
+
+
+##
+## PYTHON DEPENDENCIES
+## Install/build pip dependencies
+##
+USER root
+RUN apt-get update && apt-get install -y curl build-essential
+USER whylabs
+# Install poetry
+ENV PATH="/home/whylabs/.local/bin:${PATH}"
+RUN python3.10 -m pip install --user pipx
+RUN python3.10 -m pipx ensurepath
+RUN python3.10 -m pipx install poetry==1.7.1
+
+COPY poetry.lock /opt/whylogs-container/
+COPY pyproject.toml /opt/whylogs-container/
+
+RUN poetry config virtualenvs.in-project true
+RUN poetry install --no-root --extras "all" --without dev
+RUN rm -rf .venv/lib/python3.10/site-packages/pandas/tests # Pandas deploys a ton of tests to pypi
+
+
+copy ./langkit ./langkit
+RUN bash -c "source .venv/bin/activate; python -m langkit.scripts.langkit_cache"
+# This step will fail if any network requests happen
+RUN --network=none bash -c "source .venv/bin/activate; python -m langkit.scripts.langkit_cache --skip-downloads"
+

@@ -69,11 +69,21 @@ class EvaluationWorkflow:
         callbacks: Optional[List[Callback]] = None,
         validators: Optional[List[Validator]] = None,
         lazy_init=False,
+        cache_assets=True,
     ) -> None:
+        """
+        Args:
+            metrics: A list of metrics to evaluate.
+            validators: A list of validators to run after the evaluation is complete.
+            callbacks: A list of callbacks to run after the evaluation is complete.
+            lazy_init: If True, the metrics will not be initialized until the first call to run.
+            cache_assets: If True, the assets required for the metrics will be cached during inititialization.
+        """
         self.hooks = callbacks or []
         self.metrics = EvaluationConfigBuilder().add(metrics).build()
         self.validators = validators or []
         self._initialized = False
+        self._cache_assets = cache_assets
 
         if not lazy_init:
             self.init()
@@ -87,6 +97,9 @@ class EvaluationWorkflow:
         # I prefer init just be idempotent but it might be hard for people to get right.
         metric_names: Set[str] = set()
         for metric in self.metrics.metrics:
+            if self._cache_assets and metric.cache_assets:
+                metric.cache_assets()
+
             if metric.init:
                 metric.init()
 
