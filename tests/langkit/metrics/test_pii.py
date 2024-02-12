@@ -134,4 +134,4 @@ def test_prompt_response_pii_metric():
     assert logged["response.pii.ip_address"][0] == 0
     assert logged["prompt.pii.redacted"][0] == "Hey! Here is my phone number: <PHONE_NUMBER>, and my email is <EMAIL_ADDRESS>."
     assert logged["response.pii.redacted"][0] is None
-    assert logged["id"][0] == 0
+    assert logged["id"][0] == "0"
