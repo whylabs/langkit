@@ -9,7 +9,6 @@ import torch
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
-    PreTrainedTokenizerBase,
     TextClassificationPipeline,
 )
 
@@ -20,19 +19,21 @@ _device = 0 if _USE_CUDA else -1
 
 _prompt = prompt_column
 _response = response_column
-_toxicity_tokenizer = None
-_toxicity_pipeline = None
 
 _model_path: Optional[str] = None
 
 _model = LazyInit(
-    lambda : AutoModelForSequenceClassification.from_pretrained(_model_path)
+    lambda: AutoModelForSequenceClassification.from_pretrained(_model_path)
 )
 _toxicity_tokenizer = LazyInit(lambda: AutoTokenizer.from_pretrained(_model_path))
-__use_cuda = torch.cuda.is_available() and not bool(os.environ.get("LANGKIT_NO_CUDA", False))
+__use_cuda = torch.cuda.is_available() and not bool(
+    os.environ.get("LANGKIT_NO_CUDA", False)
+)
 _toxicity_pipeline = LazyInit(
     lambda: TextClassificationPipeline(
-        model=_model.value, tokenizer=_toxicity_tokenizer.value, device=0 if __use_cuda else -1
+        model=_model.value,
+        tokenizer=_toxicity_tokenizer.value,
+        device=0 if __use_cuda else -1,
     )
 )
 

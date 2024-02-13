@@ -5,8 +5,6 @@ import numpy as np
 
 import os
 import torch
-import torch
-from sentence_transformers import SentenceTransformer
 from langkit.utils import DynamicLazyInit
 
 _USE_CUDA = torch.cuda.is_available() and not bool(
@@ -29,12 +27,12 @@ class CustomEncoder:
     def __init__(self, encoder: Callable):
         self.encode = encoder
 
+
 class Encoder:
     def __init__(
         self,
         transformer_name: Optional[str],
         custom_encoder: Optional[Callable[[List[str]], Any]],
-        veto_cuda: bool = False,
     ):
         """
         Args:
@@ -53,7 +51,7 @@ class Encoder:
             )
         if custom_encoder:
             self.transformer_name = None
-            self.custom_encoder = CustomEncoder(custom_encoder)    
+            self.custom_encoder: Optional[CustomEncoder] = CustomEncoder(custom_encoder)
         if transformer_name:
             self.transformer_name = transformer_name
             self.custom_encoder = None
@@ -72,9 +70,7 @@ class Encoder:
             embeddings = self.custom_encoder.encode(sentences)
         elif self.transformer_name:
             transformer_model = sentence_transformer.value(self.transformer_name)
-            embeddings = transformer_model.encode(
-                sentences, convert_to_tensor=True
-            )
+            embeddings = transformer_model.encode(sentences, convert_to_tensor=True)
         else:
             raise ValueError("Unknown encoder model type")
         if tf and isinstance(embeddings, tf.Tensor):
