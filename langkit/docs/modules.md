@@ -111,6 +111,11 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
                    "response":"The Eiffel Tower is a renowned landmark in Paris, France"}, schema=text_schema).profile()
 ```
 
+#### Configuration
+
+- [Local model path configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb)
+- [Custom Encoder configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Custom_Encoder.ipynb)
+
 ### `response.relevance_to_prompt`
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
@@ -415,6 +420,8 @@ from langkit import themes
 themes.init(theme_file_path="path/to/themes.json")
 ```
 
+Users can also use local models with `themes`. See the [Local Model](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb) example for more information.
+
 ### `jailbreaks`
 
 This group gathers a set of known jailbreak examples.
@@ -465,3 +472,5 @@ profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).prof
 ### `toxicity`
 
 The `toxicity` will contain metrics related to the toxicity score calculated for each value in the string column. The toxicity score is calculated using HuggingFace's [`martin-ha/toxic-comment-model`](https://huggingface.co/martin-ha/toxic-comment-model) toxicity analyzer. The score ranges from 0 to 1, where 0 is no toxicity and 1 is maximum toxicity.
+
+- [Local model path configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb)
