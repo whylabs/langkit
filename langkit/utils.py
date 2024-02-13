@@ -21,6 +21,7 @@ class DynamicLazyInit(Generic[In, Out]):
 
         return self.__cache[arg]
 
+
 class LazyInit(Generic[Out]):
     def __init__(self, init: Callable[[], Out]):
         self.__it: Optional[Out] = None
@@ -31,6 +32,7 @@ class LazyInit(Generic[Out]):
         if self.__it is None:
             self.__it = self.__init()
         return self.__it
+
 
 def deprecated(message):
     def decorator_deprecated(func):
