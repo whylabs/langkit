@@ -1,17 +1,16 @@
 import json
 import logging
 import os
-from functools import partial
+from functools import cache, partial
 from typing import Any, Dict, List, Literal, Optional, TypedDict, cast
 
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from sentence_transformers import SentenceTransformer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.embeddings_types import EmbeddingEncoder, TransformerEmbeddingAdapter
-from langkit.metrics.util import DynamicLazyInit
+from langkit.transformer import sentence_transformer
 
 logger = logging.getLogger(__name__)
 
@@ -58,21 +57,25 @@ def __compute_theme_embeddings(theme_groups: Dict[str, List[str]], encoder: Embe
     return {group: torch.as_tensor(encoder.encode(themes)) for group, themes in theme_groups.items()}
 
 
-__themes = DynamicLazyInit[EmbeddingEncoder, Dict[str, torch.Tensor]](lambda encoder: __compute_theme_embeddings(__load_themes(), encoder))
+@cache
+def _get_themes(encoder: EmbeddingEncoder) -> Dict[str, torch.Tensor]:
+    return __compute_theme_embeddings(__load_themes(), encoder)
 
 
 def __themes_metric(
     column_name: str, themes_group: Literal["jailbreak", "refusal"], embedding_encoder: Optional[EmbeddingEncoder] = None
 ) -> Metric:
-    if embedding_encoder is None:
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        encoder = TransformerEmbeddingAdapter(SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2", device=device))
-    else:
-        encoder = embedding_encoder
+    def cache_assets():
+        if embedding_encoder is None:
+            encoder = TransformerEmbeddingAdapter(sentence_transformer())
+        else:
+            encoder = embedding_encoder
 
-    theme = __themes.value(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
+        _get_themes(encoder)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
+        encoder = embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer())
+        theme = _get_themes(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
         text_list: List[str] = text[column_name].tolist()
         encoded_text = encoder.encode(text_list)  # (n_input_rows, embedding_dim)
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
@@ -84,6 +87,7 @@ def __themes_metric(
         name=f"{column_name}.{themes_group}_similarity",
         input_name=column_name,
         evaluate=udf,
+        cache_assets=cache_assets,
     )
 
 

@@ -1,5 +1,5 @@
 import os
-from functools import partial
+from functools import cache, partial
 from logging import getLogger
 from typing import Any, Sequence
 
@@ -9,7 +9,7 @@ import pandas as pd
 
 from langkit.config import LANGKIT_CACHE
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
-from langkit.metrics.util import LazyInit, retry
+from langkit.metrics.util import retry
 from langkit.transformer import sentence_transformer
 
 logger = getLogger(__name__)
@@ -19,7 +19,6 @@ LANGKIT_INJECTIONS_CACHE: str = os.path.join(LANGKIT_CACHE, "injections")
 __transformer_name = "all-MiniLM-L6-v2"
 __version = "v2"
 __injections_base_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
-__embeddings = LazyInit(lambda: __load_embeddings())
 
 
 @retry(max_attempts=3, wait_seconds=1)
@@ -60,7 +59,8 @@ def __process_embeddings(harm_embeddings: pd.DataFrame) -> "np.ndarray[Any, Any]
         raise ValueError(f"Injections - unable to process embeddings. Error: {e}")
 
 
-def __load_embeddings() -> "np.ndarray[Any, Any]":
+@cache
+def _get_embeddings() -> "np.ndarray[Any, Any]":
     filename = f"embeddings_{__transformer_name}_harm_{__version}.parquet"
     harm_embeddings = __download_embeddings(filename)
     embeddings_norm = __process_embeddings(harm_embeddings)
@@ -69,14 +69,14 @@ def __load_embeddings() -> "np.ndarray[Any, Any]":
 
 def injections_metric(column_name: str) -> Metric:
     def cache_assetes():
-        sentence_transformer.value(__transformer_name)
-        __embeddings.value
+        sentence_transformer()
+        _get_embeddings()
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
             raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
-        _embeddings = __embeddings.value
-        _transformer = sentence_transformer.value(__transformer_name)
+        _embeddings = _get_embeddings()
+        _transformer = sentence_transformer()
         target_embeddings: npt.NDArray[np.float32] = _transformer.encode(text[column_name])  # type: ignore[reportUnknownMemberType]
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
         cosine_similarities = np.dot(_embeddings, target_norms.T)
