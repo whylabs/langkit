@@ -1,4 +1,4 @@
-from functools import cache, partial
+from functools import partial
 from typing import Optional
 
 import pandas as pd
@@ -9,7 +9,6 @@ from langkit.metrics.embeddings_utils import compute_embedding_similarity
 from langkit.transformer import sentence_transformer
 
 
-@cache
 def _get_encoder(embedding_encoder: Optional[EmbeddingEncoder] = None):
     return embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer())
 
