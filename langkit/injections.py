@@ -21,7 +21,7 @@ _device = "cuda" if _USE_CUDA else "cpu"
 
 def init(
     transformer_name: Optional[str] = None,
-    version: Optional[str] = "v2",
+    version: Optional[str] = "dev0",
     config: Optional[LangKitConfig] = None,
 ):
     config = config or deepcopy(lang_config)
