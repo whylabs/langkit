@@ -238,9 +238,9 @@ class EvaluationWorkflow:
         # Performance
         run_perf = RunPerf(
             metrics=metric_times,
-            workflow_total=time.perf_counter() - start,
-            validation_total=all_validators_end,
-            metrics_total=all_metrics_end,
+            workflow_total=round(time.perf_counter() - start, 3),
+            validation_total=round(all_validators_end, 3),
+            metrics_total=round(all_metrics_end, 3),
         )
 
         return EvaluationResult(full_df, self._condense_validation_results(validation_results), perf=run_perf)
