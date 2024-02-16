@@ -1,7 +1,6 @@
 from typing import List, Optional, Union
 
 from langkit.core.metric import MetricCreator
-from langkit.metrics.embeddings_types import EmbeddingEncoder
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups
 from langkit.metrics.text_statistics_types import TextStat
 
@@ -327,14 +326,10 @@ class lib:
 
     class input_output:
         @staticmethod
-        def similarity(
-            input_column_name: str = "prompt", output_column_name: str = "response", embedding_encoder: Optional[EmbeddingEncoder] = None
-        ) -> MetricCreator:
+        def similarity(input_column_name: str = "prompt", output_column_name: str = "response") -> MetricCreator:
             from langkit.metrics.input_output_similarity import input_output_similarity_metric
 
-            return lambda: input_output_similarity_metric(
-                input_column_name=input_column_name, output_column_name=output_column_name, embedding_encoder=embedding_encoder
-            )
+            return lambda: input_output_similarity_metric(input_column_name=input_column_name, output_column_name=output_column_name)
 
         @staticmethod
         def default() -> MetricCreator:
