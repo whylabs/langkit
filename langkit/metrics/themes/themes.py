@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
-from langkit.transformer import sentence_transformer
+from langkit.transformer import embedding_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -53,22 +53,18 @@ def __load_themes() -> Dict[str, List[str]]:
         raise e
 
 
-def __compute_theme_embeddings(theme_groups: Dict[str, List[str]], encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]:
-    return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
-
-
 @cache
 def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]:
-    return __compute_theme_embeddings(__load_themes(), encoder)
+    theme_groups = __load_themes()
+    return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
 
 def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"]) -> Metric:
     def cache_assets():
-        encoder = TransformerEmbeddingAdapter(sentence_transformer())
-        _get_themes(encoder)
+        _get_themes(embedding_adapter())
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
-        encoder = TransformerEmbeddingAdapter(sentence_transformer())
+        encoder = embedding_adapter()
         theme = _get_themes(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
         text_list: List[str] = text[column_name].tolist()
         encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)

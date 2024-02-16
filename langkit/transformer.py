@@ -4,6 +4,8 @@ from typing import Tuple
 import torch
 from sentence_transformers import SentenceTransformer
 
+from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
+
 
 @cache
 def sentence_transformer(
@@ -19,3 +21,8 @@ def sentence_transformer(
     transformer_name, revision = name_revision
     device = "cuda" if torch.cuda.is_available() else "cpu"
     return SentenceTransformer(transformer_name, revision=revision, device=device)
+
+
+@cache
+def embedding_adapter() -> TransformerEmbeddingAdapter:
+    return TransformerEmbeddingAdapter(sentence_transformer())
