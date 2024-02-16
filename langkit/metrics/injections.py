@@ -69,8 +69,10 @@ def _get_embeddings() -> "np.ndarray[Any, Any]":
 
 def injections_metric(column_name: str) -> Metric:
     def cache_assets():
-        sentence_transformer()
         _get_embeddings()
+
+    def init():
+        sentence_transformer()
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
@@ -85,7 +87,7 @@ def injections_metric(column_name: str) -> Metric:
         metrics = [float(score) for _, score in zip(max_indices, max_similarities)]
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, cache_assets=cache_assets)
+    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init)
 
 
 prompt_injections_module = partial(injections_metric, "prompt")

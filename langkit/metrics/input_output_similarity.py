@@ -3,19 +3,18 @@ from functools import partial
 import pandas as pd
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
-from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
 from langkit.metrics.embeddings_utils import compute_embedding_similarity
-from langkit.transformer import sentence_transformer
+from langkit.transformer import embedding_adapter
 
 
 def input_output_similarity_metric(input_column_name: str = "prompt", output_column_name: str = "response") -> Metric:
-    def cache_assets():
-        TransformerEmbeddingAdapter(sentence_transformer())
+    def init():
+        embedding_adapter()
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         in_np = UdfInput(text).to_list(input_column_name)
         out_np = UdfInput(text).to_list(output_column_name)
-        encoder = TransformerEmbeddingAdapter(sentence_transformer())
+        encoder = embedding_adapter()
         similarity = compute_embedding_similarity(encoder, in_np, out_np)
 
         if len(similarity.shape) == 1:
@@ -27,7 +26,7 @@ def input_output_similarity_metric(input_column_name: str = "prompt", output_col
         name=f"{output_column_name}.relevance_to_{input_column_name}",
         input_name=input_column_name,
         evaluate=udf,
-        cache_assets=cache_assets,
+        init=init,
     )
 
 

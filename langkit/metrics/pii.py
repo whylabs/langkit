@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from functools import partial
+from functools import cache, partial
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -9,7 +9,6 @@ from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
 
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
-from langkit.metrics.util import DynamicLazyInit, LazyInit
 
 
 @dataclass(frozen=True)
@@ -31,39 +30,48 @@ class PresidioConfig:
 
 
 __default_entities = ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "IP_ADDRESS"]
-__analyzer = DynamicLazyInit[PresidioConfig, AnalyzerEngine](
-    lambda config: AnalyzerEngine(nlp_engine=TransformersNlpEngine(models=config.to_dict()))
-)
-__anonymizer = LazyInit(lambda: AnonymizerEngine())
 
 
 def __create_pii_metric_name(input_name: str, entity: str) -> str:
     return f"{input_name}.pii.{entity.lower()}"
 
 
+_spacy_name = "en_core_web_sm"
+_transformer_name = "dslim/bert-base-NER"
+
+
+@cache
+def _get_analyzer(lang_code: str) -> AnalyzerEngine:
+    config = PresidioConfig(lang_code, _spacy_name, _transformer_name)
+    return AnalyzerEngine(nlp_engine=TransformersNlpEngine(models=config.to_dict()))
+
+
+@cache
+def _get_anonymizer() -> AnonymizerEngine:
+    return AnonymizerEngine()
+
+
 def pii_presidio_metric(
     input_name: str,
     language: str = "en",
-    spacy_model: str = "en_core_web_sm",
-    transformers_model: str = "dslim/bert-base-NER",
     entities: Optional[List[str]] = None,
 ) -> MultiMetric:
     if entities is None:
         entities = __default_entities.copy()
 
-    analyzer = __analyzer.value(PresidioConfig(language, spacy_model, transformers_model))
-    anonymizer = __anonymizer.value
-
     def cache_assets() -> None:
-        spacy.load(spacy_model)
+        spacy.load(_spacy_name)
 
-    def init() -> None:
-        spacy.load(spacy_model)
+    def init():
+        _get_analyzer(language)
+        _get_anonymizer()
 
     entity_types = {entity: __create_pii_metric_name(input_name, entity) for entity in entities}
     redacted_metric_name = f"{input_name}.pii.redacted"
 
     def udf(text: pd.DataFrame) -> MultiMetricResult:
+        analyzer = _get_analyzer(language)
+        anonymizer = _get_anonymizer()
         anonymized_metrics: Dict[str, List[Optional[str]]] = {
             redacted_metric_name: [],
         }
@@ -97,7 +105,7 @@ def pii_presidio_metric(
         return MultiMetricResult(metrics=all_metrics)
 
     metric_names = list(entity_types.values()) + [redacted_metric_name]
-    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, init=init, cache_assets=cache_assets)
+    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets, init=init)
 
 
 prompt_presidio_pii_metric = partial(pii_presidio_metric, "prompt")

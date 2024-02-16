@@ -137,7 +137,7 @@ prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_mod
 prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
 
 
-def custom_regex_metric(column_name: str, file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+def custom_regex_metric(column_name: str, file_or_patterns: Optional[Union[str, CompiledPatternGroups]] = None) -> MetricCreator:
     """
     Using this to create a custom regex module will result in the generated metrics
     appearing as `prompt.<pattern_name>` and `response.<pattern_name>`, or whatever you supply
@@ -147,6 +147,8 @@ def custom_regex_metric(column_name: str, file_or_patterns: Union[str, CompiledP
     """
     if isinstance(file_or_patterns, str):
         patterns = load_patterns_file(file_or_patterns)
+    elif file_or_patterns is None:
+        patterns = __default_patterns
     else:
         patterns = file_or_patterns
 

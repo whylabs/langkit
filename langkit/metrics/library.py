@@ -111,13 +111,13 @@ class lib:
             return lambda: custom_regex_metric(input_name, file_or_patterns=file_or_patterns)
 
         @staticmethod
-        def prompt(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+        def prompt(file_or_patterns: Optional[Union[str, CompiledPatternGroups]] = None) -> MetricCreator:
             from langkit.metrics.regexes.regexes import custom_regex_metric
 
             return lambda: custom_regex_metric("prompt", file_or_patterns=file_or_patterns)
 
         @staticmethod
-        def response(file_or_patterns: Union[str, CompiledPatternGroups]) -> MetricCreator:
+        def response(file_or_patterns: Optional[Union[str, CompiledPatternGroups]] = None) -> MetricCreator:
             from langkit.metrics.regexes.regexes import custom_regex_metric
 
             return lambda: custom_regex_metric("response", file_or_patterns=file_or_patterns)
