@@ -3666,7 +3666,7 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 
 [package.source]
 type = "legacy"
-url = "https://download.pytorch.org/whl/cu118"
+url = "https://download.pytorch.org/whl/cpu"
 reference = "torch"
 
 [[package]]
@@ -4336,9 +4336,10 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-all = ["datasets", "evaluate", "faiss-cpu", "ipywidgets", "nltk", "numpy", "openai", "presidio-analyzer", "presidio-anonymizer", "sentence-transformers", "torch"]
+all = ["datasets", "evaluate", "faiss-cpu", "ipywidgets", "nltk", "numpy", "openai", "presidio-analyzer", "presidio-anonymizer", "sentence-transformers"]
+torch = ["torch"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "8018d043a023deada6cdeb1bafa9e1e60a797795aa9e070840c1d742f74e82b7"
+content-hash = "2d5267444a333d59f7f8a7974f610bc805a20e002f04867e14f39000cc0dbbe3"
