@@ -25,17 +25,17 @@ class Row(TypedDict):
 
 @dataclass(frozen=True)
 class RunPerf:
-    metrics: Dict[str, float]
-    workflow_total: float
-    metrics_total: float
-    validation_total: float
+    metrics_time_sec: Dict[str, float]
+    workflow_total_sec: float
+    metrics_total_sec: float
+    validation_total_sec: float
 
 
 @dataclass(frozen=True)
 class EvaluationResult:
     metrics: pd.DataFrame
     validation_results: ValidationResult
-    perf: RunPerf
+    perf_info: RunPerf
 
     def get_failed_ids(self) -> List[str]:
         return list(set([it.id for it in self.validation_results.report]))
@@ -237,13 +237,13 @@ class EvaluationWorkflow:
 
         # Performance
         run_perf = RunPerf(
-            metrics=dict(metric_times),
-            workflow_total=round(time.perf_counter() - start, 3),
-            validation_total=round(all_validators_end, 3),
-            metrics_total=round(all_metrics_end, 3),
+            metrics_time_sec=dict(metric_times),
+            workflow_total_sec=round(time.perf_counter() - start, 3),
+            validation_total_sec=round(all_validators_end, 3),
+            metrics_total_sec=round(all_metrics_end, 3),
         )
 
-        return EvaluationResult(full_df, self._condense_validation_results(validation_results), perf=run_perf)
+        return EvaluationResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)
 
     def _validate_evaluate(self, input_df: pd.DataFrame, metric: Metric, metric_result: MetricResult) -> None:
         """
