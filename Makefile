@@ -6,7 +6,7 @@ dist: ## Build the wheel
 	poetry build
 
 install: ## Install all dependencies and extras
-	poetry install -E all
+	poetry install -E all -E torch
 
 clean:  ## Clean the project and generated files
 	rm -rf ./dist/

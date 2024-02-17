@@ -7,6 +7,7 @@ import spacy
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
 from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
+from spacy.cli.download import download  # pyright: ignore[reportUnknownVariableType]
 
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
 
@@ -51,6 +52,11 @@ def _get_anonymizer() -> AnonymizerEngine:
     return AnonymizerEngine()
 
 
+@cache
+def _load_spacy_model():
+    spacy.load(_spacy_name)
+
+
 def pii_presidio_metric(
     input_name: str,
     language: str = "en",
@@ -60,11 +66,17 @@ def pii_presidio_metric(
         entities = __default_entities.copy()
 
     def cache_assets() -> None:
-        spacy.load(_spacy_name)
+        try:
+            # Spacy isn't smart enough to avoid a bunch of extra work, it will shell out to pip
+            # each time this is called.
+            _load_spacy_model()
+        except Exception:
+            download(_spacy_name)
 
     def init():
         _get_analyzer(language)
         _get_anonymizer()
+        _load_spacy_model()
 
     entity_types = {entity: __create_pii_metric_name(input_name, entity) for entity in entities}
     redacted_metric_name = f"{input_name}.pii.redacted"
