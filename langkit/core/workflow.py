@@ -25,7 +25,7 @@ class Row(TypedDict):
 
 @dataclass(frozen=True)
 class RunPerf:
-    metrics: List[Tuple[str, float]]
+    metrics: Dict[str, float]
     workflow_total: float
     metrics_total: float
     validation_total: float
@@ -237,7 +237,7 @@ class EvaluationWorkflow:
 
         # Performance
         run_perf = RunPerf(
-            metrics=metric_times,
+            metrics=dict(metric_times),
             workflow_total=round(time.perf_counter() - start, 3),
             validation_total=round(all_validators_end, 3),
             metrics_total=round(all_metrics_end, 3),
