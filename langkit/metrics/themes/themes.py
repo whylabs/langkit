@@ -2,15 +2,15 @@ import json
 import logging
 import os
 from functools import cache, partial
-from typing import Any, Dict, List, Literal, Optional, TypedDict, cast
+from typing import Any, Dict, List, Literal, TypedDict, cast
 
 import pandas as pd
 import torch
 import torch.nn.functional as F
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
-from langkit.metrics.embeddings_types import EmbeddingEncoder, TransformerEmbeddingAdapter
-from langkit.transformer import sentence_transformer
+from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
+from langkit.transformer import embedding_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -53,31 +53,21 @@ def __load_themes() -> Dict[str, List[str]]:
         raise e
 
 
-def __compute_theme_embeddings(theme_groups: Dict[str, List[str]], encoder: EmbeddingEncoder) -> Dict[str, torch.Tensor]:
-    return {group: torch.as_tensor(encoder.encode(themes)) for group, themes in theme_groups.items()}
-
-
 @cache
-def _get_themes(encoder: EmbeddingEncoder) -> Dict[str, torch.Tensor]:
-    return __compute_theme_embeddings(__load_themes(), encoder)
+def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]:
+    theme_groups = __load_themes()
+    return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
 
-def __themes_metric(
-    column_name: str, themes_group: Literal["jailbreak", "refusal"], embedding_encoder: Optional[EmbeddingEncoder] = None
-) -> Metric:
+def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"]) -> Metric:
     def cache_assets():
-        if embedding_encoder is None:
-            encoder = TransformerEmbeddingAdapter(sentence_transformer())
-        else:
-            encoder = embedding_encoder
-
-        _get_themes(encoder)
+        _get_themes(embedding_adapter())
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
-        encoder = embedding_encoder or TransformerEmbeddingAdapter(sentence_transformer())
+        encoder = embedding_adapter()
         theme = _get_themes(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
         text_list: List[str] = text[column_name].tolist()
-        encoded_text = encoder.encode(text_list)  # (n_input_rows, embedding_dim)
+        encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
         max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)
         similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]

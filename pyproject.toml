@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.58"
+version = "0.0.68"
 description = "A language toolkit for monitoring LLM interactions"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 homepage = "https://docs.whylabs.ai/docs/large-language-model-monitoring"
@@ -28,7 +28,7 @@ evaluate = {version = "^0.4.0", optional = true}
 faiss-cpu = {version = "^1.7.1", optional = true}
 ipywidgets = {version = "^8.1.1", optional = true}
 presidio-analyzer = {extras = ["transformers"], version = "^2.2.352", optional = true}
-presidio-anonymizer = "^2.2.352"
+presidio-anonymizer = {extras = ["transformers"], version = "^2.2.352", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -41,13 +41,13 @@ pandas-stubs = "2.0.0.230412"  # Last one that works with python 3.8
 
 [[tool.poetry.source]]
 name = "torch"
-url = "https://download.pytorch.org/whl/cu118"
+url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
 
 
 [tool.poetry.extras]
+torch = ["torch"]
 all = [
-    "torch",
     "numpy",
     "datasets",
     "openai",
@@ -58,6 +58,7 @@ all = [
     "ipywidgets",
     "presidio-analyzer",
     "presidio-anonymizer",
+    "en-core-web-sm",
 ]
 
 [build-system]

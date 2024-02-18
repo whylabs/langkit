@@ -6,13 +6,13 @@ dist: ## Build the wheel
 	poetry build
 
 install: ## Install all dependencies and extras
-	poetry install -E all
+	poetry install -E all -E torch
 
 clean:  ## Clean the project and generated files
 	rm -rf ./dist/
 
 test:  ## Run the tests
-	poetry run pytest tests -o log_level=INFO -o log_cli=true
+	poetry run pytest tests -vvv -o log_level=INFO -o log_cli=true
 
 test-cache-constraint:
 	docker build -f ./Dockerfile.cache_test . -t langkit_cache_test

@@ -1,4 +1,4 @@
-from functools import partial
+from functools import cache, partial
 
 import nltk
 import pandas as pd
@@ -6,9 +6,12 @@ from nltk.downloader import Downloader
 from nltk.sentiment import SentimentIntensityAnalyzer
 
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
-from langkit.metrics.util import LazyInit
 
-__analyzer = LazyInit(lambda: SentimentIntensityAnalyzer())
+
+@cache
+def _get_analyzer():
+    # Uses vader_lexicon by default, requires that its cached already
+    return SentimentIntensityAnalyzer()
 
 
 def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") -> Metric:
@@ -18,10 +21,11 @@ def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") 
             nltk.download(lexicon, raise_on_error=True)  # type: ignore[reportUnknownMemberType]
 
     def init():
-        __analyzer.value
+        _get_analyzer()
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
-        metrics = [__analyzer.value.polarity_scores(t)["compound"] for t in UdfInput(text).iter_column_rows(column_name)]  # type: ignore[reportUnknownMemberType]
+        analyzer = _get_analyzer()
+        metrics = [analyzer.polarity_scores(t)["compound"] for t in UdfInput(text).iter_column_rows(column_name)]  # type: ignore[reportUnknownMemberType]
         return SingleMetricResult(metrics)
 
     return SingleMetric(

@@ -1,6 +1,7 @@
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set, TypedDict, Union, overload
+from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, overload
 
 import pandas as pd
 
@@ -23,9 +24,18 @@ class Row(TypedDict):
 
 
 @dataclass(frozen=True)
+class RunPerf:
+    metrics_time_sec: Dict[str, float]
+    workflow_total_sec: float
+    metrics_total_sec: float
+    validation_total_sec: float
+
+
+@dataclass(frozen=True)
 class EvaluationResult:
     metrics: pd.DataFrame
     validation_results: ValidationResult
+    perf_info: RunPerf
 
     def get_failed_ids(self) -> List[str]:
         return list(set([it.id for it in self.validation_results.report]))
@@ -163,21 +173,31 @@ class EvaluationWorkflow:
         ...
 
     def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
+        start = time.perf_counter()
+
         if not self._initialized:
             self.init()
+
         if not isinstance(data, pd.DataFrame):
             if not is_dict_with_strings(data):
                 raise ValueError("Input must be a pandas DataFrame or a dictionary with string keys and string values")
             df = pd.DataFrame(data, index=[0])
         else:
             df = data
+
         # Evaluation
         metric_results: Dict[str, SingleMetricResult] = {}
+        all_metrics_start = time.perf_counter()
+        metric_times: List[Tuple[str, float]] = []
+
         for metric in self.metrics.metrics:
+            metric_start = time.perf_counter()
             if isinstance(metric, SingleMetric):
                 result = metric.evaluate(df)
                 self._validate_evaluate(df, metric, result)
                 metric_results[metric.name] = result
+
+                metric_times.append((metric.name, round(time.perf_counter() - metric_start, 3)))
 
             else:
                 # MultiMetrics are basically just converted into single metrics asap.
@@ -186,6 +206,10 @@ class EvaluationWorkflow:
                 for metric_name, metric_result in zip(metric.names, result.metrics):
                     single_metric = SingleMetricResult(metric_result)
                     metric_results[metric_name] = single_metric
+
+                metric_times.append((",".join(metric.names), round(time.perf_counter() - metric_start, 3)))
+
+        all_metrics_end = time.perf_counter() - all_metrics_start
 
         # Validation
         condensed = self._condense_metric_results(metric_results)
@@ -196,6 +220,7 @@ class EvaluationWorkflow:
 
         full_df = condensed.copy()  # guard against mutations
         validation_results: List[ValidationResult] = []
+        all_validators_start = time.perf_counter()
         for validator in self.validators:
             # Only pass the series that the validator asks for to the validator. This ensrues that the target names in the validator
             # actually mean something so we can use them for valdation.
@@ -204,11 +229,21 @@ class EvaluationWorkflow:
             if result2 and result2.report:
                 validation_results.append(result2)
 
+        all_validators_end = time.perf_counter() - all_validators_start
+
         # Post validation hook
         for action in self.hooks:
             action.post_validation(df.copy(), metric_results, full_df.copy(), validation_results)
 
-        return EvaluationResult(full_df, self._condense_validation_results(validation_results))
+        # Performance
+        run_perf = RunPerf(
+            metrics_time_sec=dict(metric_times),
+            workflow_total_sec=round(time.perf_counter() - start, 3),
+            validation_total_sec=round(all_validators_end, 3),
+            metrics_total_sec=round(all_metrics_end, 3),
+        )
+
+        return EvaluationResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)
 
     def _validate_evaluate(self, input_df: pd.DataFrame, metric: Metric, metric_result: MetricResult) -> None:
         """
