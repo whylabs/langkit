@@ -67,12 +67,16 @@ def test_prompt_response_pii_metric_whylogs():
         "prompt.pii.ip_address",
         "prompt.pii.phone_number",
         "prompt.pii.redacted",
+        "prompt.pii.us_bank_number",
+        "prompt.pii.us_ssn",
         "response",
         "response.pii.credit_card",
         "response.pii.email_address",
         "response.pii.ip_address",
         "response.pii.phone_number",
         "response.pii.redacted",
+        "response.pii.us_bank_number",
+        "response.pii.us_ssn",
     ]
 
     logged = _log(item=df, conf=all_config)
@@ -84,10 +88,14 @@ def test_prompt_response_pii_metric_whylogs():
     assert logged["distribution/max"]["prompt.pii.email_address"] == 1
     assert logged["distribution/max"]["prompt.pii.credit_card"] == 0.0
     assert logged["distribution/max"]["prompt.pii.ip_address"] == 0.0
+    assert logged["distribution/max"]["prompt.pii.us_ssn"] == 0.0
+    assert logged["distribution/max"]["prompt.pii.us_bank_number"] == 0.0
     assert logged["distribution/max"]["response.pii.phone_number"] == 0.0
     assert logged["distribution/max"]["response.pii.email_address"] == 0.0
     assert logged["distribution/max"]["response.pii.credit_card"] == 0.0
     assert logged["distribution/max"]["response.pii.ip_address"] == 0.0
+    assert logged["distribution/max"]["response.pii.us_ssn"] == 0.0
+    assert logged["distribution/max"]["response.pii.us_bank_number"] == 0.0
 
 
 def test_prompt_response_pii_metric():
@@ -107,11 +115,15 @@ def test_prompt_response_pii_metric():
         "prompt.pii.email_address",
         "prompt.pii.credit_card",
         "prompt.pii.ip_address",
+        "prompt.pii.us_ssn",
+        "prompt.pii.us_bank_number",
         "prompt.pii.redacted",
         "response.pii.phone_number",
         "response.pii.email_address",
         "response.pii.credit_card",
         "response.pii.ip_address",
+        "response.pii.us_ssn",
+        "response.pii.us_bank_number",
         "response.pii.redacted",
         "id",
     ]
@@ -128,10 +140,14 @@ def test_prompt_response_pii_metric():
     assert logged["prompt.pii.email_address"][0] == 1
     assert logged["prompt.pii.credit_card"][0] == 0
     assert logged["prompt.pii.ip_address"][0] == 0
+    assert logged["prompt.pii.us_ssn"][0] == 0
+    assert logged["prompt.pii.us_bank_number"][0] == 0
     assert logged["response.pii.phone_number"][0] == 0
     assert logged["response.pii.email_address"][0] == 0
     assert logged["response.pii.credit_card"][0] == 0
     assert logged["response.pii.ip_address"][0] == 0
+    assert logged["response.pii.us_ssn"][0] == 0
+    assert logged["response.pii.us_bank_number"][0] == 0
     assert logged["prompt.pii.redacted"][0] == "Hey! Here is my phone number: <PHONE_NUMBER>, and my email is <EMAIL_ADDRESS>."
     assert logged["response.pii.redacted"][0] is None
     assert logged["id"][0] == "0"
