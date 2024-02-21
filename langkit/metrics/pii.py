@@ -1,34 +1,13 @@
-from dataclasses import dataclass
 from functools import cache, partial
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import spacy
 from presidio_analyzer import AnalyzerEngine, RecognizerResult
-from presidio_analyzer.nlp_engine import TransformersNlpEngine
 from presidio_anonymizer import AnonymizerEngine
 from spacy.cli.download import download  # pyright: ignore[reportUnknownVariableType]
 
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
-
-
-@dataclass(frozen=True)
-class PresidioConfig:
-    lang_code: str
-    spacy: str
-    transformers: str
-
-    def to_dict(self) -> List[Dict[str, Any]]:
-        return [
-            {
-                "lang_code": self.lang_code,
-                "model_name": {
-                    "spacy": self.spacy,
-                    "transformers": self.transformers,
-                },
-            }
-        ]
-
 
 __default_entities = ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "IP_ADDRESS", "US_SSN", "US_BANK_NUMBER"]
 
@@ -37,14 +16,12 @@ def __create_pii_metric_name(input_name: str, entity: str) -> str:
     return f"{input_name}.pii.{entity.lower()}"
 
 
-_spacy_name = "en_core_web_sm"
-_transformer_name = "dslim/bert-base-NER"
+_spacy_name = "en_core_web_lg"
 
 
 @cache
 def _get_analyzer(lang_code: str) -> AnalyzerEngine:
-    config = PresidioConfig(lang_code, _spacy_name, _transformer_name)
-    return AnalyzerEngine(nlp_engine=TransformersNlpEngine(models=config.to_dict()))
+    return AnalyzerEngine()
 
 
 @cache

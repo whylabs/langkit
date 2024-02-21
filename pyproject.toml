@@ -27,8 +27,8 @@ sentence-transformers = {version ="^2.2.2", optional = true}
 evaluate = {version = "^0.4.0", optional = true}
 faiss-cpu = {version = "^1.7.1", optional = true}
 ipywidgets = {version = "^8.1.1", optional = true}
-presidio-analyzer = {extras = ["transformers"], version = "^2.2.352", optional = true}
-presidio-anonymizer = {extras = ["transformers"], version = "^2.2.352", optional = true}
+presidio-analyzer = {version = "^2.2.352", optional = true}
+presidio-anonymizer = {version = "^2.2.352", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
