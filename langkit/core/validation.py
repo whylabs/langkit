@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
-import numpy as np
 import pandas as pd
 
 
@@ -15,6 +14,8 @@ class ValidationFailure:
     value: Union[int, float, str, None]
     upper_threshold: Optional[float] = None
     lower_threshold: Optional[float] = None
+    allowed_values: Optional[List[Union[str, float, int]]] = None
+    disallowed_values: Optional[List[Union[str, float, int]]] = None
 
 
 @dataclass(frozen=True)
@@ -42,45 +43,3 @@ class Validator(ABC):
             by default, that will include a prompt and a resopnse column if both were supplied to the evaluation.
         """
         return None
-
-
-def create_validator(target_metric: str, upper_threshold: Optional[float] = None, lower_threshold: Optional[float] = None) -> Validator:
-    class _Validator(Validator):
-        def get_target_metric_names(self) -> List[str]:
-            return [target_metric]
-
-        def validate_result(self, df: pd.DataFrame):
-            failures: List[ValidationFailure] = []
-            for _index, row in df.iterrows():  # type: ignore
-                id = str(row["id"])  # type: ignore TODO make sure this is ok
-                value: Any = row[target_metric]
-                if isinstance(value, pd.Series) and value.size == 1:
-                    value = value.item()
-                elif isinstance(value, np.ndarray) and value.size == 1:
-                    value = value.item()
-
-                if upper_threshold is not None and target_metric in row and row[target_metric] > upper_threshold:
-                    failures.append(
-                        ValidationFailure(
-                            id,
-                            target_metric,
-                            f"Value {row[target_metric]} is above threshold {upper_threshold}",
-                            value=value,  # type: ignore
-                            upper_threshold=upper_threshold,
-                        )
-                    )
-
-                if lower_threshold is not None and target_metric in row and row[target_metric] < lower_threshold:
-                    failures.append(
-                        ValidationFailure(
-                            id,
-                            target_metric,
-                            f"Value {row[target_metric]} is below threshold {lower_threshold}",
-                            value=value,  # type: ignore
-                            lower_threshold=lower_threshold,
-                        )
-                    )
-
-            return ValidationResult(failures)
-
-    return _Validator()
