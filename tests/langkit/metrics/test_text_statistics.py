@@ -6,7 +6,7 @@ from textstat import textstat
 
 import whylogs as why
 from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder, Metric, MultiMetric, MultiMetricResult, UdfInput
-from langkit.core.validation import ValidationFailure, ValidationResult, create_validator
+from langkit.core.validation import ValidationFailure, ValidationResult
 from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.text_statistics import (
     prompt_char_count_module,
@@ -20,6 +20,7 @@ from langkit.metrics.text_statistics import (
 )
 from langkit.metrics.text_statistics_types import TextStat
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
+from langkit.validators.comparison import ConstraintValidator
 
 expected_metrics = [
     "cardinality/est",
@@ -257,7 +258,7 @@ def test_prompt_char_count_module():
 def test_prompt_char_count_0_module():
     wf = EvaluationWorkflow(
         metrics=[prompt_char_count_module, response_char_count_module],
-        validators=[create_validator("prompt.char_count", lower_threshold=2)],
+        validators=[ConstraintValidator("prompt.char_count", lower_threshold=2)],
     )
 
     df = pd.DataFrame(
