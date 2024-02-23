@@ -1,3 +1,4 @@
+import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -16,6 +17,8 @@ from langkit.core.metric import (
 )
 from langkit.core.validation import ValidationResult, Validator
 from langkit.metrics.util import is_dict_with_strings
+
+logger = logging.getLogger(__name__)
 
 
 class Row(TypedDict):
@@ -89,7 +92,7 @@ class EvaluationWorkflow:
             lazy_init: If True, the metrics will not be initialized until the first call to run.
             cache_assets: If True, the assets required for the metrics will be cached during inititialization.
         """
-        self.hooks = callbacks or []
+        self.callbacks = callbacks or []
         self.metrics = EvaluationConfigBuilder().add(metrics).build()
         self.validators = validators or []
         self._initialized = False
@@ -232,8 +235,11 @@ class EvaluationWorkflow:
         all_validators_end = time.perf_counter() - all_validators_start
 
         # Post validation hook
-        for action in self.hooks:
-            action.post_validation(df.copy(), metric_results, full_df.copy(), validation_results)
+        for callback in self.callbacks:
+            try:
+                callback.post_validation(df.copy(), metric_results, full_df.copy(), validation_results)
+            except Exception as e:
+                logger.exception(f"Callback {callback} failed with exception {e}")
 
         # Performance
         run_perf = RunPerf(
