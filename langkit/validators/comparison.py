@@ -119,6 +119,7 @@ def _enforce_must_be_none(target_metric: str, value: Any, id: str) -> Sequence[V
                 metric=target_metric,
                 details=f"Value {value} is not None",
                 value=value,
+                must_be_none=True,
             )
         ]
     return []
@@ -132,6 +133,7 @@ def _enforce_must_be_non_none(target_metric: str, value: Any, id: str) -> Sequen
                 metric=target_metric,
                 details="Value is None",
                 value=value,
+                must_be_non_none=True,
             )
         ]
     return []

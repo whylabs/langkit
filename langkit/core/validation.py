@@ -16,6 +16,8 @@ class ValidationFailure:
     lower_threshold: Optional[float] = None
     allowed_values: Optional[List[Union[str, float, int]]] = None
     disallowed_values: Optional[List[Union[str, float, int]]] = None
+    must_be_none: Optional[bool] = None
+    must_be_non_none: Optional[bool] = None
 
 
 @dataclass(frozen=True)

@@ -125,6 +125,7 @@ def test_must_be_none():
             metric="prompt.pii.redacted",
             details="Value My email address is <EMAIL_ADDRESS> is not None",
             value="My email address is <EMAIL_ADDRESS>",
+            must_be_none=True,
         ),
     ]
 
@@ -141,5 +142,6 @@ def test_must_be_non_none():
             metric="prompt.pii.redacted",
             details="Value is None",
             value=None,
+            must_be_non_none=True,
         ),
     ]
