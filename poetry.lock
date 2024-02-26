@@ -3900,12 +3900,12 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.3.23.dev4"
+version = "1.3.23.dev5"
 description = "Profile and monitor your ML data pipeline end-to-end"
 optional = false
 python-versions = ">=3.7.1,<4"
 files = [
-    {file = "whylogs-1.3.23.dev4-py3-none-any.whl", hash = "sha256:af42d482199fa80977abe2b84679cde8e763bda25e36d5072bba697da8c3072d"},
+    {file = "whylogs-1.3.23.dev5-py3-none-any.whl", hash = "sha256:9fc419bd396eaea0ed6a7f69b645ee3d3151d8d699701aa21442a8afd68cb1f6"},
 ]
 
 [package.dependencies]
@@ -3934,7 +3934,7 @@ viz = ["Pillow (>=9.2.0,<10.0.0)", "ipython", "numpy", "numpy (>=1.23.2)", "pyba
 
 [package.source]
 type = "url"
-url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev4-py3-none-any.whl"
+url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev5-py3-none-any.whl"
 
 [[package]]
 name = "whylogs-sketching"
@@ -4249,4 +4249,4 @@ torch = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "4e2a007deb5784a9e5af79fdd5ee723c368d2c6bd07b4752395c9263e5372717"
+content-hash = "7fd8f5330b032603d5cb4d73c2b610d1da6c0c48d1689e019eb1d3fe419dea81"
