@@ -105,6 +105,8 @@ class ConsistencyChecker:
             response: ChatLog = Conversation(self.sample_generator_llm).send_prompt(
                 prompt
             )
+            if response.errors:
+                raise Exception(f"Response Hallucination - Error generating sample: {response.errors}")
             samples.append(response)
         return samples
 
