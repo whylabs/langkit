@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from functools import cache, partial
+from functools import lru_cache, partial
 from typing import Any, Dict, List, Literal, TypedDict, cast
 
 import pandas as pd
@@ -53,7 +53,7 @@ def __load_themes() -> Dict[str, List[str]]:
         raise e
 
 
-@cache
+@lru_cache
 def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]:
     theme_groups = __load_themes()
     return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}

@@ -1,4 +1,4 @@
-from functools import cache, partial
+from functools import lru_cache, partial
 
 import nltk
 import pandas as pd
@@ -8,7 +8,7 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult, UdfInput
 
 
-@cache
+@lru_cache
 def _get_analyzer():
     # Uses vader_lexicon by default, requires that its cached already
     return SentimentIntensityAnalyzer()

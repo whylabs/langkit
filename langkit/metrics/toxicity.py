@@ -2,7 +2,7 @@
 # pyright: reportUnknownVariableType=none
 # pyright: reportUnknownLambdaType=none
 import os
-from functools import cache, partial
+from functools import lru_cache, partial
 from typing import List, cast
 
 import pandas as pd
@@ -25,12 +25,12 @@ def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List
 __model_path = "martin-ha/toxic-comment-model"
 
 
-@cache
+@lru_cache
 def _get_tokenizer() -> PreTrainedTokenizerBase:
     return AutoTokenizer.from_pretrained(__model_path)
 
 
-@cache
+@lru_cache
 def _get_pipeline() -> TextClassificationPipeline:
     use_cuda = torch.cuda.is_available() and not bool(os.environ.get("LANGKIT_NO_CUDA", False))
     model: PreTrainedTokenizerBase = AutoModelForSequenceClassification.from_pretrained(__model_path)
