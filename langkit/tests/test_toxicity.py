@@ -63,3 +63,28 @@ def test_empty_toxicity():
     )
     assert prompt_score < 0.1
     assert response_score < 0.1
+
+
+@pytest.mark.load
+def test_toxicity_detoxify():
+    from langkit import toxicity, extract  # noqa
+
+    toxicity.init(model_path="detoxify/unbiased")
+    result = extract({"prompt": "I like you. I love you."})
+    assert result["prompt.toxicity"] < 0.1
+
+    toxicity.init(model_path="detoxify/original")
+    result = extract({"prompt": "I like you. I love you."})
+    assert result["prompt.toxicity"] < 0.1
+
+    toxicity.init(model_path="detoxify/multilingual")
+    result = extract({"prompt": "Eu gosto de você. Eu te amo."})
+    assert result["prompt.toxicity"] < 0.1
+
+
+@pytest.mark.load
+def test_toxicity_unknown_model():
+    from langkit import toxicity  # noqa
+
+    with pytest.raises(ValueError):
+        toxicity.init(model_path="unknown")
