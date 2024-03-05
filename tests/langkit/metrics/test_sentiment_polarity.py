@@ -72,12 +72,12 @@ def test_prompt_sentiment_neutral():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.sentiment_polarity"] == 0
+    assert actual["distribution/max"]["prompt.sentiment.sentiment_score"] == 0
 
 
 def test_prompt_sentiment_negative():
@@ -90,12 +90,12 @@ def test_prompt_sentiment_negative():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.sentiment_polarity"] < -0.5
+    assert actual["distribution/max"]["prompt.sentiment.sentiment_score"] < -0.5
 
 
 def test_prompt_sentiment_postive():
@@ -108,12 +108,12 @@ def test_prompt_sentiment_postive():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.sentiment_polarity"] > 0.5
+    assert actual["distribution/max"]["prompt.sentiment.sentiment_score"] > 0.5
 
 
 def test_response_sentiment_neutral():
@@ -126,13 +126,13 @@ def test_response_sentiment_neutral():
     expected_columns = [
         "prompt",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
     assert (
-        actual["distribution/max"]["response.sentiment_polarity"] <= 0.5
-        and actual["distribution/max"]["response.sentiment_polarity"] >= -0.5
+        actual["distribution/max"]["response.sentiment.sentiment_score"] <= 0.5
+        and actual["distribution/max"]["response.sentiment.sentiment_score"] >= -0.5
     )
 
 
@@ -146,11 +146,11 @@ def test_response_sentiment_negative():
     expected_columns = [
         "prompt",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.sentiment_polarity"] < -0.5
+    assert actual["distribution/max"]["response.sentiment.sentiment_score"] < -0.5
 
 
 def test_response_sentiment_positive():
@@ -163,11 +163,11 @@ def test_response_sentiment_positive():
     expected_columns = [
         "prompt",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.sentiment_polarity"] > 0.5
+    assert actual["distribution/max"]["response.sentiment.sentiment_score"] > 0.5
 
 
 def test_prompt_response_sentiment_neutral():
@@ -179,18 +179,19 @@ def test_prompt_response_sentiment_neutral():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
     assert (
-        actual["distribution/max"]["prompt.sentiment_polarity"] <= 0.5 and actual["distribution/max"]["prompt.sentiment_polarity"] >= -0.5
+        actual["distribution/max"]["prompt.sentiment.sentiment_score"] <= 0.5
+        and actual["distribution/max"]["prompt.sentiment.sentiment_score"] >= -0.5
     )
     assert (
-        actual["distribution/max"]["response.sentiment_polarity"] <= 0.5
-        and actual["distribution/max"]["response.sentiment_polarity"] >= -0.5
+        actual["distribution/max"]["response.sentiment.sentiment_score"] <= 0.5
+        and actual["distribution/max"]["response.sentiment.sentiment_score"] >= -0.5
     )
 
 
@@ -203,14 +204,14 @@ def test_prompt_response_sentiment_negative():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.sentiment_polarity"] < -0.5
-    assert actual["distribution/max"]["response.sentiment_polarity"] < -0.5
+    assert actual["distribution/max"]["prompt.sentiment.sentiment_score"] < -0.5
+    assert actual["distribution/max"]["response.sentiment.sentiment_score"] < -0.5
 
 
 def test_prompt_response_sentiment_positive():
@@ -222,11 +223,11 @@ def test_prompt_response_sentiment_positive():
 
     expected_columns = [
         "prompt",
-        "prompt.sentiment_polarity",
+        "prompt.sentiment.sentiment_score",
         "response",
-        "response.sentiment_polarity",
+        "response.sentiment.sentiment_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.sentiment_polarity"] > 0.5
-    assert actual["distribution/max"]["response.sentiment_polarity"] > 0.5
+    assert actual["distribution/max"]["prompt.sentiment.sentiment_score"] > 0.5
+    assert actual["distribution/max"]["response.sentiment.sentiment_score"] > 0.5

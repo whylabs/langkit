@@ -23,11 +23,11 @@ def input_output_similarity_metric(input_column_name: str = "prompt", output_col
             return SingleMetricResult(similarity.squeeze(dim=0).tolist())  # type: ignore[reportUnknownVariableType]
 
     return SingleMetric(
-        name=f"{output_column_name}.relevance_to_{input_column_name}",
+        name=f"{output_column_name}.similarity.{input_column_name}",
         input_name=input_column_name,
         evaluate=udf,
         init=init,
     )
 
 
-prompt_response_input_output_similarity_module = partial(input_output_similarity_metric, "prompt", "response")
+prompt_response_input_output_similarity_metric = partial(input_output_similarity_metric, "prompt", "response")

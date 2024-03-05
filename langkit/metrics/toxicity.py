@@ -54,6 +54,6 @@ def toxicity_metric(column_name: str) -> Metric:
     return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf, init=init)
 
 
-prompt_toxicity_module = partial(toxicity_metric, "prompt")
-response_toxicity_module = partial(toxicity_metric, "response")
-prompt_response_toxicity_module = [prompt_toxicity_module, response_toxicity_module]
+prompt_toxicity_metric = partial(toxicity_metric, "prompt")
+response_toxicity_metric = partial(toxicity_metric, "response")
+prompt_response_toxicity_module = [prompt_toxicity_metric, response_toxicity_metric]

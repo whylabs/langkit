@@ -60,9 +60,9 @@ def test_prompt_response_themes_module():
 
     expected_rows = [
         "prompt",
-        "prompt.jailbreak_similarity",
+        "prompt.similarity.jailbreak",
         "response",
-        "response.refusal_similarity",
+        "response.similarity.refusal",
     ]
 
     logged = _log(item=df, conf=all_config)
@@ -70,8 +70,8 @@ def test_prompt_response_themes_module():
     assert list(logged.columns) == expected_metrics
     assert logged.index.tolist() == expected_rows
 
-    assert logged["distribution/max"]["prompt.jailbreak_similarity"] > 0.5
-    assert logged["distribution/max"]["response.refusal_similarity"] > 0.5
+    assert logged["distribution/max"]["prompt.similarity.jailbreak"] > 0.5
+    assert logged["distribution/max"]["response.similarity.refusal"] > 0.5
 
 
 def test_prompt_response_themes_module_wf():
@@ -88,14 +88,14 @@ def test_prompt_response_themes_module_wf():
         }
     )
 
-    expected_metrics = ["prompt.jailbreak_similarity", "response.refusal_similarity", "id"]
+    expected_metrics = ["prompt.similarity.jailbreak", "response.similarity.refusal", "id"]
 
     logged = wf.run(df)
 
     assert list(logged.metrics.columns) == expected_metrics
 
-    assert logged.metrics["prompt.jailbreak_similarity"][0] > 0.5
-    assert logged.metrics["response.refusal_similarity"][0] > 0.5
+    assert logged.metrics["prompt.similarity.jailbreak"][0] > 0.5
+    assert logged.metrics["response.similarity.refusal"][0] > 0.5
 
 
 def test_prompt_response_themes_module_wf_double():
@@ -114,13 +114,13 @@ def test_prompt_response_themes_module_wf_double():
         }
     )
 
-    expected_metrics = ["prompt.jailbreak_similarity", "response.refusal_similarity", "id"]
+    expected_metrics = ["prompt.similarity.jailbreak", "response.similarity.refusal", "id"]
 
     logged = wf.run(df)
 
     assert list(logged.metrics.columns) == expected_metrics
 
-    assert logged.metrics["prompt.jailbreak_similarity"][0] > 0.5
-    assert logged.metrics["response.refusal_similarity"][0] > 0.5
-    assert logged.metrics["prompt.jailbreak_similarity"][1] < 0.5
-    assert logged.metrics["response.refusal_similarity"][1] < 0.5
+    assert logged.metrics["prompt.similarity.jailbreak"][0] > 0.5
+    assert logged.metrics["response.similarity.refusal"][0] > 0.5
+    assert logged.metrics["prompt.similarity.jailbreak"][1] < 0.5
+    assert logged.metrics["response.similarity.refusal"][1] < 0.5

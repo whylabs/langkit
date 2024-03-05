@@ -56,7 +56,7 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
         # duplicates
         resolvers = []
 
-    if "relevance_to_prompt" in metric.name:
+    if "similarity.prompt" in metric.name:
         # This is the only way to make it workout correctlyfor input_output_similarity, which is fine for now. Generally, we'll
         # need metrics to be able to declare multiple inputs if this is going to work for custom metrics. We can probably continue
         # to assume str type for inputs though.

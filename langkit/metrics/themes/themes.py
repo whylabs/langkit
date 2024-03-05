@@ -60,6 +60,12 @@ def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]
 
 
 def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"]) -> Metric:
+    if themes_group == "refusal" and column_name == "prompt":
+        raise ValueError("Refusal themes are not applicable to prompt")
+
+    if themes_group == "jailbreak" and column_name == "response":
+        raise ValueError("Jailbreak themes are not applicable to response")
+
     def cache_assets():
         _get_themes(embedding_adapter())
 
@@ -74,7 +80,7 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
         return SingleMetricResult(similarity_list)  # pyright: ignore[reportUnknownArgumentType]
 
     return SingleMetric(
-        name=f"{column_name}.{themes_group}_similarity",
+        name=f"{column_name}.similarity.{themes_group}",
         input_name=column_name,
         evaluate=udf,
         cache_assets=cache_assets,

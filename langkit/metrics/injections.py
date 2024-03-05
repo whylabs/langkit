@@ -87,7 +87,9 @@ def injections_metric(column_name: str) -> Metric:
         metrics = [float(score) for _, score in zip(max_indices, max_similarities)]
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init)
+    return SingleMetric(
+        name=f"{column_name}.similarity.injection", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init
+    )
 
 
-prompt_injections_module = partial(injections_metric, "prompt")
+prompt_injections_metric = partial(injections_metric, "prompt")

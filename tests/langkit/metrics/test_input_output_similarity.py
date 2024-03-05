@@ -5,7 +5,7 @@ import pandas as pd
 
 import whylogs as why
 from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
-from langkit.metrics.input_output_similarity import input_output_similarity_metric, prompt_response_input_output_similarity_module
+from langkit.metrics.input_output_similarity import input_output_similarity_metric, prompt_response_input_output_similarity_metric
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
@@ -65,16 +65,16 @@ def test_input_output():
     expected_columns = [
         "prompt",
         "response",
-        "response.relevance_to_prompt",
+        "response.similarity.prompt",
     ]
 
     pd.set_option("display.max_columns", None)
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.relevance_to_prompt"] > 0.5
-    assert actual["distribution/min"]["response.relevance_to_prompt"] > 0.5
-    assert actual["types/fractional"]["response.relevance_to_prompt"] == 1
-    assert actual["cardinality/est"]["response.relevance_to_prompt"] == 1
+    assert actual["distribution/max"]["response.similarity.prompt"] > 0.5
+    assert actual["distribution/min"]["response.similarity.prompt"] > 0.5
+    assert actual["types/fractional"]["response.similarity.prompt"] == 1
+    assert actual["cardinality/est"]["response.similarity.prompt"] == 1
 
 
 def test_input_output_row():
@@ -83,7 +83,7 @@ def test_input_output_row():
         "response": "I'm going to answer that question!",
     }
 
-    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -91,14 +91,14 @@ def test_input_output_row():
     expected_columns = [
         "prompt",
         "response",
-        "response.relevance_to_prompt",
+        "response.similarity.prompt",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.relevance_to_prompt"] > 0.5
-    assert actual["distribution/min"]["response.relevance_to_prompt"] > 0.5
-    assert actual["types/fractional"]["response.relevance_to_prompt"] == 1
-    assert actual["cardinality/est"]["response.relevance_to_prompt"] == 1
+    assert actual["distribution/max"]["response.similarity.prompt"] > 0.5
+    assert actual["distribution/min"]["response.similarity.prompt"] > 0.5
+    assert actual["types/fractional"]["response.similarity.prompt"] == 1
+    assert actual["cardinality/est"]["response.similarity.prompt"] == 1
 
 
 def test_input_output_multiple():
@@ -115,7 +115,7 @@ def test_input_output_multiple():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -123,11 +123,11 @@ def test_input_output_multiple():
     expected_columns = [
         "prompt",
         "response",
-        "response.relevance_to_prompt",
+        "response.similarity.prompt",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.relevance_to_prompt"] > 0
-    assert actual["distribution/min"]["response.relevance_to_prompt"] > 0
-    assert actual["types/fractional"]["response.relevance_to_prompt"] == 2
-    assert int(actual["cardinality/est"]["response.relevance_to_prompt"]) == 2  # type: ignore
+    assert actual["distribution/max"]["response.similarity.prompt"] > 0
+    assert actual["distribution/min"]["response.similarity.prompt"] > 0
+    assert actual["types/fractional"]["response.similarity.prompt"] == 2
+    assert int(actual["cardinality/est"]["response.similarity.prompt"]) == 2  # type: ignore

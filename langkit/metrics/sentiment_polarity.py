@@ -29,7 +29,7 @@ def sentiment_polarity_metric(column_name: str, lexicon: str = "vader_lexicon") 
         return SingleMetricResult(metrics)
 
     return SingleMetric(
-        name=f"{column_name}.sentiment_polarity",
+        name=f"{column_name}.sentiment.sentiment_score",
         input_name=column_name,
         evaluate=udf,
         init=init,
