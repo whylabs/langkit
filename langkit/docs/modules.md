@@ -12,7 +12,7 @@
 |               [Text Statistics](#text-statistics)               | automated_readability_index,flesch_kincaid_grade, flesch_reading_ease, smog_index, syllable_count, lexicon_count, ... |         Text quality, readability, complexity, and grade level.          |           Prompt and Response            |                   Default llm metric, light-weight                   |     |
 |                        [Themes](#themes)                        |                                       jailbreak_similarity, refusal_similarity                                        |       Semantic similarity between customizable groups of examples        | Prompt(jailbreak) and Response(refusals) | Default llm metric, Customizable Encoder, Customizable Themes Groups |     |
 |                        [Topics](#topics)                        |                                                        topics                                                         | Text classification into predefined topics - law, finance, medical, etc. |           Prompt and Response            |                                                                      |     |
-|                      [Toxicity](#toxicity)                      |                                                       toxicity                                                        |                 Toxicity, harmfulness and offensiveness                  |           Prompt and Response            |                          Default llm metric                          |     |
+|                      [Toxicity](#toxicity)                      |                                                       toxicity                                                        |                 Toxicity, harmfulness and offensiveness                  |           Prompt and Response            |          Default llm metric, Configurable toxicity analyzer          |     |
 
 ## Hallucination
 
@@ -464,4 +464,21 @@ profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).prof
 
 ### `toxicity`
 
-The `toxicity` will contain metrics related to the toxicity score calculated for each value in the string column. The toxicity score is calculated using HuggingFace's [`martin-ha/toxic-comment-model`](https://huggingface.co/martin-ha/toxic-comment-model) toxicity analyzer. The score ranges from 0 to 1, where 0 is no toxicity and 1 is maximum toxicity.
+The `toxicity` will contain metrics related to the toxicity score calculated for each value in the string column. By default, the toxicity score is calculated using HuggingFace's [`martin-ha/toxic-comment-model`](https://huggingface.co/martin-ha/toxic-comment-model) toxicity analyzer. The score ranges from 0 to 1, where 0 is no toxicity and 1 is maximum toxicity.
+
+### Configuration
+
+Users can define their own toxicity analyzer by specifying a different model. Currently, the following models are supported:
+
+- [`martin-ha/toxic-comment-model`](https://huggingface.co/martin-ha/toxic-comment-model)
+- [`detoxify/unbiased`](https://github.com/unitaryai/detoxify)
+- [`detoxify/multilingual`](https://github.com/unitaryai/detoxify)
+- [`detoxify/original`](https://github.com/unitaryai/detoxify)
+
+```python
+from langkit import toxicity, extract
+toxicity.init(model_path="detoxify/unbiased")
+results = extract({"prompt": "I hate you."})
+```
+
+For more information, see the [Toxicity Model Configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Toxicity_Model_Configuration.ipynb) example.

@@ -14,20 +14,52 @@ _device = 0 if _USE_CUDA else -1
 
 _prompt = prompt_column
 _response = response_column
-_toxicity_tokenizer = None
-_toxicity_pipeline = None
+_toxicity_model: Optional["ToxicityModel"] = None
+
+
+class ToxicityModel:
+    def predict(self, text: str) -> float:
+        raise NotImplementedError("Subclasses must implement the predict method")
+
+
+class DetoxifyModel(ToxicityModel):
+    def __init__(self, model_name: str):
+        from detoxify import Detoxify
+
+        self.detox_model = Detoxify(model_name)
+
+    def predict(self, text: str):
+        return self.detox_model.predict(text)["toxicity"]
+
+
+class ToxicCommentModel(ToxicityModel):
+    def __init__(self, model_path: str):
+        from transformers import (
+            AutoModelForSequenceClassification,
+            AutoTokenizer,
+            TextClassificationPipeline,
+        )
+
+        self.toxicity_tokenizer = AutoTokenizer.from_pretrained(model_path)
+        model = AutoModelForSequenceClassification.from_pretrained(model_path)
+        self.toxicity_pipeline = TextClassificationPipeline(
+            model=model, tokenizer=self.toxicity_tokenizer, device=_device
+        )
+
+    def predict(self, text: str) -> float:
+        result = self.toxicity_pipeline(
+            text, truncation=True, max_length=self.toxicity_tokenizer.model_max_length
+        )
+        return (
+            result[0]["score"]
+            if result[0]["label"] == "toxic"
+            else 1 - result[0]["score"]
+        )
 
 
 def toxicity(text: str) -> float:
-    if _toxicity_pipeline is None or _toxicity_tokenizer is None:
-        raise ValueError("toxicity score must initialize the pipeline first")
-
-    result = _toxicity_pipeline(
-        text, truncation=True, max_length=_toxicity_tokenizer.model_max_length
-    )
-    return (
-        result[0]["score"] if result[0]["label"] == "toxic" else 1 - result[0]["score"]
-    )
+    assert _toxicity_model is not None
+    return _toxicity_model.predict(text)
 
 
 @register_dataset_udf([_prompt], f"{_prompt}.toxicity")
@@ -41,20 +73,19 @@ def response_toxicity(text):
 
 
 def init(model_path: Optional[str] = None, config: Optional[LangKitConfig] = None):
-    from transformers import (
-        AutoModelForSequenceClassification,
-        AutoTokenizer,
-        TextClassificationPipeline,
-    )
-
     config = config or deepcopy(lang_config)
     model_path = model_path or config.toxicity_model_path
-    global _toxicity_tokenizer, _toxicity_pipeline
-    _toxicity_tokenizer = AutoTokenizer.from_pretrained(model_path)
-    model = AutoModelForSequenceClassification.from_pretrained(model_path)
-    _toxicity_pipeline = TextClassificationPipeline(
-        model=model, tokenizer=_toxicity_tokenizer, device=_device
-    )
+    global _toxicity_model
+    if model_path == "martin-ha/toxic-comment-model":
+        _toxicity_model = ToxicCommentModel(model_path)
+    elif model_path == "detoxify/unbiased":
+        _toxicity_model = DetoxifyModel("unbiased")
+    elif model_path == "detoxify/original":
+        _toxicity_model = DetoxifyModel("original")
+    elif model_path == "detoxify/multilingual":
+        _toxicity_model = DetoxifyModel("multilingual")
+    else:
+        raise ValueError(f"Unknown toxicity model: {model_path}")
 
 
 init()

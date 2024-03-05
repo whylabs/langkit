@@ -28,6 +28,7 @@ ipywidgets = {version = "^8.1.1", optional = true}
 vadersentiment = {version = "^3.3.2", optional = true}
 presidio-analyzer = {version = "^2.2.351", optional = true}
 h5py = {version = "^3.10.0", optional = true}
+detoxify = {version = "^0.5.2", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -53,6 +54,7 @@ all = [
     "ipywidgets",
     "presidio-analyzer",
     "h5py",
+    "detoxify",
 ]
 
 [build-system]
