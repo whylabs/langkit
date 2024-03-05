@@ -75,6 +75,7 @@ class ToxicCommentModel(ToxicityModel):
 
 
 def toxicity(text: str) -> float:
+    assert _toxicity_model is not None
     return _toxicity_model.predict(text)
 
 
