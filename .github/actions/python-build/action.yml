@@ -1,5 +1,10 @@
 name: "Build the python code and wheels"
 description: "Common Python build steps"
+inputs:
+  type:
+    description: python_version
+    required: true
+
 
 runs:
   using: "composite"
@@ -9,7 +14,7 @@ runs:
     - uses: actions/setup-python@v4
       name: Install Python
       with:
-        python-version: "3.10.8"
+        python-version: ${{ inputs.python_version }}
 
     - uses: Gr1N/setup-poetry@v8
       name: Install poetry
@@ -39,6 +44,6 @@ runs:
     - name: Upload python client wheel
       uses: actions/upload-artifact@v4
       with:
-        name: langkit-wheel
+        name: langkit-wheel_${{ inputs.python_version }}
         path: dist/*.whl
 
