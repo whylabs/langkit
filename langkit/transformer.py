@@ -2,19 +2,20 @@ from sentence_transformers import SentenceTransformer
 from typing import Optional, Callable, Union, List, Any
 from torch import Tensor
 import numpy as np
-
+from functools import lru_cache
 import os
 import torch
-from langkit.utils import DynamicLazyInit
 
 _USE_CUDA = torch.cuda.is_available() and not bool(
     os.environ.get("LANGKIT_NO_CUDA", False)
 )
 _device = "cuda" if _USE_CUDA else "cpu"
 
-sentence_transformer: DynamicLazyInit[str, SentenceTransformer] = DynamicLazyInit(
-    lambda model_name: SentenceTransformer(model_name, device=_device)
-)
+
+@lru_cache(maxsize=None)
+def _get_sentence_transformer(model_name: str, veto_cuda=False) -> SentenceTransformer:
+    device = _device if not veto_cuda else "cpu"
+    return SentenceTransformer(model_name, device=device)
 
 
 try:
@@ -33,6 +34,7 @@ class Encoder:
         self,
         transformer_name: Optional[str],
         custom_encoder: Optional[Callable[[List[str]], Any]],
+        veto_cuda: bool = False,
     ):
         """
         Args:
@@ -41,6 +43,8 @@ class Encoder:
             custom_encoder: A custom encoder to use. If None, a transformer model must be provided.
                 The custom encoder must be a callable that takes a list of strings and returns a list of embeddings.
         """
+        self.veto_cuda = veto_cuda
+
         if transformer_name and custom_encoder:
             raise ValueError(
                 "Only one of transformer_name or encoder can be specified, not both."
@@ -69,7 +73,9 @@ class Encoder:
         if self.custom_encoder:
             embeddings = self.custom_encoder.encode(sentences)
         elif self.transformer_name:
-            transformer_model = sentence_transformer.value(self.transformer_name)
+            transformer_model = _get_sentence_transformer(
+                self.transformer_name, self.veto_cuda
+            )
             embeddings = transformer_model.encode(sentences, convert_to_tensor=True)
         else:
             raise ValueError("Unknown encoder model type")

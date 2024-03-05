@@ -1,9 +1,8 @@
 from copy import deepcopy
 from typing import Optional
-
+from functools import lru_cache
 from whylogs.experimental.core.udf_schema import register_dataset_udf
 from langkit import LangKitConfig, lang_config, prompt_column, response_column
-from langkit.utils import LazyInit
 import os
 import torch
 from transformers import (
@@ -22,25 +21,29 @@ _response = response_column
 
 _model_path: Optional[str] = None
 
-_model = LazyInit(
-    lambda: AutoModelForSequenceClassification.from_pretrained(_model_path)
-)
-_toxicity_tokenizer = LazyInit(lambda: AutoTokenizer.from_pretrained(_model_path))
-__use_cuda = torch.cuda.is_available() and not bool(
-    os.environ.get("LANGKIT_NO_CUDA", False)
-)
-_toxicity_pipeline = LazyInit(
-    lambda: TextClassificationPipeline(
-        model=_model.value,
-        tokenizer=_toxicity_tokenizer.value,
-        device=0 if __use_cuda else -1,
+
+@lru_cache(maxsize=None)
+def _get_tokenizer(model_path: str):
+    return AutoTokenizer.from_pretrained(model_path)
+
+
+@lru_cache(maxsize=None)
+def _get_model(model_path: str):
+    return AutoModelForSequenceClassification.from_pretrained(model_path)
+
+
+@lru_cache(maxsize=None)
+def _get_pipeline(model_path: str):
+    return TextClassificationPipeline(
+        model=_get_model(model_path),
+        tokenizer=_get_tokenizer(model_path),
+        device=_device,
     )
-)
 
 
 def toxicity(text: str) -> float:
-    toxicity_pipeline = _toxicity_pipeline.value
-    toxicity_tokenizer = _toxicity_tokenizer.value
+    toxicity_pipeline = _get_pipeline(_model_path)
+    toxicity_tokenizer = _get_tokenizer(_model_path)
     result = toxicity_pipeline(
         text, truncation=True, max_length=toxicity_tokenizer.model_max_length
     )
@@ -52,9 +55,9 @@ def toxicity(text: str) -> float:
 def init_model():
     if _model_path is None:
         raise ValueError("Must initialize model path before calling toxicity!")
-    _model.value
-    _toxicity_tokenizer.value
-    _toxicity_pipeline.value
+    _get_model(_model_path)
+    _get_tokenizer(_model_path)
+    _get_pipeline(_model_path)
 
 
 @register_dataset_udf([_prompt], f"{_prompt}.toxicity")
