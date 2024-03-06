@@ -1,10 +1,57 @@
-from typing import Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 from langkit.core.validation import Validator
 from langkit.validators.comparison import ConstraintValidator
 
 
 class lib:
+    class presets:
+        @staticmethod
+        def recommended() -> List[Validator]:
+            return [
+                lib.constraint(
+                    target_metric="prompt.similarity.injection",
+                    upper_threshold=0.5,
+                ),
+                lib.constraint(
+                    target_metric="prompt.similarity.jailbreak",
+                    upper_threshold=0.5,
+                ),
+                lib.constraint(
+                    target_metric="response.toxicity.toxicity_score",
+                    upper_threshold=0.2,
+                ),
+                lib.constraint(
+                    target_metric="response.sentiment.sentiment_score",
+                    lower_threshold=-0.2,
+                ),
+            ]
+
+        @staticmethod
+        def pii() -> List[Validator]:
+            return [
+                lib.constraint(
+                    target_metric="prompt.pii.phone_number",
+                    upper_threshold=0,
+                ),
+                lib.constraint(
+                    target_metric="prompt.pii.email_address",
+                    upper_threshold=0,
+                ),
+                lib.constraint(
+                    target_metric="prompt.pii.us_ssn",
+                    upper_threshold=0,
+                ),
+                lib.constraint(
+                    target_metric="prompt.pii.us_bank_number",
+                    upper_threshold=0,
+                ),
+                lib.constraint(
+                    target_metric="prompt.pii.credit_card",
+                    upper_threshold=0,
+                ),
+            ]
+
     @staticmethod
     def constraint(
         target_metric: str,

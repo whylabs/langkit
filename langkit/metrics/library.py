@@ -46,36 +46,41 @@ class lib:
             """
             These are the recommended set of metrics for the prompt and response. It pulls in the following groups of metrics:
 
-            - Text statistics
-            - Sentiment
-            - PII detection/redaction
-            - Toxicity
-            - Injection score
-            - Jailbreak score
-            - Refusal score
+            - prompt.pii.*
+            - prompt.text_stat.char_count
+            - prompt.text_stat.reading_ease
+            - prompt.sentiment.sentiment_score
+            - prompt.toxicity.toxicity_score
+            - prompt.similarity.injection
+            - prompt.similarity.jailbreak
+
+            - response.pii.*
+            - response.text_stat.char_count
+            - response.text_stat.reading_ease
+            - response.sentiment.sentiment_score
+            - response.toxicity.toxicity_score
+            - response.similarity.prompt
+            - response.similarity.refusal
             """
-            from langkit.metrics.injections import prompt_injections_metric
-            from langkit.metrics.pii import prompt_presidio_pii_metric, response_presidio_pii_metric
-            from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity, response_sentiment_polarity
-            from langkit.metrics.text_statistics import prompt_textstat_metric, response_textstat_metric
-            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
-            from langkit.metrics.toxicity import prompt_toxicity_metric, response_toxicity_metric
 
             prompt_metrics = [
-                prompt_textstat_metric,
-                prompt_sentiment_polarity,
-                prompt_presidio_pii_metric,
-                prompt_toxicity_metric,
-                prompt_injections_metric,
-                prompt_jailbreak_similarity_metric,
+                lib.prompt.pii,
+                lib.prompt.text_stat.char_count,
+                lib.prompt.text_stat.reading_ease,
+                lib.prompt.sentiment.sentiment_score,
+                lib.prompt.toxicity.toxicity_score,
+                lib.prompt.similarity.injection,
+                lib.prompt.similarity.jailbreak,
             ]
 
             response_metrics = [
-                response_textstat_metric,
-                response_sentiment_polarity,
-                response_presidio_pii_metric,
-                response_toxicity_metric,
-                response_refusal_similarity_metric,
+                lib.response.pii,
+                lib.response.text_stat.char_count,
+                lib.response.text_stat.reading_ease,
+                lib.response.sentiment.sentiment_score,
+                lib.response.toxicity.toxicity_score,
+                lib.response.similarity.prompt,
+                lib.response.similarity.refusal,
             ]
 
             return [
