@@ -1,4 +1,4 @@
-from functools import cache
+from functools import lru_cache
 from typing import Tuple
 
 import torch
@@ -7,7 +7,7 @@ from sentence_transformers import SentenceTransformer
 from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
 
 
-@cache
+@lru_cache
 def sentence_transformer(
     name_revision: Tuple[str, str] = ("all-MiniLM-L6-v2", "44eb4044493a3c34bc6d7faae1a71ec76665ebc6"),
 ) -> SentenceTransformer:
@@ -23,6 +23,6 @@ def sentence_transformer(
     return SentenceTransformer(transformer_name, revision=revision, device=device)
 
 
-@cache
+@lru_cache
 def embedding_adapter() -> TransformerEmbeddingAdapter:
     return TransformerEmbeddingAdapter(sentence_transformer())

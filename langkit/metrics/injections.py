@@ -1,5 +1,5 @@
 import os
-from functools import cache, partial
+from functools import lru_cache, partial
 from logging import getLogger
 from typing import Any, Sequence
 
@@ -59,7 +59,7 @@ def __process_embeddings(harm_embeddings: pd.DataFrame) -> "np.ndarray[Any, Any]
         raise ValueError(f"Injections - unable to process embeddings. Error: {e}")
 
 
-@cache
+@lru_cache
 def _get_embeddings() -> "np.ndarray[Any, Any]":
     filename = f"embeddings_{__transformer_name}_harm_{__version}.parquet"
     harm_embeddings = __download_embeddings(filename)
@@ -87,7 +87,9 @@ def injections_metric(column_name: str) -> Metric:
         metrics = [float(score) for _, score in zip(max_indices, max_similarities)]
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.injections", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init)
+    return SingleMetric(
+        name=f"{column_name}.similarity.injection", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init
+    )
 
 
-prompt_injections_module = partial(injections_metric, "prompt")
+prompt_injections_metric = partial(injections_metric, "prompt")

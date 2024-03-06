@@ -2,7 +2,7 @@
 # pyright: reportUnknownVariableType=none
 # pyright: reportUnknownLambdaType=none
 import os
-from functools import cache, partial
+from functools import lru_cache, partial
 from typing import List, cast
 
 import pandas as pd
@@ -25,12 +25,12 @@ def __toxicity(pipeline: TextClassificationPipeline, max_length: int, text: List
 __model_path = "martin-ha/toxic-comment-model"
 
 
-@cache
+@lru_cache
 def _get_tokenizer() -> PreTrainedTokenizerBase:
     return AutoTokenizer.from_pretrained(__model_path)
 
 
-@cache
+@lru_cache
 def _get_pipeline() -> TextClassificationPipeline:
     use_cuda = torch.cuda.is_available() and not bool(os.environ.get("LANGKIT_NO_CUDA", False))
     model: PreTrainedTokenizerBase = AutoModelForSequenceClassification.from_pretrained(__model_path)
@@ -54,6 +54,6 @@ def toxicity_metric(column_name: str) -> Metric:
     return SingleMetric(name=f"{column_name}.toxicity", input_name=column_name, evaluate=udf, init=init)
 
 
-prompt_toxicity_module = partial(toxicity_metric, "prompt")
-response_toxicity_module = partial(toxicity_metric, "response")
-prompt_response_toxicity_module = [prompt_toxicity_module, response_toxicity_module]
+prompt_toxicity_metric = partial(toxicity_metric, "prompt")
+response_toxicity_metric = partial(toxicity_metric, "response")
+prompt_response_toxicity_module = [prompt_toxicity_metric, response_toxicity_metric]

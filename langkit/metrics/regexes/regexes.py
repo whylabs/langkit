@@ -47,7 +47,7 @@ def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatt
         return SingleMetricResult(metric)
 
     return SingleMetric(
-        name=f"{column_name}.has_patterns",
+        name=f"{column_name}.regex.has_patterns",
         input_name=column_name,
         evaluate=udf,
     )
@@ -112,29 +112,45 @@ def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pat
         return SingleMetricResult(metrics)
 
     return SingleMetric(
-        name=f"{column_name}.{__sanitize_name_for_metric(pattern_name)}",
+        name=f"{column_name}.regex.{__sanitize_name_for_metric(pattern_name)}",
         input_name=column_name,
         evaluate=udf,
     )
 
 
-prompt_ssn_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "SSN")
-prompt_credit_card_number_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "credit card number")
-prompt_phone_number_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "phone number")
-prompt_mailing_address_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "mailing address")
-prompt_email_address_regex_module = partial(__single_regex_module, "prompt", __default_patterns, "email address")
+prompt_ssn_regex_metric = partial(__single_regex_module, "prompt", __default_patterns, "SSN")
+prompt_credit_card_number_regex_metric = partial(__single_regex_module, "prompt", __default_patterns, "credit card number")
+prompt_phone_number_regex_metric = partial(__single_regex_module, "prompt", __default_patterns, "phone number")
+prompt_mailing_address_regex_metric = partial(__single_regex_module, "prompt", __default_patterns, "mailing address")
+prompt_email_address_regex_metric = partial(__single_regex_module, "prompt", __default_patterns, "email address")
 
-response_ssn_regex_module = partial(__single_regex_module, "response", __default_patterns, "SSN")
-response_credit_card_number_regex_module = partial(__single_regex_module, "response", __default_patterns, "credit card number")
-response_phone_number_regex_module = partial(__single_regex_module, "response", __default_patterns, "phone number")
-response_mailing_address_regex_module = partial(__single_regex_module, "response", __default_patterns, "mailing address")
-response_email_address_regex_module = partial(__single_regex_module, "response", __default_patterns, "email address")
+prompt_regex_metric = [
+    prompt_ssn_regex_metric,
+    prompt_credit_card_number_regex_metric,
+    prompt_phone_number_regex_metric,
+    prompt_mailing_address_regex_metric,
+    prompt_email_address_regex_metric,
+]
 
-prompt_response_ssn_regex_module = [prompt_ssn_regex_module, response_ssn_regex_module]
-prompt_response_credit_card_number_regex_module = [prompt_credit_card_number_regex_module, response_credit_card_number_regex_module]
-prompt_response_phone_number_regex_module = [prompt_phone_number_regex_module, response_phone_number_regex_module]
-prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_module, response_mailing_address_regex_module]
-prompt_response_email_address_regex_module = [prompt_email_address_regex_module, response_email_address_regex_module]
+response_ssn_regex_metric = partial(__single_regex_module, "response", __default_patterns, "SSN")
+response_credit_card_number_regex_metric = partial(__single_regex_module, "response", __default_patterns, "credit card number")
+response_phone_number_regex_metric = partial(__single_regex_module, "response", __default_patterns, "phone number")
+response_mailing_address_regex_metric = partial(__single_regex_module, "response", __default_patterns, "mailing address")
+response_email_address_regex_metric = partial(__single_regex_module, "response", __default_patterns, "email address")
+
+response_regex_metric = [
+    response_ssn_regex_metric,
+    response_credit_card_number_regex_metric,
+    response_phone_number_regex_metric,
+    response_mailing_address_regex_metric,
+    response_email_address_regex_metric,
+]
+
+prompt_response_ssn_regex_module = [prompt_ssn_regex_metric, response_ssn_regex_metric]
+prompt_response_credit_card_number_regex_module = [prompt_credit_card_number_regex_metric, response_credit_card_number_regex_metric]
+prompt_response_phone_number_regex_module = [prompt_phone_number_regex_metric, response_phone_number_regex_metric]
+prompt_response_mailing_address_regex_module = [prompt_mailing_address_regex_metric, response_mailing_address_regex_metric]
+prompt_response_email_address_regex_module = [prompt_email_address_regex_metric, response_email_address_regex_metric]
 
 
 def custom_regex_metric(column_name: str, file_or_patterns: Optional[Union[str, CompiledPatternGroups]] = None) -> MetricCreator:

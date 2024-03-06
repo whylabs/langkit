@@ -35,3 +35,4 @@
 - Implement real multi metric conversion in the whylogs_compat file. Jamie said that whylogs actually can return multiple metrics at once.
 - Add validation options for string based metrics like topic. Right now there are only validation creators for numeric things.
 - Add multiple python version builds to the CI matrix. Things like `isinstance(foo, Union[..])` are in the code still.
+- Create version of @cache for python 3.8. Can apparently use @lru_cache(maxsize=None)

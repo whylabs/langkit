@@ -10,11 +10,18 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        python_version: ["3.8", "3.9", "3.10", "3.11"]
+
     steps:
       - uses: actions/checkout@v3
 
       - name: Python tests and build
         uses: ./.github/actions/python-build
+        with:
+          python_version: ${{ matrix.python_version }}
+
 
   enforce_cache_constraint:
     name: Make sure the cache constraint logic works

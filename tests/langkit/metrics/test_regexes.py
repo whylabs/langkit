@@ -15,24 +15,24 @@ from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_for_column_module,
     get_custom_regex_frequent_items_modules,
     get_custom_regex_modules,
-    prompt_credit_card_number_regex_module,
+    prompt_credit_card_number_regex_metric,
     prompt_default_regexes_enum_metric,
-    prompt_email_address_regex_module,
-    prompt_mailing_address_regex_module,
-    prompt_phone_number_regex_module,
+    prompt_email_address_regex_metric,
+    prompt_mailing_address_regex_metric,
+    prompt_phone_number_regex_metric,
     prompt_response_credit_card_number_regex_module,
     prompt_response_default_regexes_module,
     prompt_response_email_address_regex_module,
     prompt_response_mailing_address_regex_module,
     prompt_response_phone_number_regex_module,
     prompt_response_ssn_regex_module,
-    prompt_ssn_regex_module,
-    response_credit_card_number_regex_module,
+    prompt_ssn_regex_metric,
+    response_credit_card_number_regex_metric,
     response_default_regexes_module,
-    response_email_address_regex_module,
-    response_mailing_address_regex_module,
-    response_phone_number_regex_module,
-    response_ssn_regex_module,
+    response_email_address_regex_metric,
+    response_mailing_address_regex_metric,
+    response_phone_number_regex_metric,
+    response_ssn_regex_metric,
 )
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
@@ -94,21 +94,21 @@ def test_prompt_regex_df_ssn():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_ssn_regex_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_ssn_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
 
     expected_columns = [
         "prompt",
-        "prompt.ssn",
+        "prompt.regex.ssn",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.ssn"] == 1
-    assert actual["distribution/min"]["prompt.ssn"] == 0
-    assert actual["types/integral"]["prompt.ssn"] == 4
+    assert actual["distribution/max"]["prompt.regex.ssn"] == 1
+    assert actual["distribution/min"]["prompt.regex.ssn"] == 0
+    assert actual["types/integral"]["prompt.regex.ssn"] == 4
 
 
 def test_response_regex_df_ssn():
@@ -129,7 +129,7 @@ def test_response_regex_df_ssn():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(response_ssn_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_ssn_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -137,13 +137,13 @@ def test_response_regex_df_ssn():
     expected_columns = [
         "prompt",
         "response",
-        "response.ssn",
+        "response.regex.ssn",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.ssn"] == 1
-    assert actual["distribution/min"]["response.ssn"] == 0
-    assert actual["types/integral"]["response.ssn"] == 4
+    assert actual["distribution/max"]["response.regex.ssn"] == 1
+    assert actual["distribution/min"]["response.regex.ssn"] == 0
+    assert actual["types/integral"]["response.regex.ssn"] == 4
 
 
 def test_response_regex_df_ssn_row():
@@ -152,7 +152,7 @@ def test_response_regex_df_ssn_row():
         "response": "I'm doing great, here's my ssn: 123-45-6789",
     }
 
-    schema = EvaluationConfigBuilder().add(response_ssn_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_ssn_regex_metric).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -160,13 +160,13 @@ def test_response_regex_df_ssn_row():
     expected_columns = [
         "prompt",
         "response",
-        "response.ssn",
+        "response.regex.ssn",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.ssn"] == 1
-    assert actual["distribution/min"]["response.ssn"] == 1
-    assert actual["types/integral"]["response.ssn"] == 1
+    assert actual["distribution/max"]["response.regex.ssn"] == 1
+    assert actual["distribution/min"]["response.regex.ssn"] == 1
+    assert actual["types/integral"]["response.regex.ssn"] == 1
 
 
 def test_prompt_response_df_ssn():
@@ -194,18 +194,18 @@ def test_prompt_response_df_ssn():
 
     expected_columns = [
         "prompt",
-        "prompt.ssn",
+        "prompt.regex.ssn",
         "response",
-        "response.ssn",
+        "response.regex.ssn",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.ssn"] == 1
-    assert actual["distribution/min"]["prompt.ssn"] == 0
-    assert actual["types/integral"]["prompt.ssn"] == 4
-    assert actual["distribution/max"]["response.ssn"] == 1
-    assert actual["distribution/min"]["response.ssn"] == 0
-    assert actual["types/integral"]["response.ssn"] == 4
+    assert actual["distribution/max"]["prompt.regex.ssn"] == 1
+    assert actual["distribution/min"]["prompt.regex.ssn"] == 0
+    assert actual["types/integral"]["prompt.regex.ssn"] == 4
+    assert actual["distribution/max"]["response.regex.ssn"] == 1
+    assert actual["distribution/min"]["response.regex.ssn"] == 0
+    assert actual["types/integral"]["response.regex.ssn"] == 4
 
 
 def test_prompt_regex_df_email_address():
@@ -226,22 +226,22 @@ def test_prompt_regex_df_email_address():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_email_address_regex_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_email_address_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
 
     expected_columns = [
         "prompt",
-        "prompt.email_address",
+        "prompt.regex.email_address",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.email_address"] == 1
-    assert actual["distribution/min"]["prompt.email_address"] == 0
-    assert actual["types/integral"]["prompt.email_address"] == 4
-    assert actual["types/string"]["prompt.email_address"] == 0
+    assert actual["distribution/max"]["prompt.regex.email_address"] == 1
+    assert actual["distribution/min"]["prompt.regex.email_address"] == 0
+    assert actual["types/integral"]["prompt.regex.email_address"] == 4
+    assert actual["types/string"]["prompt.regex.email_address"] == 0
 
 
 def test_response_regex_df_email_address():
@@ -262,7 +262,7 @@ def test_response_regex_df_email_address():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(response_email_address_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_email_address_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -270,13 +270,13 @@ def test_response_regex_df_email_address():
     expected_columns = [
         "prompt",
         "response",
-        "response.email_address",
+        "response.regex.email_address",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.email_address"] == 1
-    assert actual["distribution/min"]["response.email_address"] == 0
-    assert actual["types/integral"]["response.email_address"] == 4
+    assert actual["distribution/max"]["response.regex.email_address"] == 1
+    assert actual["distribution/min"]["response.regex.email_address"] == 0
+    assert actual["types/integral"]["response.regex.email_address"] == 4
 
 
 def test_prompt_response_df_email_address():
@@ -304,18 +304,18 @@ def test_prompt_response_df_email_address():
 
     expected_columns = [
         "prompt",
-        "prompt.email_address",
+        "prompt.regex.email_address",
         "response",
-        "response.email_address",
+        "response.regex.email_address",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.email_address"] == 1
-    assert actual["distribution/min"]["prompt.email_address"] == 0
-    assert actual["types/integral"]["prompt.email_address"] == 4
-    assert actual["distribution/max"]["response.email_address"] == 1
-    assert actual["distribution/min"]["response.email_address"] == 0
-    assert actual["types/integral"]["response.email_address"] == 4
+    assert actual["distribution/max"]["prompt.regex.email_address"] == 1
+    assert actual["distribution/min"]["prompt.regex.email_address"] == 0
+    assert actual["types/integral"]["prompt.regex.email_address"] == 4
+    assert actual["distribution/max"]["response.regex.email_address"] == 1
+    assert actual["distribution/min"]["response.regex.email_address"] == 0
+    assert actual["types/integral"]["response.regex.email_address"] == 4
 
 
 def test_prompt_regex_df_phone_number():
@@ -336,21 +336,21 @@ def test_prompt_regex_df_phone_number():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_phone_number_regex_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_phone_number_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
 
     expected_columns = [
         "prompt",
-        "prompt.phone_number",
+        "prompt.regex.phone_number",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.phone_number"] == 1
-    assert actual["distribution/min"]["prompt.phone_number"] == 0
-    assert actual["types/integral"]["prompt.phone_number"] == 4
+    assert actual["distribution/max"]["prompt.regex.phone_number"] == 1
+    assert actual["distribution/min"]["prompt.regex.phone_number"] == 0
+    assert actual["types/integral"]["prompt.regex.phone_number"] == 4
 
 
 def test_response_regex_df_phone_number():
@@ -371,7 +371,7 @@ def test_response_regex_df_phone_number():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(response_phone_number_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_phone_number_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -379,13 +379,13 @@ def test_response_regex_df_phone_number():
     expected_columns = [
         "prompt",
         "response",
-        "response.phone_number",
+        "response.regex.phone_number",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.phone_number"] == 1
-    assert actual["distribution/min"]["response.phone_number"] == 0
-    assert actual["types/integral"]["response.phone_number"] == 4
+    assert actual["distribution/max"]["response.regex.phone_number"] == 1
+    assert actual["distribution/min"]["response.regex.phone_number"] == 0
+    assert actual["types/integral"]["response.regex.phone_number"] == 4
 
 
 def test_prompt_response_regex_df_phone_number():
@@ -413,20 +413,20 @@ def test_prompt_response_regex_df_phone_number():
 
     expected_columns = [
         "prompt",
-        "prompt.phone_number",
+        "prompt.regex.phone_number",
         "response",
-        "response.phone_number",
+        "response.regex.phone_number",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.phone_number"] == 1
-    assert actual["distribution/mean"]["prompt.phone_number"] == 0.75
-    assert actual["distribution/min"]["prompt.phone_number"] == 0
-    assert actual["types/integral"]["prompt.phone_number"] == 4
-    assert actual["distribution/max"]["response.phone_number"] == 1
-    assert actual["distribution/mean"]["response.phone_number"] == 0.75
-    assert actual["distribution/min"]["response.phone_number"] == 0
-    assert actual["types/integral"]["response.phone_number"] == 4
+    assert actual["distribution/max"]["prompt.regex.phone_number"] == 1
+    assert actual["distribution/mean"]["prompt.regex.phone_number"] == 0.75
+    assert actual["distribution/min"]["prompt.regex.phone_number"] == 0
+    assert actual["types/integral"]["prompt.regex.phone_number"] == 4
+    assert actual["distribution/max"]["response.regex.phone_number"] == 1
+    assert actual["distribution/mean"]["response.regex.phone_number"] == 0.75
+    assert actual["distribution/min"]["response.regex.phone_number"] == 0
+    assert actual["types/integral"]["response.regex.phone_number"] == 4
 
 
 def test_prompt_regex_df_mailing_address():
@@ -447,21 +447,21 @@ def test_prompt_regex_df_mailing_address():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_mailing_address_regex_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_mailing_address_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
 
     expected_columns = [
         "prompt",
-        "prompt.mailing_address",
+        "prompt.regex.mailing_address",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.mailing_address"] == 1
-    assert actual["distribution/min"]["prompt.mailing_address"] == 0
-    assert actual["types/integral"]["prompt.mailing_address"] == 4
+    assert actual["distribution/max"]["prompt.regex.mailing_address"] == 1
+    assert actual["distribution/min"]["prompt.regex.mailing_address"] == 0
+    assert actual["types/integral"]["prompt.regex.mailing_address"] == 4
 
 
 def test_response_regex_df_mailing_address():
@@ -482,7 +482,7 @@ def test_response_regex_df_mailing_address():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(response_mailing_address_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_mailing_address_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -490,13 +490,13 @@ def test_response_regex_df_mailing_address():
     expected_columns = [
         "prompt",
         "response",
-        "response.mailing_address",
+        "response.regex.mailing_address",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.mailing_address"] == 1
-    assert actual["distribution/min"]["response.mailing_address"] == 0
-    assert actual["types/integral"]["response.mailing_address"] == 4
+    assert actual["distribution/max"]["response.regex.mailing_address"] == 1
+    assert actual["distribution/min"]["response.regex.mailing_address"] == 0
+    assert actual["types/integral"]["response.regex.mailing_address"] == 4
 
 
 def test_prompt_response_regex_df_mailing_address():
@@ -524,18 +524,18 @@ def test_prompt_response_regex_df_mailing_address():
 
     expected_columns = [
         "prompt",
-        "prompt.mailing_address",
+        "prompt.regex.mailing_address",
         "response",
-        "response.mailing_address",
+        "response.regex.mailing_address",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.mailing_address"] == 1
-    assert actual["distribution/min"]["prompt.mailing_address"] == 0
-    assert actual["types/integral"]["prompt.mailing_address"] == 4
-    assert actual["distribution/max"]["response.mailing_address"] == 1
-    assert actual["distribution/min"]["response.mailing_address"] == 0
-    assert actual["types/integral"]["response.mailing_address"] == 4
+    assert actual["distribution/max"]["prompt.regex.mailing_address"] == 1
+    assert actual["distribution/min"]["prompt.regex.mailing_address"] == 0
+    assert actual["types/integral"]["prompt.regex.mailing_address"] == 4
+    assert actual["distribution/max"]["response.regex.mailing_address"] == 1
+    assert actual["distribution/min"]["response.regex.mailing_address"] == 0
+    assert actual["types/integral"]["response.regex.mailing_address"] == 4
 
 
 def test_prompt_regex_df_credit_card_number():
@@ -556,21 +556,21 @@ def test_prompt_regex_df_credit_card_number():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_credit_card_number_regex_module).build()
+    schema = EvaluationConfigBuilder().add(prompt_credit_card_number_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
 
     expected_columns = [
         "prompt",
-        "prompt.credit_card_number",
+        "prompt.regex.credit_card_number",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.credit_card_number"] == 1
-    assert actual["distribution/min"]["prompt.credit_card_number"] == 0
-    assert actual["types/integral"]["prompt.credit_card_number"] == 4
+    assert actual["distribution/max"]["prompt.regex.credit_card_number"] == 1
+    assert actual["distribution/min"]["prompt.regex.credit_card_number"] == 0
+    assert actual["types/integral"]["prompt.regex.credit_card_number"] == 4
 
 
 def test_response_regex_df_credit_card_number():
@@ -591,7 +591,7 @@ def test_response_regex_df_credit_card_number():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(response_credit_card_number_regex_module).build()
+    schema = EvaluationConfigBuilder().add(response_credit_card_number_regex_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -599,13 +599,13 @@ def test_response_regex_df_credit_card_number():
     expected_columns = [
         "prompt",
         "response",
-        "response.credit_card_number",
+        "response.regex.credit_card_number",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.credit_card_number"] == 1
-    assert actual["distribution/min"]["response.credit_card_number"] == 0
-    assert actual["types/integral"]["response.credit_card_number"] == 4
+    assert actual["distribution/max"]["response.regex.credit_card_number"] == 1
+    assert actual["distribution/min"]["response.regex.credit_card_number"] == 0
+    assert actual["types/integral"]["response.regex.credit_card_number"] == 4
 
 
 def test_prompt_response_regex_df_credit_card_number():
@@ -633,18 +633,18 @@ def test_prompt_response_regex_df_credit_card_number():
 
     expected_columns = [
         "prompt",
-        "prompt.credit_card_number",
+        "prompt.regex.credit_card_number",
         "response",
-        "response.credit_card_number",
+        "response.regex.credit_card_number",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.credit_card_number"] == 1
-    assert actual["distribution/min"]["prompt.credit_card_number"] == 0
-    assert actual["types/integral"]["prompt.credit_card_number"] == 4
-    assert actual["distribution/max"]["response.credit_card_number"] == 1
-    assert actual["distribution/min"]["response.credit_card_number"] == 0
-    assert actual["types/integral"]["response.credit_card_number"] == 4
+    assert actual["distribution/max"]["prompt.regex.credit_card_number"] == 1
+    assert actual["distribution/min"]["prompt.regex.credit_card_number"] == 0
+    assert actual["types/integral"]["prompt.regex.credit_card_number"] == 4
+    assert actual["distribution/max"]["response.regex.credit_card_number"] == 1
+    assert actual["distribution/min"]["response.regex.credit_card_number"] == 0
+    assert actual["types/integral"]["response.regex.credit_card_number"] == 4
 
 
 def test_prompt_regex_df_default():
@@ -704,7 +704,7 @@ def test_prompt_regex_df_default():
 
     expected_columns = [
         "prompt",
-        "prompt.has_patterns",
+        "prompt.regex.has_patterns",
         "response",
     ]
 
@@ -713,7 +713,7 @@ def test_prompt_regex_df_default():
     assert math.isnan(actual["frequent_items/frequent_strings"]["response"])  # type: ignore
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["prompt.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="EMAIL_ADDRESS", est=1, upper=1, lower=1),
     ]
@@ -778,7 +778,7 @@ def test_response_regex_df_default():
     expected_columns = [
         "prompt",
         "response",
-        "response.has_patterns",
+        "response.regex.has_patterns",
     ]
 
     # FI shouldn't be used for prompt/response, only the has_patterns
@@ -786,7 +786,7 @@ def test_response_regex_df_default():
     assert math.isnan(actual["frequent_items/frequent_strings"]["response"])  # type: ignore
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["response.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["response.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="EMAIL_ADDRESS", est=1, upper=1, lower=1),
         FrequentItem(value="PHONE_NUMBER", est=1, upper=1, lower=1),
@@ -850,9 +850,9 @@ def test_prompt_response_regex_df_default():
 
     expected_columns = [
         "prompt",
-        "prompt.has_patterns",
+        "prompt.regex.has_patterns",
         "response",
-        "response.has_patterns",
+        "response.regex.has_patterns",
     ]
 
     # FI shouldn't be used for prompt/response, only the has_patterns
@@ -860,11 +860,11 @@ def test_prompt_response_regex_df_default():
     assert math.isnan(actual["frequent_items/frequent_strings"]["response"])  # type: ignore
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["prompt.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="EMAIL_ADDRESS", est=1, upper=1, lower=1),
     ]
-    assert actual["frequent_items/frequent_strings"]["response.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["response.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="EMAIL_ADDRESS", est=1, upper=1, lower=1),
         FrequentItem(value="PHONE_NUMBER", est=1, upper=1, lower=1),
@@ -899,36 +899,36 @@ def test_prompt_response_ssn_phone_number():
     actual = _log(df, schema)
     expected_columns = [
         "prompt",
-        "prompt.has_patterns",
-        "prompt.phone_number",
-        "prompt.ssn",
+        "prompt.regex.has_patterns",
+        "prompt.regex.phone_number",
+        "prompt.regex.ssn",
         "response",
-        "response.has_patterns",
-        "response.phone_number",
-        "response.ssn",
+        "response.regex.has_patterns",
+        "response.regex.phone_number",
+        "response.regex.ssn",
     ]
 
     assert actual.index.tolist() == expected_columns
 
-    assert actual["distribution/max"]["prompt.phone_number"] == 1
-    assert actual["distribution/min"]["prompt.phone_number"] == 0
-    assert actual["types/integral"]["prompt.phone_number"] == 4
-    assert actual["distribution/max"]["prompt.ssn"] == 1
-    assert actual["distribution/min"]["prompt.ssn"] == 0
-    assert actual["types/integral"]["prompt.ssn"] == 4
+    assert actual["distribution/max"]["prompt.regex.phone_number"] == 1
+    assert actual["distribution/min"]["prompt.regex.phone_number"] == 0
+    assert actual["types/integral"]["prompt.regex.phone_number"] == 4
+    assert actual["distribution/max"]["prompt.regex.ssn"] == 1
+    assert actual["distribution/min"]["prompt.regex.ssn"] == 0
+    assert actual["types/integral"]["prompt.regex.ssn"] == 4
 
-    assert actual["distribution/max"]["response.phone_number"] == 1
-    assert actual["distribution/min"]["response.phone_number"] == 0
-    assert actual["types/integral"]["response.phone_number"] == 4
-    assert actual["distribution/max"]["response.ssn"] == 1
-    assert actual["distribution/min"]["response.ssn"] == 0
-    assert actual["types/integral"]["response.ssn"] == 4
+    assert actual["distribution/max"]["response.regex.phone_number"] == 1
+    assert actual["distribution/min"]["response.regex.phone_number"] == 0
+    assert actual["types/integral"]["response.regex.phone_number"] == 4
+    assert actual["distribution/max"]["response.regex.ssn"] == 1
+    assert actual["distribution/min"]["response.regex.ssn"] == 0
+    assert actual["types/integral"]["response.regex.ssn"] == 4
 
-    assert actual["frequent_items/frequent_strings"]["prompt.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["prompt.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="PHONE_NUMBER", est=1, upper=1, lower=1),
     ]
-    assert actual["frequent_items/frequent_strings"]["response.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["response.regex.has_patterns"] == [
         FrequentItem(value="SSN", est=2, upper=2, lower=2),
         FrequentItem(value="EMAIL_ADDRESS", est=1, upper=1, lower=1),
         FrequentItem(value="PHONE_NUMBER", est=1, upper=1, lower=1),
@@ -967,13 +967,13 @@ def test_custom_regex_frequent_item():
 
     expected_columns = [
         "prompt",
-        "prompt.has_patterns",
+        "prompt.regex.has_patterns",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
 
-    assert actual["frequent_items/frequent_strings"]["prompt.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["prompt.regex.has_patterns"] == [
         FrequentItem(value="PASSWORD_DETECTOR", est=1, upper=1, lower=1),
     ]
 
@@ -1022,16 +1022,16 @@ def test_custom_regex():
 
     expected_columns = [
         "prompt",
-        "prompt.password_detector",
+        "prompt.regex.password_detector",
         "response",
-        "response.foo_detector",
+        "response.regex.foo_detector",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.password_detector"] == 1
-    assert actual["distribution/min"]["prompt.password_detector"] == 0
-    assert actual["distribution/max"]["response.foo_detector"] == 1
-    assert actual["distribution/min"]["response.foo_detector"] == 1
+    assert actual["distribution/max"]["prompt.regex.password_detector"] == 1
+    assert actual["distribution/min"]["prompt.regex.password_detector"] == 0
+    assert actual["distribution/max"]["response.regex.foo_detector"] == 1
+    assert actual["distribution/min"]["response.regex.foo_detector"] == 1
 
 
 def test_custom_regex_custom_columns():
@@ -1074,16 +1074,16 @@ def test_custom_regex_custom_columns():
 
     expected_columns = [
         "my_prompt",
-        "my_prompt.has_patterns",
+        "my_prompt.regex.has_patterns",
         "my_response",
-        "my_response.has_patterns",
+        "my_response.regex.has_patterns",
     ]
 
     assert actual.index.tolist() == expected_columns
     pd.set_option("display.max_columns", None)
-    assert actual["frequent_items/frequent_strings"]["my_prompt.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["my_prompt.regex.has_patterns"] == [
         FrequentItem(value="PASSWORD_DETECTOR", est=1, upper=1, lower=1),
     ]
-    assert actual["frequent_items/frequent_strings"]["my_response.has_patterns"] == [
+    assert actual["frequent_items/frequent_strings"]["my_response.regex.has_patterns"] == [
         FrequentItem(value="FOO_DETECTOR", est=5, upper=5, lower=5),
     ]

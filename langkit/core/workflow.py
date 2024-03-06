@@ -221,6 +221,7 @@ class EvaluationWorkflow:
         else:
             condensed["id"] = df["id"]
 
+        # TODO set column names `metric` and `value`
         full_df = condensed.copy()  # guard against mutations
         validation_results: List[ValidationResult] = []
         all_validators_start = time.perf_counter()

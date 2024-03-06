@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import re
-from functools import cache
+from functools import lru_cache
 from typing import Any, List, Optional, TypedDict
 
 
@@ -38,7 +38,7 @@ def load_pattern_string(pattern_file_content: str) -> CompiledPatternGroups:
         raise ValueError(f"Invalid pattern group found: {unvalidated_patterns}") from e  # TODO make nicer looking
 
 
-@cache
+@lru_cache
 def load_patterns_file(file_path: str) -> CompiledPatternGroups:
     with open(file_path, "r", encoding="utf-8") as f:
         return load_pattern_string(f.read())

@@ -1,4 +1,4 @@
-from functools import cache, partial
+from functools import lru_cache, partial
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -19,17 +19,17 @@ def __create_pii_metric_name(input_name: str, entity: str) -> str:
 _spacy_name = "en_core_web_lg"
 
 
-@cache
+@lru_cache
 def _get_analyzer(lang_code: str) -> AnalyzerEngine:
     return AnalyzerEngine()
 
 
-@cache
+@lru_cache
 def _get_anonymizer() -> AnonymizerEngine:
     return AnonymizerEngine()
 
 
-@cache
+@lru_cache
 def _load_spacy_model():
     spacy.load(_spacy_name)
 
