@@ -102,6 +102,20 @@ class lib:
 
             return prompt_presidio_pii_metric
 
+        class toxicity:
+            def __call__(self) -> MetricCreator:
+                return self.toxicity_score()
+
+            @staticmethod
+            def toxicity_score() -> MetricCreator:
+                """
+                Analyze the input for toxicity. The output of this metric ranges from 0 to 1, where 0 indicates
+                non-toxic and 1 indicates toxic.
+                """
+                from langkit.metrics.toxicity import prompt_toxicity_metric
+
+                return prompt_toxicity_metric
+
         class text_stat:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.text_statistics import prompt_textstat_metric
@@ -256,6 +270,20 @@ class lib:
                 return lambda: pii_presidio_metric(entities=entities)
 
             return response_presidio_pii_metric
+
+        class toxicity:
+            def __call__(self) -> MetricCreator:
+                return self.toxicity_score()
+
+            @staticmethod
+            def toxicity_score() -> MetricCreator:
+                """
+                Analyze the toxicity of the response. The output of this metric ranges from 0 to 1, where 0
+                indicates a non-toxic response and 1 indicates a toxic response.
+                """
+                from langkit.metrics.toxicity import response_toxicity_metric
+
+                return response_toxicity_metric
 
         class text_stat:
             def __call__(self) -> MetricCreator:
