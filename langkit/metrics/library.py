@@ -46,36 +46,41 @@ class lib:
             """
             These are the recommended set of metrics for the prompt and response. It pulls in the following groups of metrics:
 
-            - Text statistics
-            - Sentiment
-            - PII detection/redaction
-            - Toxicity
-            - Injection score
-            - Jailbreak score
-            - Refusal score
+            - prompt.pii.*
+            - prompt.text_stat.char_count
+            - prompt.text_stat.reading_ease
+            - prompt.sentiment.sentiment_score
+            - prompt.toxicity.toxicity_score
+            - prompt.similarity.injection
+            - prompt.similarity.jailbreak
+
+            - response.pii.*
+            - response.text_stat.char_count
+            - response.text_stat.reading_ease
+            - response.sentiment.sentiment_score
+            - response.toxicity.toxicity_score
+            - response.similarity.prompt
+            - response.similarity.refusal
             """
-            from langkit.metrics.injections import prompt_injections_metric
-            from langkit.metrics.pii import prompt_presidio_pii_metric, response_presidio_pii_metric
-            from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity, response_sentiment_polarity
-            from langkit.metrics.text_statistics import prompt_textstat_metric, response_textstat_metric
-            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
-            from langkit.metrics.toxicity import prompt_toxicity_metric, response_toxicity_metric
 
             prompt_metrics = [
-                prompt_textstat_metric,
-                prompt_sentiment_polarity,
-                prompt_presidio_pii_metric,
-                prompt_toxicity_metric,
-                prompt_injections_metric,
-                prompt_jailbreak_similarity_metric,
+                lib.prompt.pii,
+                lib.prompt.text_stat.char_count,
+                lib.prompt.text_stat.reading_ease,
+                lib.prompt.sentiment.sentiment_score,
+                lib.prompt.toxicity.toxicity_score,
+                lib.prompt.similarity.injection,
+                lib.prompt.similarity.jailbreak,
             ]
 
             response_metrics = [
-                response_textstat_metric,
-                response_sentiment_polarity,
-                response_presidio_pii_metric,
-                response_toxicity_metric,
-                response_refusal_similarity_metric,
+                lib.response.pii,
+                lib.response.text_stat.char_count,
+                lib.response.text_stat.reading_ease,
+                lib.response.sentiment.sentiment_score,
+                lib.response.toxicity.toxicity_score,
+                lib.response.similarity.prompt,
+                lib.response.similarity.refusal,
             ]
 
             return [
@@ -101,6 +106,20 @@ class lib:
                 return lambda: pii_presidio_metric(entities=entities)
 
             return prompt_presidio_pii_metric
+
+        class toxicity:
+            def __call__(self) -> MetricCreator:
+                return self.toxicity_score()
+
+            @staticmethod
+            def toxicity_score() -> MetricCreator:
+                """
+                Analyze the input for toxicity. The output of this metric ranges from 0 to 1, where 0 indicates
+                non-toxic and 1 indicates toxic.
+                """
+                from langkit.metrics.toxicity import prompt_toxicity_metric
+
+                return prompt_toxicity_metric
 
         class text_stat:
             def __call__(self) -> MetricCreator:
@@ -156,46 +175,41 @@ class lib:
 
                 return prompt_difficult_words_metric
 
-        class regexes:
+        class regex:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.regexes.regexes import prompt_regex_metric
 
                 return prompt_regex_metric
 
-            class ssn:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_ssn_regex_metric
+            @staticmethod
+            def ssn() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_ssn_regex_metric
 
-                    return prompt_ssn_regex_metric
+                return prompt_ssn_regex_metric
 
-            class phone_number:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_phone_number_regex_metric
+            @staticmethod
+            def phone_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_phone_number_regex_metric
 
-                    return prompt_phone_number_regex_metric
+                return prompt_phone_number_regex_metric
 
-            class email_address:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_email_address_regex_metric
+            @staticmethod
+            def email_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_email_address_regex_metric
 
-                    return prompt_email_address_regex_metric
+                return prompt_email_address_regex_metric
 
-            class mailing_address:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_mailing_address_regex_metric
+            @staticmethod
+            def mailing_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_mailing_address_regex_metric
 
-                    return prompt_mailing_address_regex_metric
+                return prompt_mailing_address_regex_metric
 
-            class credit_card_number:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_credit_card_number_regex_metric
+            @staticmethod
+            def credit_card_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_credit_card_number_regex_metric
 
-                    return prompt_credit_card_number_regex_metric
+                return prompt_credit_card_number_regex_metric
 
         class similarity:
             """
@@ -262,6 +276,20 @@ class lib:
 
             return response_presidio_pii_metric
 
+        class toxicity:
+            def __call__(self) -> MetricCreator:
+                return self.toxicity_score()
+
+            @staticmethod
+            def toxicity_score() -> MetricCreator:
+                """
+                Analyze the toxicity of the response. The output of this metric ranges from 0 to 1, where 0
+                indicates a non-toxic response and 1 indicates a toxic response.
+                """
+                from langkit.metrics.toxicity import response_toxicity_metric
+
+                return response_toxicity_metric
+
         class text_stat:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.text_statistics import response_textstat_metric
@@ -316,46 +344,41 @@ class lib:
 
                 return response_difficult_words_metric
 
-        class regexes:
+        class regex:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.regexes.regexes import response_regex_metric
 
                 return response_regex_metric
 
-            class ssn:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_ssn_regex_metric
+            @staticmethod
+            def ssn() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_ssn_regex_metric
 
-                    return response_ssn_regex_metric
+                return response_ssn_regex_metric
 
-            class phone_number:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_phone_number_regex_metric
+            @staticmethod
+            def phone_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_phone_number_regex_metric
 
-                    return response_phone_number_regex_metric
+                return response_phone_number_regex_metric
 
-            class email_address:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_email_address_regex_metric
+            @staticmethod
+            def email_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_email_address_regex_metric
 
-                    return response_email_address_regex_metric
+                return response_email_address_regex_metric
 
-            class mailing_address:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_mailing_address_regex_metric
+            @staticmethod
+            def mailing_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_mailing_address_regex_metric
 
-                    return response_mailing_address_regex_metric
+                return response_mailing_address_regex_metric
 
-            class credit_card_number:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_credit_card_number_regex_metric
+            @staticmethod
+            def credit_card_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_credit_card_number_regex_metric
 
-                    return response_credit_card_number_regex_metric
+                return response_credit_card_number_regex_metric
 
         class sentiment:
             def __call__(self) -> MetricCreator:

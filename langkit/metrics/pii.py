@@ -9,7 +9,7 @@ from spacy.cli.download import download  # pyright: ignore[reportUnknownVariable
 
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
 
-__default_entities = ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "IP_ADDRESS", "US_SSN", "US_BANK_NUMBER"]
+__default_entities = ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "US_SSN", "US_BANK_NUMBER"]
 
 
 def __create_pii_metric_name(input_name: str, entity: str) -> str:
