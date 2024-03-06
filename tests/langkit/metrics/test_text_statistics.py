@@ -8,6 +8,7 @@ import whylogs as why
 from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder, Metric, MultiMetric, MultiMetricResult, UdfInput
 from langkit.core.validation import ValidationFailure, ValidationResult
 from langkit.core.workflow import EvaluationWorkflow
+from langkit.metrics.library import lib
 from langkit.metrics.text_statistics import (
     prompt_char_count_metric,
     prompt_reading_ease_metric,
@@ -285,6 +286,46 @@ def test_prompt_char_count_0_module():
             )
         ]
     )
+
+
+def test_text_stat_group():
+    wf = EvaluationWorkflow(metrics=[lib.prompt.text_stat()])
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "test",
+            ],
+            "response": [
+                "I'm doing great, how about you?",
+            ],
+        }
+    )
+
+    actual = wf.run(df)
+
+    assert sorted(actual.metrics.columns.tolist()) == sorted(  # pyright: ignore[reportUnknownArgumentType]
+        [
+            "id",
+            "prompt.text_stat.char_count",
+            "prompt.text_stat.difficult_words",
+            "prompt.text_stat.flesch_kincaid_grade",
+            "prompt.text_stat.flesch_reading_ease",
+            "prompt.text_stat.letter_count",
+            "prompt.text_stat.lexicon_count",
+            "prompt.text_stat.sentence_count",
+            "prompt.text_stat.syllable_count",
+        ]
+    )
+
+    print(actual.metrics.transpose())
+    assert actual.metrics["prompt.text_stat.char_count"][0] == 4
+    assert actual.metrics["prompt.text_stat.difficult_words"][0] == 0
+    assert actual.metrics["prompt.text_stat.flesch_kincaid_grade"][0] == -3.5
+    assert actual.metrics["prompt.text_stat.flesch_reading_ease"][0] == 121.22
+    assert actual.metrics["prompt.text_stat.letter_count"][0] == 4
+    assert actual.metrics["prompt.text_stat.lexicon_count"][0] == 1
+    assert actual.metrics["prompt.text_stat.sentence_count"][0] == 1
+    assert actual.metrics["prompt.text_stat.syllable_count"][0] == 1
 
 
 def test_response_char_count_module():

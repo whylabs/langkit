@@ -103,6 +103,11 @@ class lib:
             return prompt_presidio_pii_metric
 
         class text_stat:
+            def __call__(self) -> MetricCreator:
+                from langkit.metrics.text_statistics import prompt_textstat_metric
+
+                return prompt_textstat_metric
+
             @staticmethod
             def char_count() -> MetricCreator:
                 from langkit.metrics.text_statistics import prompt_char_count_metric
@@ -152,6 +157,11 @@ class lib:
                 return prompt_difficult_words_metric
 
         class regexes:
+            def __call__(self) -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_regex_metric
+
+                return prompt_regex_metric
+
             class ssn:
                 @staticmethod
                 def prompt() -> MetricCreator:
@@ -193,6 +203,12 @@ class lib:
             to determine the similarity between the response and the examples.
             """
 
+            def __call__(self) -> MetricCreator:
+                return [
+                    self.injection(),
+                    self.jailbreak(),
+                ]
+
             @staticmethod
             def injection() -> MetricCreator:
                 """
@@ -214,6 +230,9 @@ class lib:
                 return prompt_jailbreak_similarity_metric
 
         class sentiment:
+            def __call__(self) -> MetricCreator:
+                return self.sentiment_score()
+
             @staticmethod
             def sentiment_score() -> MetricCreator:
                 """
@@ -244,6 +263,11 @@ class lib:
             return response_presidio_pii_metric
 
         class text_stat:
+            def __call__(self) -> MetricCreator:
+                from langkit.metrics.text_statistics import response_textstat_metric
+
+                return response_textstat_metric
+
             @staticmethod
             def char_count() -> MetricCreator:
                 from langkit.metrics.text_statistics import response_char_count_metric
@@ -293,6 +317,11 @@ class lib:
                 return response_difficult_words_metric
 
         class regexes:
+            def __call__(self) -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_regex_metric
+
+                return response_regex_metric
+
             class ssn:
                 @staticmethod
                 def response() -> MetricCreator:
@@ -329,6 +358,9 @@ class lib:
                     return response_credit_card_number_regex_metric
 
         class sentiment:
+            def __call__(self) -> MetricCreator:
+                return self.sentiment_score()
+
             @staticmethod
             def sentiment_score() -> MetricCreator:
                 """
@@ -344,6 +376,12 @@ class lib:
             These metrics are used to compare the response to various examples and use cosine similarity/embedding distances
             to determine the similarity between the response and the examples.
             """
+
+            def __call__(self) -> MetricCreator:
+                return [
+                    self.prompt(),
+                    self.refusal(),
+                ]
 
             @staticmethod
             def prompt() -> MetricCreator:
