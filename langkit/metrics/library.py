@@ -90,7 +90,7 @@ class lib:
 
     class prompt:
         @staticmethod
-        def pii(entities: Optional[List[str]] = None) -> MetricCreator:
+        def pii(entities: Optional[List[str]] = None, input_name: str = "prompt") -> MetricCreator:
             """
             Analyze the input for Personally Identifiable Information (PII) using Presidio. This group contains
             various pii metrics that check for email address, phone number, credit card number, etc. The pii metrics
@@ -103,7 +103,7 @@ class lib:
             from langkit.metrics.pii import pii_presidio_metric, prompt_presidio_pii_metric
 
             if entities:
-                return lambda: pii_presidio_metric(entities=entities)
+                return lambda: pii_presidio_metric(entities=entities, input_name=input_name)
 
             return prompt_presidio_pii_metric
 
@@ -259,7 +259,7 @@ class lib:
 
     class response:
         @staticmethod
-        def pii(entities: Optional[List[str]] = None) -> MetricCreator:
+        def pii(entities: Optional[List[str]] = None, input_name: str = "response") -> MetricCreator:
             """
             Analyze the input for Personally Identifiable Information (PII) using Presidio. This group contains
             various pii metrics that check for email address, phone number, credit card number, etc. The pii metrics
@@ -272,7 +272,7 @@ class lib:
             from langkit.metrics.pii import pii_presidio_metric, response_presidio_pii_metric
 
             if entities:
-                return lambda: pii_presidio_metric(entities=entities)
+                return lambda: pii_presidio_metric(entities=entities, input_name=input_name)
 
             return response_presidio_pii_metric
 
