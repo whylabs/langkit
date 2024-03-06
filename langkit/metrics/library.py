@@ -156,46 +156,41 @@ class lib:
 
                 return prompt_difficult_words_metric
 
-        class regexes:
+        class regex:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.regexes.regexes import prompt_regex_metric
 
                 return prompt_regex_metric
 
-            class ssn:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_ssn_regex_metric
+            @staticmethod
+            def ssn() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_ssn_regex_metric
 
-                    return prompt_ssn_regex_metric
+                return prompt_ssn_regex_metric
 
-            class phone_number:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_phone_number_regex_metric
+            @staticmethod
+            def phone_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_phone_number_regex_metric
 
-                    return prompt_phone_number_regex_metric
+                return prompt_phone_number_regex_metric
 
-            class email_address:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_email_address_regex_metric
+            @staticmethod
+            def email_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_email_address_regex_metric
 
-                    return prompt_email_address_regex_metric
+                return prompt_email_address_regex_metric
 
-            class mailing_address:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_mailing_address_regex_metric
+            @staticmethod
+            def mailing_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_mailing_address_regex_metric
 
-                    return prompt_mailing_address_regex_metric
+                return prompt_mailing_address_regex_metric
 
-            class credit_card_number:
-                @staticmethod
-                def prompt() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import prompt_credit_card_number_regex_metric
+            @staticmethod
+            def credit_card_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_credit_card_number_regex_metric
 
-                    return prompt_credit_card_number_regex_metric
+                return prompt_credit_card_number_regex_metric
 
         class similarity:
             """
@@ -316,46 +311,41 @@ class lib:
 
                 return response_difficult_words_metric
 
-        class regexes:
+        class regex:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.regexes.regexes import response_regex_metric
 
                 return response_regex_metric
 
-            class ssn:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_ssn_regex_metric
+            @staticmethod
+            def ssn() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_ssn_regex_metric
 
-                    return response_ssn_regex_metric
+                return response_ssn_regex_metric
 
-            class phone_number:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_phone_number_regex_metric
+            @staticmethod
+            def phone_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_phone_number_regex_metric
 
-                    return response_phone_number_regex_metric
+                return response_phone_number_regex_metric
 
-            class email_address:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_email_address_regex_metric
+            @staticmethod
+            def email_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_email_address_regex_metric
 
-                    return response_email_address_regex_metric
+                return response_email_address_regex_metric
 
-            class mailing_address:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_mailing_address_regex_metric
+            @staticmethod
+            def mailing_address() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_mailing_address_regex_metric
 
-                    return response_mailing_address_regex_metric
+                return response_mailing_address_regex_metric
 
-            class credit_card_number:
-                @staticmethod
-                def response() -> MetricCreator:
-                    from langkit.metrics.regexes.regexes import response_credit_card_number_regex_metric
+            @staticmethod
+            def credit_card_number() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_credit_card_number_regex_metric
 
-                    return response_credit_card_number_regex_metric
+                return response_credit_card_number_regex_metric
 
         class sentiment:
             def __call__(self) -> MetricCreator:
