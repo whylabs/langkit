@@ -172,6 +172,9 @@ class lib:
                 return prompt_difficult_words_metric
 
         class stats:
+            def __call__(self) -> MetricCreator:
+                return [lib.prompt.stats.token_count]
+
             @staticmethod
             def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:
                 """
@@ -355,6 +358,9 @@ class lib:
                 return response_difficult_words_metric
 
         class stats:
+            def __call__(self) -> MetricCreator:
+                return [lib.response.stats.token_count]
+
             @staticmethod
             def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:
                 """
