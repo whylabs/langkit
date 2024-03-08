@@ -12,6 +12,12 @@ def _get_encoder(encoding: str):
 
 
 def token_metric(column_name: str, encoding: str = "cl100k_base") -> Metric:
+    def cache_assets():
+        _get_encoder(encoding)
+
+    def init():
+        _get_encoder(encoding)
+
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         encoder = _get_encoder(encoding)
         encoding_len = [len(encoder.encode(it)) for it in UdfInput(text).iter_column_rows(column_name)]
@@ -21,6 +27,8 @@ def token_metric(column_name: str, encoding: str = "cl100k_base") -> Metric:
         name=f"{column_name}.stats.token_count",
         input_name=column_name,
         evaluate=udf,
+        init=init,
+        cache_assets=cache_assets,
     )
 
 

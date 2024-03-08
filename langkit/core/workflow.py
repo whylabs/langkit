@@ -178,8 +178,7 @@ class EvaluationWorkflow:
     def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
         start = time.perf_counter()
 
-        if not self._initialized:
-            self.init()
+        self.init()
 
         if not isinstance(data, pd.DataFrame):
             if not is_dict_with_strings(data):
