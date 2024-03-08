@@ -47,39 +47,35 @@ class lib:
             These are the recommended set of metrics for the prompt and response. It pulls in the following groups of metrics:
 
             - prompt.pii.*
+            - prompt.stats.token_count
             - prompt.text_stat.char_count
-            - prompt.text_stat.reading_ease
-            - prompt.sentiment.sentiment_score
-            - prompt.toxicity.toxicity_score
             - prompt.similarity.injection
             - prompt.similarity.jailbreak
 
             - response.pii.*
+            - response.stats.token_count
             - response.text_stat.char_count
             - response.text_stat.reading_ease
             - response.sentiment.sentiment_score
             - response.toxicity.toxicity_score
-            - response.similarity.prompt
             - response.similarity.refusal
             """
 
             prompt_metrics = [
                 lib.prompt.pii,
+                lib.prompt.stats.token_count,
                 lib.prompt.text_stat.char_count,
-                lib.prompt.text_stat.reading_ease,
-                lib.prompt.sentiment.sentiment_score,
-                lib.prompt.toxicity.toxicity_score,
                 lib.prompt.similarity.injection,
                 lib.prompt.similarity.jailbreak,
             ]
 
             response_metrics = [
                 lib.response.pii,
+                lib.response.stats.token_count,
                 lib.response.text_stat.char_count,
                 lib.response.text_stat.reading_ease,
                 lib.response.sentiment.sentiment_score,
                 lib.response.toxicity.toxicity_score,
-                lib.response.similarity.prompt,
                 lib.response.similarity.refusal,
             ]
 
@@ -90,7 +86,7 @@ class lib:
 
     class prompt:
         @staticmethod
-        def pii(entities: Optional[List[str]] = None) -> MetricCreator:
+        def pii(entities: Optional[List[str]] = None, input_name: str = "prompt") -> MetricCreator:
             """
             Analyze the input for Personally Identifiable Information (PII) using Presidio. This group contains
             various pii metrics that check for email address, phone number, credit card number, etc. The pii metrics
@@ -103,7 +99,7 @@ class lib:
             from langkit.metrics.pii import pii_presidio_metric, prompt_presidio_pii_metric
 
             if entities:
-                return lambda: pii_presidio_metric(entities=entities)
+                return lambda: pii_presidio_metric(entities=entities, input_name=input_name)
 
             return prompt_presidio_pii_metric
 
@@ -174,6 +170,20 @@ class lib:
                 from langkit.metrics.text_statistics import prompt_difficult_words_metric
 
                 return prompt_difficult_words_metric
+
+        class stats:
+            @staticmethod
+            def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:
+                """
+                Analyze the input for the number of tokens. This metric uses the `tiktoken` library to tokenize the input for
+                the cl100k_base encoding by default (the encoding for gpt-3.5 and gpt-4).
+                """
+                from langkit.metrics.token import prompt_token_metric, token_metric
+
+                if tiktoken_encoding:
+                    return lambda: token_metric(column_name="prompt", encoding=tiktoken_encoding)
+
+                return prompt_token_metric
 
         class regex:
             def __call__(self) -> MetricCreator:
@@ -259,7 +269,7 @@ class lib:
 
     class response:
         @staticmethod
-        def pii(entities: Optional[List[str]] = None) -> MetricCreator:
+        def pii(entities: Optional[List[str]] = None, input_name: str = "response") -> MetricCreator:
             """
             Analyze the input for Personally Identifiable Information (PII) using Presidio. This group contains
             various pii metrics that check for email address, phone number, credit card number, etc. The pii metrics
@@ -272,7 +282,7 @@ class lib:
             from langkit.metrics.pii import pii_presidio_metric, response_presidio_pii_metric
 
             if entities:
-                return lambda: pii_presidio_metric(entities=entities)
+                return lambda: pii_presidio_metric(entities=entities, input_name=input_name)
 
             return response_presidio_pii_metric
 
@@ -343,6 +353,20 @@ class lib:
                 from langkit.metrics.text_statistics import response_difficult_words_metric
 
                 return response_difficult_words_metric
+
+        class stats:
+            @staticmethod
+            def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:
+                """
+                Analyze the input for the number of tokens. This metric uses the `tiktoken` library to tokenize the input for
+                the cl100k_base encoding by default (the encoding for gpt-3.5 and gpt-4).
+                """
+                from langkit.metrics.token import response_token_metric, token_metric
+
+                if tiktoken_encoding:
+                    return lambda: token_metric(column_name="response", encoding=tiktoken_encoding)
+
+                return response_token_metric
 
         class regex:
             def __call__(self) -> MetricCreator:

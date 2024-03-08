@@ -181,19 +181,8 @@ class EvaluationConfigBuilder:
                     s = schema
                     schemas.extend(self._build_metrics([schema]))
             else:
-                for m in module:
-                    if callable(m):
-                        schema = m()
-                        if isinstance(schema, SingleMetric) or isinstance(schema, MultiMetric):
-                            schemas.append(schema)
-                        elif isinstance(schema, list):
-                            for s in schema:
-                                if isinstance(s, Metric):
-                                    schemas.append(s)
-                                else:
-                                    schemas.extend(self._build_metrics([s]))
-                    else:
-                        schemas.extend(self._build_metrics([m]))
+                for s in module:
+                    schemas.extend(self._build_metrics([s]))
 
         return schemas
 

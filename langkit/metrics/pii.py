@@ -35,7 +35,7 @@ def _load_spacy_model():
 
 
 def pii_presidio_metric(
-    input_name: str,
+    input_name: str = "prompt",
     language: str = "en",
     entities: Optional[List[str]] = None,
 ) -> MultiMetric:
