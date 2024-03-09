@@ -48,14 +48,14 @@ class lib:
 
             - prompt.pii.*
             - prompt.stats.token_count
-            - prompt.text_stat.char_count
+            - prompt.stats.char_count
             - prompt.similarity.injection
             - prompt.similarity.jailbreak
 
             - response.pii.*
             - response.stats.token_count
-            - response.text_stat.char_count
-            - response.text_stat.reading_ease
+            - response.stats.char_count
+            - response.stats.reading_ease
             - response.sentiment.sentiment_score
             - response.toxicity.toxicity_score
             - response.similarity.refusal
@@ -64,7 +64,7 @@ class lib:
             prompt_metrics = [
                 lib.prompt.pii,
                 lib.prompt.stats.token_count,
-                lib.prompt.text_stat.char_count,
+                lib.prompt.stats.char_count,
                 lib.prompt.similarity.injection,
                 lib.prompt.similarity.jailbreak,
             ]
@@ -72,8 +72,8 @@ class lib:
             response_metrics = [
                 lib.response.pii,
                 lib.response.stats.token_count,
-                lib.response.text_stat.char_count,
-                lib.response.text_stat.reading_ease,
+                lib.response.stats.char_count,
+                lib.response.stats.reading_ease,
                 lib.response.sentiment.sentiment_score,
                 lib.response.toxicity.toxicity_score,
                 lib.response.similarity.refusal,
@@ -117,11 +117,11 @@ class lib:
 
                 return prompt_toxicity_metric
 
-        class text_stat:
+        class stats:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.text_statistics import prompt_textstat_metric
 
-                return prompt_textstat_metric
+                return [lib.prompt.stats.token_count, prompt_textstat_metric]
 
             @staticmethod
             def char_count() -> MetricCreator:
@@ -170,10 +170,6 @@ class lib:
                 from langkit.metrics.text_statistics import prompt_difficult_words_metric
 
                 return prompt_difficult_words_metric
-
-        class stats:
-            def __call__(self) -> MetricCreator:
-                return [lib.prompt.stats.token_count]
 
             @staticmethod
             def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:
@@ -303,11 +299,11 @@ class lib:
 
                 return response_toxicity_metric
 
-        class text_stat:
+        class stats:
             def __call__(self) -> MetricCreator:
                 from langkit.metrics.text_statistics import response_textstat_metric
 
-                return response_textstat_metric
+                return [lib.response.stats.token_count, response_textstat_metric]
 
             @staticmethod
             def char_count() -> MetricCreator:
@@ -356,10 +352,6 @@ class lib:
                 from langkit.metrics.text_statistics import response_difficult_words_metric
 
                 return response_difficult_words_metric
-
-        class stats:
-            def __call__(self) -> MetricCreator:
-                return [lib.response.stats.token_count]
 
             @staticmethod
             def token_count(tiktoken_encoding: Optional[str] = None) -> MetricCreator:

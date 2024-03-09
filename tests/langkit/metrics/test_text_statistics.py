@@ -90,34 +90,34 @@ def test_prompt_response_textstat_module():
 
     expected_columns = [
         "prompt",
-        "prompt.text_stat.char_count",
-        "prompt.text_stat.difficult_words",
-        "prompt.text_stat.flesch_kincaid_grade",
-        "prompt.text_stat.flesch_reading_ease",
-        "prompt.text_stat.letter_count",
-        "prompt.text_stat.lexicon_count",
-        "prompt.text_stat.sentence_count",
-        "prompt.text_stat.syllable_count",
+        "prompt.stats.char_count",
+        "prompt.stats.difficult_words",
+        "prompt.stats.flesch_kincaid_grade",
+        "prompt.stats.flesch_reading_ease",
+        "prompt.stats.letter_count",
+        "prompt.stats.lexicon_count",
+        "prompt.stats.sentence_count",
+        "prompt.stats.syllable_count",
         "response",
-        "response.text_stat.char_count",
-        "response.text_stat.difficult_words",
-        "response.text_stat.flesch_kincaid_grade",
-        "response.text_stat.flesch_reading_ease",
-        "response.text_stat.letter_count",
-        "response.text_stat.lexicon_count",
-        "response.text_stat.sentence_count",
-        "response.text_stat.syllable_count",
+        "response.stats.char_count",
+        "response.stats.difficult_words",
+        "response.stats.flesch_kincaid_grade",
+        "response.stats.flesch_reading_ease",
+        "response.stats.letter_count",
+        "response.stats.lexicon_count",
+        "response.stats.sentence_count",
+        "response.stats.syllable_count",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert actual["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert actual["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert actual["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
     actual_row = _log(row, all_textstat_schema)
 
     assert actual_row.index.tolist() == expected_columns
-    assert actual_row["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert actual_row["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert actual_row["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert actual_row["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
 
 def test_prompt_textstat_module():
@@ -129,26 +129,26 @@ def test_prompt_textstat_module():
 
     expected_columns = [
         "prompt",
-        "prompt.text_stat.char_count",
-        "prompt.text_stat.difficult_words",
-        "prompt.text_stat.flesch_kincaid_grade",
-        "prompt.text_stat.flesch_reading_ease",
-        "prompt.text_stat.letter_count",
-        "prompt.text_stat.lexicon_count",
-        "prompt.text_stat.sentence_count",
-        "prompt.text_stat.syllable_count",
+        "prompt.stats.char_count",
+        "prompt.stats.difficult_words",
+        "prompt.stats.flesch_kincaid_grade",
+        "prompt.stats.flesch_reading_ease",
+        "prompt.stats.letter_count",
+        "prompt.stats.lexicon_count",
+        "prompt.stats.sentence_count",
+        "prompt.stats.syllable_count",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert "response.text_stat.char_count" not in actual["distribution/max"]
+    assert actual["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert "response.stats.char_count" not in actual["distribution/max"]
 
     actual_row = _log(row, prompt_textstat_schema)
 
     assert actual_row.index.tolist() == expected_columns
-    assert actual_row["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert "response.text_stat.char_count" not in actual_row["distribution/max"]
+    assert actual_row["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert "response.stats.char_count" not in actual_row["distribution/max"]
 
 
 def test_response_textstat_module():
@@ -161,25 +161,25 @@ def test_response_textstat_module():
     expected_columns = [
         "prompt",
         "response",
-        "response.text_stat.char_count",
-        "response.text_stat.difficult_words",
-        "response.text_stat.flesch_kincaid_grade",
-        "response.text_stat.flesch_reading_ease",
-        "response.text_stat.letter_count",
-        "response.text_stat.lexicon_count",
-        "response.text_stat.sentence_count",
-        "response.text_stat.syllable_count",
+        "response.stats.char_count",
+        "response.stats.difficult_words",
+        "response.stats.flesch_kincaid_grade",
+        "response.stats.flesch_reading_ease",
+        "response.stats.letter_count",
+        "response.stats.lexicon_count",
+        "response.stats.sentence_count",
+        "response.stats.syllable_count",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert "prompt.text_stat.char_count" not in actual["distribution/max"]
-    assert actual["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert "prompt.stats.char_count" not in actual["distribution/max"]
+    assert actual["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
     actual_row = _log(row, response_textstat_schema)
 
     assert actual_row.index.tolist() == expected_columns
-    assert "prompt.text_stat.char_count" not in actual_row["distribution/max"]
-    assert actual_row["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert "prompt.stats.char_count" not in actual_row["distribution/max"]
+    assert actual_row["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
 
 def test_prompt_reading_ease_module():
@@ -194,7 +194,7 @@ def test_prompt_reading_ease_module():
 
     assert actual.index.tolist() == [
         "prompt",
-        "prompt.text_stat.flesch_reading_ease",
+        "prompt.stats.flesch_reading_ease",
         "response",
     ]
 
@@ -212,7 +212,7 @@ def test_response_reading_ease_module():
     assert actual.index.tolist() == [
         "prompt",
         "response",
-        "response.text_stat.flesch_reading_ease",
+        "response.stats.flesch_reading_ease",
     ]
 
 
@@ -228,9 +228,9 @@ def test_prompt_response_flesch_kincaid_grade_level_module():
 
     assert actual.index.tolist() == [
         "prompt",
-        "prompt.text_stat.flesch_kincaid_grade",
+        "prompt.stats.flesch_kincaid_grade",
         "response",
-        "response.text_stat.flesch_kincaid_grade",
+        "response.stats.flesch_kincaid_grade",
     ]
 
 
@@ -243,7 +243,7 @@ def test_prompt_char_count_module():
 
     assert actual.index.tolist() == [
         "prompt",
-        "prompt.text_stat.char_count",
+        "prompt.stats.char_count",
         "response",
     ]
 
@@ -251,7 +251,7 @@ def test_prompt_char_count_module():
 def test_prompt_char_count_0_module():
     wf = EvaluationWorkflow(
         metrics=[prompt_char_count_metric, response_char_count_metric],
-        validators=[ConstraintValidator("prompt.text_stat.char_count", lower_threshold=2)],
+        validators=[ConstraintValidator("prompt.stats.char_count", lower_threshold=2)],
     )
 
     df = pd.DataFrame(
@@ -267,18 +267,18 @@ def test_prompt_char_count_0_module():
     actual = wf.run(df)
 
     assert actual.metrics.columns.tolist() == [
-        "prompt.text_stat.char_count",
-        "response.text_stat.char_count",
+        "prompt.stats.char_count",
+        "response.stats.char_count",
         "id",
     ]
 
     print(actual.metrics.transpose())
-    assert actual.metrics["prompt.text_stat.char_count"][0] == 0
+    assert actual.metrics["prompt.stats.char_count"][0] == 0
     assert actual.validation_results == ValidationResult(
         report=[
             ValidationFailure(
                 id="0",
-                metric="prompt.text_stat.char_count",
+                metric="prompt.stats.char_count",
                 details="Value 0 is below threshold 2",
                 value=0,
                 upper_threshold=None,
@@ -289,7 +289,7 @@ def test_prompt_char_count_0_module():
 
 
 def test_text_stat_group():
-    wf = EvaluationWorkflow(metrics=[lib.prompt.text_stat()])
+    wf = EvaluationWorkflow(metrics=[lib.prompt.stats()])
     df = pd.DataFrame(
         {
             "prompt": [
@@ -306,26 +306,28 @@ def test_text_stat_group():
     assert sorted(actual.metrics.columns.tolist()) == sorted(  # pyright: ignore[reportUnknownArgumentType]
         [
             "id",
-            "prompt.text_stat.char_count",
-            "prompt.text_stat.difficult_words",
-            "prompt.text_stat.flesch_kincaid_grade",
-            "prompt.text_stat.flesch_reading_ease",
-            "prompt.text_stat.letter_count",
-            "prompt.text_stat.lexicon_count",
-            "prompt.text_stat.sentence_count",
-            "prompt.text_stat.syllable_count",
+            "prompt.stats.char_count",
+            "prompt.stats.difficult_words",
+            "prompt.stats.flesch_kincaid_grade",
+            "prompt.stats.flesch_reading_ease",
+            "prompt.stats.letter_count",
+            "prompt.stats.lexicon_count",
+            "prompt.stats.sentence_count",
+            "prompt.stats.syllable_count",
+            "prompt.stats.token_count",
         ]
     )
 
     print(actual.metrics.transpose())
-    assert actual.metrics["prompt.text_stat.char_count"][0] == 4
-    assert actual.metrics["prompt.text_stat.difficult_words"][0] == 0
-    assert actual.metrics["prompt.text_stat.flesch_kincaid_grade"][0] == -3.5
-    assert actual.metrics["prompt.text_stat.flesch_reading_ease"][0] == 121.22
-    assert actual.metrics["prompt.text_stat.letter_count"][0] == 4
-    assert actual.metrics["prompt.text_stat.lexicon_count"][0] == 1
-    assert actual.metrics["prompt.text_stat.sentence_count"][0] == 1
-    assert actual.metrics["prompt.text_stat.syllable_count"][0] == 1
+    assert actual.metrics["prompt.stats.char_count"][0] == 4
+    assert actual.metrics["prompt.stats.difficult_words"][0] == 0
+    assert actual.metrics["prompt.stats.flesch_kincaid_grade"][0] == -3.5
+    assert actual.metrics["prompt.stats.flesch_reading_ease"][0] == 121.22
+    assert actual.metrics["prompt.stats.letter_count"][0] == 4
+    assert actual.metrics["prompt.stats.lexicon_count"][0] == 1
+    assert actual.metrics["prompt.stats.sentence_count"][0] == 1
+    assert actual.metrics["prompt.stats.syllable_count"][0] == 1
+    assert actual.metrics["prompt.stats.token_count"][0] == 1
 
 
 def test_response_char_count_module():
@@ -338,7 +340,7 @@ def test_response_char_count_module():
     assert actual.index.tolist() == [
         "prompt",
         "response",
-        "response.text_stat.char_count",
+        "response.stats.char_count",
     ]
 
 
@@ -365,18 +367,18 @@ def test_custom_module_combination():
 
     expected_columns = [
         "prompt",
-        "prompt.text_stat.char_count",
-        "prompt.text_stat.difficult_words",
-        "prompt.text_stat.flesch_reading_ease",
+        "prompt.stats.char_count",
+        "prompt.stats.difficult_words",
+        "prompt.stats.flesch_reading_ease",
         "response",
-        "response.text_stat.char_count",
-        "response.text_stat.sentence_count",
+        "response.stats.char_count",
+        "response.stats.sentence_count",
     ]
 
     assert list(actual.columns) == expected_metrics
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert actual["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert actual["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert actual["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
     # and you get the same results if you combine the modules in different ways
 
@@ -397,8 +399,8 @@ def test_custom_module_combination():
 
     assert list(actual.columns) == expected_metrics
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.text_stat.char_count"] == len(row["prompt"].replace(" ", ""))
-    assert actual["distribution/max"]["response.text_stat.char_count"] == len(row["response"].replace(" ", ""))
+    assert actual["distribution/max"]["prompt.stats.char_count"] == len(row["prompt"].replace(" ", ""))
+    assert actual["distribution/max"]["response.stats.char_count"] == len(row["response"].replace(" ", ""))
 
 
 def test_multi_text_stat_metric():
@@ -444,12 +446,12 @@ def test_multi_text_stat_metric():
         "prompt",
         "prompt.custom_textstat1",
         "prompt.custom_textstat2",
-        "prompt.text_stat.char_count",
+        "prompt.stats.char_count",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.text_stat.char_count"] == 28
+    assert actual["distribution/max"]["prompt.stats.char_count"] == 28
     assert actual["distribution/min"]["prompt.custom_textstat1"] == 2
     assert actual["distribution/max"]["prompt.custom_textstat1"] == 26
     assert actual["distribution/min"]["prompt.custom_textstat2"] == 4
