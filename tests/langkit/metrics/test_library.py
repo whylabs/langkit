@@ -32,7 +32,7 @@ def test_recommended():
         "response.stats.char_count",
         "response.stats.flesch_reading_ease",
         "response.sentiment.sentiment_score",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
         "response.similarity.refusal",
         "id",
     ]
