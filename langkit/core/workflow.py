@@ -126,7 +126,7 @@ class EvaluationWorkflow:
             if not set(targets).issubset(metric_names):
                 raise ValueError(
                     f"Validator {validator} has target metric names ({targets}) but this workflow is "
-                    f"only generating metrics for  these: {metric_names}"
+                    f"only generating metrics for these: {metric_names}"
                 )
 
     def _condense_metric_results(self, metric_results: Dict[str, SingleMetricResult]) -> pd.DataFrame:
