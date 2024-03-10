@@ -55,7 +55,7 @@ class lib:
             - response.pii.*
             - response.stats.token_count
             - response.stats.char_count
-            - response.stats.reading_ease
+            - response.stats.flesch_reading_ease
             - response.sentiment.sentiment_score
             - response.toxicity.toxicity_score
             - response.similarity.refusal
@@ -73,7 +73,7 @@ class lib:
                 lib.response.pii,
                 lib.response.stats.token_count,
                 lib.response.stats.char_count,
-                lib.response.stats.reading_ease,
+                lib.response.stats.flesch_reading_ease,
                 lib.response.sentiment.sentiment_score,
                 lib.response.toxicity.toxicity_score,
                 lib.response.similarity.refusal,
@@ -130,7 +130,7 @@ class lib:
                 return prompt_char_count_metric
 
             @staticmethod
-            def reading_ease() -> MetricCreator:
+            def flesch_reading_ease() -> MetricCreator:
                 from langkit.metrics.text_statistics import prompt_reading_ease_metric
 
                 return prompt_reading_ease_metric
@@ -312,7 +312,7 @@ class lib:
                 return response_char_count_metric
 
             @staticmethod
-            def reading_ease() -> MetricCreator:
+            def flesch_reading_ease() -> MetricCreator:
                 from langkit.metrics.text_statistics import response_reading_ease_metric
 
                 return response_reading_ease_metric

@@ -73,12 +73,12 @@ def test_prompt_toxicity_row_non_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] < 0.1
 
 
 def test_prompt_toxicity_df_non_toxic():
@@ -89,12 +89,12 @@ def test_prompt_toxicity_df_non_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] < 0.1
 
 
 def test_prompt_toxicity_row_toxic():
@@ -107,12 +107,12 @@ def test_prompt_toxicity_row_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
 
 
 def test_prompt_toxicity_df_toxic():
@@ -140,12 +140,12 @@ def test_prompt_toxicity_df_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
 
 
 def test_prompt_toxicity_df_mixed():
@@ -173,13 +173,13 @@ def test_prompt_toxicity_df_mixed():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
-    assert actual["distribution/min"]["prompt.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["prompt.toxicity.toxicity_score"] < 0.1
 
 
 def test_response_toxicity_row_non_toxic():
@@ -191,11 +191,11 @@ def test_response_toxicity_row_non_toxic():
     expected_columns = [
         "prompt",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] < 0.1
 
 
 def test_response_toxicity_df_non_toxic():
@@ -207,11 +207,11 @@ def test_response_toxicity_df_non_toxic():
     expected_columns = [
         "prompt",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] < 0.1
 
 
 def test_response_toxicity_row_toxic():
@@ -225,11 +225,11 @@ def test_response_toxicity_row_toxic():
     expected_columns = [
         "prompt",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
 
 
 def test_response_toxicity_df_toxic():
@@ -258,11 +258,11 @@ def test_response_toxicity_df_toxic():
     expected_columns = [
         "prompt",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
 
 
 def test_response_toxicity_df_mixed():
@@ -291,12 +291,12 @@ def test_response_toxicity_df_mixed():
     expected_columns = [
         "prompt",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
-    assert actual["distribution/min"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["response.toxicity.toxicity_score"] < 0.1
 
 
 def test_prompt_response_toxicity_row_non_toxic():
@@ -307,14 +307,14 @@ def test_prompt_response_toxicity_row_non_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] < 0.1
-    assert actual["distribution/max"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] < 0.1
 
 
 def test_prompt_response_toxicity_df_non_toxic():
@@ -325,14 +325,14 @@ def test_prompt_response_toxicity_df_non_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] < 0.1
-    assert actual["distribution/max"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] < 0.1
 
 
 def test_prompt_response_toxicity_row_toxic():
@@ -345,14 +345,14 @@ def test_prompt_response_toxicity_row_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
 
 
 def test_prompt_response_toxicity_df_toxic():
@@ -380,16 +380,16 @@ def test_prompt_response_toxicity_df_toxic():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
-    assert actual["distribution/min"]["prompt.toxicity"] > 0.7
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
-    assert actual["distribution/min"]["response.toxicity"] > 0.7
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["prompt.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["response.toxicity.toxicity_score"] > 0.7
 
 
 def test_prompt_response_toxicity_df_mixed():
@@ -417,13 +417,13 @@ def test_prompt_response_toxicity_df_mixed():
 
     expected_columns = [
         "prompt",
-        "prompt.toxicity",
+        "prompt.toxicity.toxicity_score",
         "response",
-        "response.toxicity",
+        "response.toxicity.toxicity_score",
     ]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["prompt.toxicity"] > 0.7
-    assert actual["distribution/min"]["prompt.toxicity"] < 0.1
-    assert actual["distribution/max"]["response.toxicity"] > 0.7
-    assert actual["distribution/min"]["response.toxicity"] < 0.1
+    assert actual["distribution/max"]["prompt.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["prompt.toxicity.toxicity_score"] < 0.1
+    assert actual["distribution/max"]["response.toxicity.toxicity_score"] > 0.7
+    assert actual["distribution/min"]["response.toxicity.toxicity_score"] < 0.1
