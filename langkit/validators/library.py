@@ -25,6 +25,10 @@ class lib:
                     target_metric="response.sentiment.sentiment_score",
                     lower_threshold=-0.2,
                 ),
+                lib.constraint(
+                    target_metric="response.similarity.refusal",
+                    lower_threshold=-0.2,
+                ),
             ]
 
         @staticmethod
