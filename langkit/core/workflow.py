@@ -231,6 +231,15 @@ class EvaluationWorkflow:
         validation_results: List[ValidationResult] = []
         all_validators_start = time.perf_counter()
         for validator in self.validators:
+            validator_columns = validator.get_target_metric_names()
+            # make sure that all of the columns that the validator needs are present in the input dataframe
+            if not set(validator_columns).issubset(condensed.columns):
+                logger.debug(
+                    f"Skipping validator {validator} because it requires columns {validator_columns } "
+                    f"which are not present in the input dataframe"
+                )
+                continue
+
             # Only pass the series that the validator asks for to the validator. This ensrues that the target names in the validator
             # actually mean something so we can use them for valdation.
             target_subset = condensed[validator.get_target_metric_names() + ["id"]]
