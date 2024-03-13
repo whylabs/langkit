@@ -196,7 +196,7 @@ class EvaluationWorkflow:
         for metric in self.metrics.metrics:
             # check that the dataframe has the metric.input_name present, or else skip
             if metric.input_name not in df.columns:
-                logger.warning(f"Skipping metric {metric} because {metric.input_name} is not present in the input dataframe")
+                logger.debug(f"Skipping metric {metric} because {metric.input_name} is not present in the input dataframe")
                 continue
 
             metric_start = time.perf_counter()
