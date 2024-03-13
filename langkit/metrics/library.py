@@ -14,10 +14,12 @@ class lib:
             from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity, response_sentiment_polarity
             from langkit.metrics.text_statistics import prompt_textstat_metric, response_textstat_metric
             from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
+            from langkit.metrics.token import prompt_token_metric, response_token_metric
             from langkit.metrics.toxicity import prompt_toxicity_metric, response_toxicity_metric
 
             prompt_metrics = [
                 prompt_textstat_metric,
+                prompt_token_metric,
                 prompt_regex_metric,
                 prompt_sentiment_polarity,
                 prompt_toxicity_metric,
@@ -29,6 +31,7 @@ class lib:
 
             response_metrics = [
                 response_textstat_metric,
+                response_token_metric,
                 response_regex_metric,
                 response_sentiment_polarity,
                 response_refusal_similarity_metric,

@@ -2,10 +2,35 @@ from typing import List
 
 from langkit.core.workflow import EvaluationWorkflow
 from langkit.metrics.library import lib
+from langkit.validators.library import lib as validator_lib
 
 
 def test_just_prompt():
     wf = EvaluationWorkflow(metrics=[lib.presets.recommended()])
+    result = wf.run({"prompt": "hi"})
+    metrics = result.metrics
+
+    metric_names: List[str] = metrics.columns.tolist()  # pyright: ignore[reportUnknownMemberType]
+
+    assert metric_names == [
+        "prompt.pii.phone_number",
+        "prompt.pii.email_address",
+        "prompt.pii.credit_card",
+        "prompt.pii.us_ssn",
+        "prompt.pii.us_bank_number",
+        "prompt.pii.redacted",
+        "prompt.stats.token_count",
+        "prompt.stats.char_count",
+        "prompt.similarity.injection",
+        "prompt.similarity.jailbreak",
+        "id",
+    ]
+
+
+def test_just_prompt_validation():
+    rule = validator_lib.constraint(target_metric="response.stats.token_count", upper_threshold=10)
+    wf = EvaluationWorkflow(metrics=[lib.presets.recommended()], validators=[rule])
+
     result = wf.run({"prompt": "hi"})
     metrics = result.metrics
 
