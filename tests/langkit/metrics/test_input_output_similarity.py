@@ -4,7 +4,7 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
+from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
 from langkit.metrics.input_output_similarity import input_output_similarity_metric, prompt_response_input_output_similarity_metric
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
@@ -40,7 +40,7 @@ expected_metrics = [
 ]
 
 
-def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+def _log(item: Any, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
@@ -57,7 +57,7 @@ def test_input_output():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(input_output_similarity_metric).build()
+    schema = WorkflowMetricConfigBuilder().add(input_output_similarity_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics
@@ -83,7 +83,7 @@ def test_input_output_row():
         "response": "I'm going to answer that question!",
     }
 
-    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
 
     actual = _log(row, schema)
     assert list(actual.columns) == expected_metrics
@@ -115,7 +115,7 @@ def test_input_output_multiple():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
 
     actual = _log(df, schema)
     assert list(actual.columns) == expected_metrics

@@ -5,9 +5,9 @@ import pandas as pd
 from textstat import textstat
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder, Metric, MultiMetric, MultiMetricResult, UdfInput
+from langkit.core.metric import Metric, MultiMetric, MultiMetricResult, UdfInput, WorkflowMetricConfig, WorkflowMetricConfigBuilder
 from langkit.core.validation import ValidationFailure, ValidationResult
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
 from langkit.metrics.text_statistics import (
     prompt_char_count_metric,
@@ -76,13 +76,13 @@ df = pd.DataFrame(
 row = {"prompt": "Hi, how are you doing today?", "response": "I'm doing great, how about you?"}
 
 
-def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+def _log(item: Any, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
 def test_prompt_response_textstat_module():
-    all_textstat_schema = EvaluationConfigBuilder().add(prompt_response_textstat_module).build()
+    all_textstat_schema = WorkflowMetricConfigBuilder().add(prompt_response_textstat_module).build()
 
     actual = _log(row, all_textstat_schema)
 
@@ -121,7 +121,7 @@ def test_prompt_response_textstat_module():
 
 
 def test_prompt_textstat_module():
-    prompt_textstat_schema = EvaluationConfigBuilder().add(prompt_textstat_metric).build()
+    prompt_textstat_schema = WorkflowMetricConfigBuilder().add(prompt_textstat_metric).build()
 
     actual = _log(row, prompt_textstat_schema)
 
@@ -152,7 +152,7 @@ def test_prompt_textstat_module():
 
 
 def test_response_textstat_module():
-    response_textstat_schema = EvaluationConfigBuilder().add(response_textstat_metric).build()
+    response_textstat_schema = WorkflowMetricConfigBuilder().add(response_textstat_metric).build()
 
     actual = _log(row, response_textstat_schema)
 
@@ -183,7 +183,7 @@ def test_response_textstat_module():
 
 
 def test_prompt_reading_ease_module():
-    prompt_reading_ease_schema = EvaluationConfigBuilder().add(prompt_reading_ease_metric).build()
+    prompt_reading_ease_schema = WorkflowMetricConfigBuilder().add(prompt_reading_ease_metric).build()
 
     actual = _log(row, prompt_reading_ease_schema)
 
@@ -200,7 +200,7 @@ def test_prompt_reading_ease_module():
 
 
 def test_response_reading_ease_module():
-    response_reading_ease_schema = EvaluationConfigBuilder().add(response_reading_ease_metric).build()
+    response_reading_ease_schema = WorkflowMetricConfigBuilder().add(response_reading_ease_metric).build()
 
     actual = _log(row, response_reading_ease_schema)
 
@@ -217,7 +217,7 @@ def test_response_reading_ease_module():
 
 
 def test_prompt_response_flesch_kincaid_grade_level_module():
-    schema = EvaluationConfigBuilder().add(prompt_response_grade_metric).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_response_grade_metric).build()
 
     actual = _log(row, schema)
 
@@ -235,7 +235,7 @@ def test_prompt_response_flesch_kincaid_grade_level_module():
 
 
 def test_prompt_char_count_module():
-    prompt_char_count_schema = EvaluationConfigBuilder().add(prompt_char_count_metric).build()
+    prompt_char_count_schema = WorkflowMetricConfigBuilder().add(prompt_char_count_metric).build()
 
     actual = _log(row, prompt_char_count_schema)
 
@@ -249,7 +249,7 @@ def test_prompt_char_count_module():
 
 
 def test_prompt_char_count_0_module():
-    wf = EvaluationWorkflow(
+    wf = Workflow(
         metrics=[prompt_char_count_metric, response_char_count_metric],
         validators=[ConstraintValidator("prompt.stats.char_count", lower_threshold=2)],
     )
@@ -289,7 +289,7 @@ def test_prompt_char_count_0_module():
 
 
 def test_text_stat_group():
-    wf = EvaluationWorkflow(metrics=[lib.prompt.stats()])
+    wf = Workflow(metrics=[lib.prompt.stats()])
     df = pd.DataFrame(
         {
             "prompt": [
@@ -331,7 +331,7 @@ def test_text_stat_group():
 
 
 def test_response_char_count_module():
-    response_char_count_schema = EvaluationConfigBuilder().add(response_char_count_metric).build()
+    response_char_count_schema = WorkflowMetricConfigBuilder().add(response_char_count_metric).build()
 
     actual = _log(row, response_char_count_schema)
 
@@ -354,7 +354,7 @@ def test_custom_module_combination():
     )
 
     schema = (
-        EvaluationConfigBuilder()
+        WorkflowMetricConfigBuilder()
         .add(prompt_char_count_metric)
         .add(prompt_reading_ease_metric)
         .add(prompt_difficult_words_metric)
@@ -393,7 +393,7 @@ def test_custom_module_combination():
         response_sentence_count_metric,
     ]
 
-    schema = EvaluationConfigBuilder().add(prompt_modules).add(response_modules).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_modules).add(response_modules).build()
 
     actual = _log(row, schema)
 
@@ -435,7 +435,7 @@ def test_multi_text_stat_metric():
         }
     )
 
-    config = EvaluationConfigBuilder().add(prompt_char_count_metric).add(lambda: multi_metric("letter_count", "prompt")).build()
+    config = WorkflowMetricConfigBuilder().add(prompt_char_count_metric).add(lambda: multi_metric("letter_count", "prompt")).build()
     actual = _log(df, config)
 
     pd.set_option("display.max_columns", None)

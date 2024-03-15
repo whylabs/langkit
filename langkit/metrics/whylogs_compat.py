@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
-from langkit.core.metric import EvaluationConfig, Metric, MultiMetric, SingleMetric
+from langkit.core.metric import Metric, MultiMetric, SingleMetric, WorkflowMetricConfig
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
@@ -100,7 +100,7 @@ def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
         return [_to_udf_schema_args_multiple(metric)]
 
 
-def create_whylogs_udf_schema(eval_conf: EvaluationConfig) -> UdfSchema:
+def create_whylogs_udf_schema(eval_conf: WorkflowMetricConfig) -> UdfSchema:
     for metric in eval_conf.metrics:
         if metric.init:
             metric.init()

@@ -4,8 +4,8 @@ from typing import Any
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
+from langkit.core.workflow import Workflow
 from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
@@ -42,7 +42,7 @@ expected_metrics = [
 ]
 
 
-def _log(item: Any, conf: EvaluationConfig) -> pd.DataFrame:
+def _log(item: Any, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
@@ -65,7 +65,7 @@ def test_topic():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(df, schema)
 
@@ -96,7 +96,7 @@ def test_topic_empty_input():
         }
     )
 
-    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(df, schema)
 
@@ -122,7 +122,7 @@ def test_topic_empty_input_wf():
         }
     )
 
-    wf = EvaluationWorkflow(metrics=[prompt_topic_module])
+    wf = Workflow(metrics=[prompt_topic_module])
     actual = wf.run(df)
 
     assert actual.metrics["prompt.closest_topic"][0] is None
@@ -134,7 +134,7 @@ def test_topic_row():
         "response": "George Washington is the president of the United States.",
     }
 
-    schema = EvaluationConfigBuilder().add(prompt_topic_module).build()
+    schema = WorkflowMetricConfigBuilder().add(prompt_topic_module).build()
 
     actual = _log(row, schema)
 
@@ -169,7 +169,7 @@ def test_custom_topic():
     )
 
     custom_topic_modules = get_custom_topic_modules(["fishing", "boxing", "hiking", "swimming"])
-    schema = EvaluationConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
+    schema = WorkflowMetricConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
 
     actual = _log(df, schema)
 

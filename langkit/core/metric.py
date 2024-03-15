@@ -116,7 +116,7 @@ MetricCreator = Union[
 
 
 @dataclass(frozen=True)
-class EvaluationConfig:
+class WorkflowMetricConfig:
     metrics: List[Metric]
 
 
@@ -128,7 +128,7 @@ class MetricNameCapture:
 
     def __init__(self, creator: MetricCreator) -> None:
         self._creator = creator
-        self._metrics = LazyInit(lambda: EvaluationConfigBuilder().add(self._creator).build().metrics)
+        self._metrics = LazyInit(lambda: WorkflowMetricConfigBuilder().add(self._creator).build().metrics)
         self._metric_names = LazyInit(lambda: MetricNameCapture.__get_metric_names(self._metrics.value))
 
     @staticmethod
@@ -149,12 +149,12 @@ class MetricNameCapture:
         return self._metric_names.value
 
 
-class EvaluationConfigBuilder:
+class WorkflowMetricConfigBuilder:
     def __init__(self, metric_creators: Optional[List[MetricCreator]] = None) -> None:
         super().__init__()
         self._modules: List[MetricCreator] = metric_creators or []
 
-    def add(self, module: MetricCreator) -> "EvaluationConfigBuilder":
+    def add(self, module: MetricCreator) -> "WorkflowMetricConfigBuilder":
         if isinstance(module, list):
             self._modules.extend(module)
         elif callable(module):
@@ -186,7 +186,7 @@ class EvaluationConfigBuilder:
 
         return schemas
 
-    def build(self) -> EvaluationConfig:
+    def build(self) -> WorkflowMetricConfig:
         schemas: List[Metric] = self._build_metrics(self._modules)
 
-        return EvaluationConfig(metrics=schemas)
+        return WorkflowMetricConfig(metrics=schemas)

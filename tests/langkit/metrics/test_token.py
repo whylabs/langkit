@@ -1,10 +1,10 @@
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
 
 
 def test_token_count():
     row = {"prompt": "Hi, how are you doing today?", "response": "I'm doing great, how about you?"}
-    wf = EvaluationWorkflow(metrics=[lib.prompt.stats.token_count(), lib.response.stats.token_count()])
+    wf = Workflow(metrics=[lib.prompt.stats.token_count(), lib.response.stats.token_count()])
 
     actual = wf.run(row)
 

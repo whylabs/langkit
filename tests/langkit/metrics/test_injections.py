@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.injections import prompt_injections_metric
 
 
@@ -31,7 +31,7 @@ def df_2() -> pd.DataFrame:
 
 
 def test_injections_pd(df: pd.DataFrame):
-    wf = EvaluationWorkflow([prompt_injections_metric])
+    wf = Workflow([prompt_injections_metric])
     wf.init()
     res = wf.run(df)
     print(res.metrics)
@@ -41,7 +41,7 @@ def test_injections_pd(df: pd.DataFrame):
 
 
 def test_injections_pd_not_close(df_2: pd.DataFrame):
-    wf = EvaluationWorkflow([prompt_injections_metric])
+    wf = Workflow([prompt_injections_metric])
     wf.init()
     res = wf.run(df_2)
     metric_values: List[float] = res.metrics["prompt.similarity.injection"].to_list()
@@ -51,7 +51,7 @@ def test_injections_pd_not_close(df_2: pd.DataFrame):
 
 def test_injections_dict(df: pd.DataFrame):
     data: Dict[str, str] = {"prompt": df["prompt"].to_list()[0]}
-    wf = EvaluationWorkflow([prompt_injections_metric])
+    wf = Workflow([prompt_injections_metric])
     wf.init()
     res = wf.run(data)
     metric_values: List[float] = res.metrics["prompt.similarity.injection"].to_list()
@@ -61,7 +61,7 @@ def test_injections_dict(df: pd.DataFrame):
 
 def test_injections_dict_not_close(df_2: pd.DataFrame):
     data: Dict[str, str] = {"prompt": df_2["prompt"].to_list()[0]}
-    wf = EvaluationWorkflow([prompt_injections_metric])
+    wf = Workflow([prompt_injections_metric])
     wf.init()
     res = wf.run(data)
     metric_values: List[float] = res.metrics["prompt.similarity.injection"].to_list()
