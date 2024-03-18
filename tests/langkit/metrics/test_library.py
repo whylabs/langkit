@@ -1,11 +1,11 @@
 from typing import List
 
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
 
 
 def test_recommended():
-    wf = EvaluationWorkflow(metrics=[lib.presets.recommended()])
+    wf = Workflow(metrics=[lib.presets.recommended()])
     result = wf.run({"prompt": "hi", "response": "I'm doing great!"})
     metrics = result.metrics
 

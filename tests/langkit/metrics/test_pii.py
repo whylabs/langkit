@@ -2,8 +2,8 @@
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
+from langkit.core.workflow import Workflow
 from langkit.metrics.pii import prompt_response_presidio_pii_metric
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
@@ -41,13 +41,13 @@ expected_metrics = [
 ]
 
 
-def _log(item: pd.DataFrame, conf: EvaluationConfig) -> pd.DataFrame:
+def _log(item: pd.DataFrame, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
 def test_prompt_response_pii_metric_whylogs():
-    all_config = EvaluationConfigBuilder().add(prompt_response_presidio_pii_metric).build()
+    all_config = WorkflowMetricConfigBuilder().add(prompt_response_presidio_pii_metric).build()
 
     df = pd.DataFrame(
         {
@@ -122,7 +122,7 @@ def test_prompt_response_pii_metric():
         "id",
     ]
 
-    wf = EvaluationWorkflow(metrics=[prompt_response_presidio_pii_metric])
+    wf = Workflow(metrics=[prompt_response_presidio_pii_metric])
     logged = wf.run(df).metrics
 
     pd.set_option("display.max_columns", None)

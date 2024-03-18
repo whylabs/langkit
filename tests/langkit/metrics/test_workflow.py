@@ -1,12 +1,12 @@
 from typing import List
 
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
 from langkit.validators.library import lib as validator_lib
 
 
 def test_just_prompt():
-    wf = EvaluationWorkflow(metrics=[lib.presets.recommended()])
+    wf = Workflow(metrics=[lib.presets.recommended()])
     result = wf.run({"prompt": "hi"})
     metrics = result.metrics
 
@@ -29,7 +29,7 @@ def test_just_prompt():
 
 def test_just_prompt_validation():
     rule = validator_lib.constraint(target_metric="response.stats.token_count", upper_threshold=10)
-    wf = EvaluationWorkflow(metrics=[lib.presets.recommended()], validators=[rule])
+    wf = Workflow(metrics=[lib.presets.recommended()], validators=[rule])
 
     result = wf.run({"prompt": "hi"})
     metrics = result.metrics
@@ -52,7 +52,7 @@ def test_just_prompt_validation():
 
 
 def test_just_response():
-    wf = EvaluationWorkflow(metrics=[lib.presets.recommended()])
+    wf = Workflow(metrics=[lib.presets.recommended()])
     result = wf.run({"response": "I'm doing great!"})
     metrics = result.metrics
 

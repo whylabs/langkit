@@ -2,8 +2,8 @@
 import pandas as pd
 
 import whylogs as why
-from langkit.core.metric import EvaluationConfig, EvaluationConfigBuilder
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
+from langkit.core.workflow import Workflow
 from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
@@ -39,13 +39,13 @@ expected_metrics = [
 ]
 
 
-def _log(item: pd.DataFrame, conf: EvaluationConfig) -> pd.DataFrame:
+def _log(item: pd.DataFrame, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
 def test_prompt_response_themes_module():
-    all_config = EvaluationConfigBuilder().add(prompt_jailbreak_similarity_metric).add(response_refusal_similarity_metric).build()
+    all_config = WorkflowMetricConfigBuilder().add(prompt_jailbreak_similarity_metric).add(response_refusal_similarity_metric).build()
 
     df = pd.DataFrame(
         {
@@ -75,7 +75,7 @@ def test_prompt_response_themes_module():
 
 
 def test_prompt_response_themes_module_wf():
-    wf = EvaluationWorkflow(metrics=[prompt_jailbreak_similarity_metric, response_refusal_similarity_metric])
+    wf = Workflow(metrics=[prompt_jailbreak_similarity_metric, response_refusal_similarity_metric])
 
     df = pd.DataFrame(
         {
@@ -99,7 +99,7 @@ def test_prompt_response_themes_module_wf():
 
 
 def test_prompt_response_themes_module_wf_double():
-    wf = EvaluationWorkflow(metrics=[prompt_jailbreak_similarity_metric, response_refusal_similarity_metric])
+    wf = Workflow(metrics=[prompt_jailbreak_similarity_metric, response_refusal_similarity_metric])
 
     df = pd.DataFrame(
         {

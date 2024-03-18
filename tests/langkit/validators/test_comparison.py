@@ -1,7 +1,7 @@
 import pytest
 
 from langkit.core.validation import ValidationFailure
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib as metric_lib
 from langkit.validators.comparison import ConstraintValidator
 
@@ -13,7 +13,7 @@ def test_one_required():
 
 def test_upper_threshold():
     validator = ConstraintValidator("prompt.stats.char_count", upper_threshold=5)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "1234567890"})
 
@@ -30,7 +30,7 @@ def test_upper_threshold():
 
 def test_lower_threshold():
     validator = ConstraintValidator("prompt.stats.char_count", lower_threshold=5)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "1"})
 
@@ -47,7 +47,7 @@ def test_lower_threshold():
 
 def test_upper_threshold_inclusive():
     validator = ConstraintValidator("prompt.stats.char_count", upper_threshold_inclusive=5)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "12345"})
 
@@ -64,7 +64,7 @@ def test_upper_threshold_inclusive():
 
 def test_lower_threshold_inclusive():
     validator = ConstraintValidator("prompt.stats.char_count", lower_threshold_inclusive=5)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "12345"})
 
@@ -81,7 +81,7 @@ def test_lower_threshold_inclusive():
 
 def test_one_of():
     validator = ConstraintValidator("prompt.stats.char_count", one_of=[1, 2, 3])
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "asdf"})
 
@@ -98,7 +98,7 @@ def test_one_of():
 
 def test_none_of():
     validator = ConstraintValidator("prompt.stats.char_count", none_of=[1, 2, 3])
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.stats.char_count], validators=[validator])
 
     result = wf.run({"prompt": "asd"})
 
@@ -115,7 +115,7 @@ def test_none_of():
 
 def test_must_be_none():
     validator = ConstraintValidator("prompt.pii.redacted", must_be_none=True)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.pii()], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.pii()], validators=[validator])
 
     result = wf.run({"prompt": "My email address is anthony@whylabs.ai"})
 
@@ -132,7 +132,7 @@ def test_must_be_none():
 
 def test_must_be_non_none():
     validator = ConstraintValidator("prompt.pii.redacted", must_be_non_none=True)
-    wf = EvaluationWorkflow(metrics=[metric_lib.prompt.pii()], validators=[validator])
+    wf = Workflow(metrics=[metric_lib.prompt.pii()], validators=[validator])
 
     result = wf.run({"prompt": "My email address is not here"})
 

@@ -7,13 +7,13 @@ from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, 
 import pandas as pd
 
 from langkit.core.metric import (
-    EvaluationConfigBuilder,
     Metric,
     MetricCreator,
     MetricResult,
     MultiMetricResult,
     SingleMetric,
     SingleMetricResult,
+    WorkflowMetricConfigBuilder,
 )
 from langkit.core.validation import ValidationResult, Validator
 from langkit.metrics.util import is_dict_with_strings
@@ -35,7 +35,7 @@ class RunPerf:
 
 
 @dataclass(frozen=True)
-class EvaluationResult:
+class WorkflowResult:
     metrics: pd.DataFrame
     validation_results: ValidationResult
     perf_info: RunPerf
@@ -75,7 +75,7 @@ class Callback(ABC):
 # - DONE replace PII with <redacted>
 
 
-class EvaluationWorkflow:
+class Workflow:
     def __init__(
         self,
         metrics: List[MetricCreator],
@@ -87,13 +87,13 @@ class EvaluationWorkflow:
         """
         Args:
             metrics: A list of metrics to evaluate.
-            validators: A list of validators to run after the evaluation is complete.
-            callbacks: A list of callbacks to run after the evaluation is complete.
+            validators: A list of validators to run after the workflow is complete.
+            callbacks: A list of callbacks to run after the workflow is complete.
             lazy_init: If True, the metrics will not be initialized until the first call to run.
             cache_assets: If True, the assets required for the metrics will be cached during inititialization.
         """
         self.callbacks = callbacks or []
-        self.metrics = EvaluationConfigBuilder().add(metrics).build()
+        self.metrics = WorkflowMetricConfigBuilder().add(metrics).build()
         self.validators = validators or []
         self._initialized = False
         self._cache_assets = cache_assets
@@ -152,23 +152,23 @@ class EvaluationWorkflow:
         return names
 
     @overload
-    def run(self, data: pd.DataFrame) -> EvaluationResult:
+    def run(self, data: pd.DataFrame) -> WorkflowResult:
         """
-        This form is intended for batch evaluation,
+        This form is intended for batch inputs,
         where the input is a pandas DataFrame.
         """
         ...
 
     @overload
-    def run(self, data: Row) -> EvaluationResult:
+    def run(self, data: Row) -> WorkflowResult:
         """
-        This form is intended for single row evaluation,
+        This form is intended for single row inputs,
         where the input is a dictionary with the keys "prompt" and "response".
         """
         ...
 
     @overload
-    def run(self, data: Dict[str, str]) -> EvaluationResult:
+    def run(self, data: Dict[str, str]) -> WorkflowResult:
         """
         This form doesn't assume the "prompt" and "response" key names.
         This would be required in cases where the user wants to use different
@@ -176,7 +176,7 @@ class EvaluationWorkflow:
         """
         ...
 
-    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> EvaluationResult:
+    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> WorkflowResult:
         start = time.perf_counter()
 
         self.init()
@@ -188,7 +188,7 @@ class EvaluationWorkflow:
         else:
             df = data
 
-        # Evaluation
+        # Metrics
         metric_results: Dict[str, SingleMetricResult] = {}
         all_metrics_start = time.perf_counter()
         metric_times: List[Tuple[str, float]] = []
@@ -264,7 +264,7 @@ class EvaluationWorkflow:
             metrics_total_sec=round(all_metrics_end, 3),
         )
 
-        return EvaluationResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)
+        return WorkflowResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)
 
     def _validate_evaluate(self, input_df: pd.DataFrame, metric: Metric, metric_result: MetricResult) -> None:
         """

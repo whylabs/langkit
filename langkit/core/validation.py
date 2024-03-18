@@ -35,13 +35,13 @@ class Validator(ABC):
     # MetricResults of varying lengths, which you really couldn't combine into a single one anymore
     # WELL, it would be ok if we just made the failures None I guess, that would preserve cardinatlity/shape
     # How do you say "remove these things because they failed?"
-    # - Short circuiting the evaluation because of validation might be important, which implies validation has to occur earlier
+    # - Short circuiting the workflow because of validation might be important, which implies validation has to occur earlier
     def validate_result(self, df: pd.DataFrame) -> Optional[ValidationResult]:
         """
         Validate the final result after all of the metrics have been evaluated.
 
         Args:
             df: A data frame that contains a series for every metric, as well as the original input data.
-            by default, that will include a prompt and a resopnse column if both were supplied to the evaluation.
+            by default, that will include a prompt and a resopnse column if both were supplied to the workflow.
         """
         return None

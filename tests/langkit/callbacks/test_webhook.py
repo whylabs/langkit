@@ -1,12 +1,12 @@
 from langkit.callbacks.library import lib as callback_lib
 from langkit.core.validation import ValidationFailure
-from langkit.core.workflow import EvaluationWorkflow
+from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib as metric_lib
 from langkit.validators.library import lib as validator_lib
 
 
 def test_webhook_failures_dont_ruin_run():
-    wf = EvaluationWorkflow(
+    wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count],
         validators=[validator_lib.constraint("prompt.stats.char_count", upper_threshold=5)],
         callbacks=[callback_lib.webhook.basic_validation_failure("https://foo.bar")],  # will fail, url doesn't exist
