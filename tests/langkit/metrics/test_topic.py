@@ -8,7 +8,6 @@ from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilde
 from langkit.core.workflow import Workflow
 from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
-from whylogs.core.metrics.metrics import FrequentItem
 
 expected_metrics = [
     "cardinality/est",
@@ -69,19 +68,9 @@ def test_topic():
 
     actual = _log(df, schema)
 
-    expected_columns = [
-        "prompt",
-        "prompt.closest_topic",
-        "response",
-    ]
+    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.closest_topic"] == [
-        FrequentItem(value="environment", est=1, upper=1, lower=1),
-        FrequentItem(value="politics", est=1, upper=1, lower=1),
-        FrequentItem(value="entertainment", est=1, upper=1, lower=1),
-        FrequentItem(value="economy", est=1, upper=1, lower=1),
-    ]
 
 
 def test_topic_empty_input():
@@ -100,14 +89,12 @@ def test_topic_empty_input():
 
     actual = _log(df, schema)
 
-    expected_columns = [
-        "prompt",
-        "prompt.closest_topic",
-        "response",
-    ]
+    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.closest_topic"] == []
+    for column in expected_columns:
+        if column not in ["prompt", "response"]:
+            assert actual.loc[column]["counts/null"] == 1
 
 
 def test_topic_empty_input_wf():
@@ -121,11 +108,11 @@ def test_topic_empty_input_wf():
             ],
         }
     )
-
+    expected_metrics = ["economy", "entertainment", "medicine", "technology"]
     wf = Workflow(metrics=[prompt_topic_module])
     actual = wf.run(df)
-
-    assert actual.metrics["prompt.closest_topic"][0] is None
+    for metric_name in expected_metrics:
+        assert actual.metrics[metric_name][0] is None
 
 
 def test_topic_row():
@@ -138,16 +125,9 @@ def test_topic_row():
 
     actual = _log(row, schema)
 
-    expected_columns = [
-        "prompt",
-        "prompt.closest_topic",
-        "response",
-    ]
+    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
 
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.closest_topic"] == [
-        FrequentItem(value="politics", est=1, upper=1, lower=1),
-    ]
 
 
 def test_custom_topic():
@@ -173,23 +153,8 @@ def test_custom_topic():
 
     actual = _log(df, schema)
 
-    expected_columns = [
-        "prompt",
-        "prompt.closest_topic",
-        "response",
-        "response.closest_topic",
-    ]
-
+    expected_columns = ["boxing", "fishing", "hiking", "prompt", "response", "swimming"]
     assert actual.index.tolist() == expected_columns
-    assert actual["frequent_items/frequent_strings"]["prompt.closest_topic"] == [
-        FrequentItem(value="boxing", est=1, upper=1, lower=1),
-        FrequentItem(value="fishing", est=1, upper=1, lower=1),
-        FrequentItem(value="swimming", est=1, upper=1, lower=1),
-        FrequentItem(value="hiking", est=1, upper=1, lower=1),
-    ]
-    assert actual["frequent_items/frequent_strings"]["response.closest_topic"] == [
-        FrequentItem(value="boxing", est=1, upper=1, lower=1),
-        FrequentItem(value="fishing", est=1, upper=1, lower=1),
-        FrequentItem(value="swimming", est=1, upper=1, lower=1),
-        FrequentItem(value="hiking", est=1, upper=1, lower=1),
-    ]
+    for column in expected_columns:
+        if column not in ["prompt", "response"]:
+            assert actual.loc[column]["distribution/max"] >= 0.50

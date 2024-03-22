@@ -1,62 +1,72 @@
 from dataclasses import dataclass
 from functools import partial
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import torch
 from transformers import Pipeline, pipeline  # type: ignore
 
-from langkit.core.metric import Metric, MetricCreator, SingleMetric, SingleMetricResult, UdfInput
+from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
 from langkit.metrics.util import LazyInit
 
 __default_topics = [
-    "politics",
+    "medicine",
     "economy",
-    "entertainment",
-    "environment",
     "technology",
-    "health & wellness",
-    "sports",
-    "education",
-    "harassment",
-    "hate speech",
-    "spam",
-    "misinformation",
+    "entertainment",
 ]
+
+_hypothesis_template = "This example is about {}"
 
 
 __classifier: LazyInit[Pipeline] = LazyInit(
     lambda: pipeline(
-        "zero-shot-classification", model="MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", device="cuda" if torch.cuda.is_available() else "cpu"
+        "zero-shot-classification",
+        model="MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+        device="cuda" if torch.cuda.is_available() else "cpu",
     )
 )
 
 
-def __get_closest_topic(text: str, topics: List[str], multi_label: bool = False) -> Optional[str]:
+def __get_scores_per_label(
+    text: str, topics: List[str], hypothesis_template: str = _hypothesis_template, multi_label: bool = True
+) -> Optional[Dict[str, float]]:
     if not text:
         return None
-    return __classifier.value(text, topics, multi_label=multi_label)["labels"][0]  # type: ignore
+    result: Dict[str, [str, float]] = __classifier.value(text, topics, hypothesis_template=hypothesis_template, multi_label=multi_label)  # type: ignore
+    scores_per_label: Dict[str, float] = {label: score for label, score in zip(result["labels"], result["scores"])}  # type: ignore[reportUnknownVariableType]
+    return scores_per_label
 
 
-def topic_metric(column_name: str, topics: List[str]) -> Metric:
-    def udf(text: pd.DataFrame) -> SingleMetricResult:
-        metrics = [__get_closest_topic(it, topics) for it in UdfInput(text).iter_column_rows(column_name)]
-        return SingleMetricResult(metrics)
+def topic_metric(input_name: str, topics: List[str], template: str) -> MultiMetric:
+    def udf(text: pd.DataFrame) -> MultiMetricResult:
+        metrics: Dict[str, List[Optional[float]]] = {metric_name: [] for metric_name in topics}
+
+        def process_row(row: pd.DataFrame) -> Dict[str, List[Optional[float]]]:
+            value: Any = row[input_name]  # type: ignore
+            scores = __get_scores_per_label(value, topics=topics, hypothesis_template=template)  # pyright: ignore[reportUnknownArgumentType]
+            for topic in topics:
+                metrics[topic].append(scores[topic] if scores else None)
+            return metrics
+
+        text.apply(process_row, axis=1)  # pyright: ignore[reportUnknownMemberType]
+
+        all_metrics = [
+            *metrics.values(),
+        ]
+
+        return MultiMetricResult(metrics=all_metrics)
 
     def cache_assets():
         __classifier.value
 
-    return SingleMetric(
-        name=f"{column_name}.closest_topic",
-        input_name=column_name,
-        evaluate=udf,
-        init=cache_assets,
-    )
+    metric_names = topics
+    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets)
 
 
-prompt_topic_module = partial(topic_metric, "prompt", __default_topics)
-response_topic_module = partial(topic_metric, "response", __default_topics)
-prompt_response_topic_module = [prompt_topic_module, response_topic_module]
+prompt_topic_module = partial(topic_metric, "prompt", __default_topics, _hypothesis_template)
+response_topic_module = partial(topic_metric, "response", __default_topics, _hypothesis_template)
+prompt_response_topic_module = [prompt_topic_module, response_topic_module, _hypothesis_template]
 
 
 @dataclass
@@ -66,9 +76,9 @@ class CustomTopicModules:
     prompt_response_topic_module: MetricCreator
 
 
-def get_custom_topic_modules(topics: List[str]) -> CustomTopicModules:
-    prompt_topic_module = partial(topic_metric, "prompt", topics)
-    response_topic_module = partial(topic_metric, "response", topics)
+def get_custom_topic_modules(topics: List[str], template: str = _hypothesis_template) -> CustomTopicModules:
+    prompt_topic_module = partial(topic_metric, "prompt", topics, template)
+    response_topic_module = partial(topic_metric, "response", topics, template)
     return CustomTopicModules(
         prompt_topic_module=prompt_topic_module,
         response_topic_module=response_topic_module,
