@@ -21,7 +21,7 @@ from langkit.metrics.text_statistics import (
 )
 from langkit.metrics.text_statistics_types import TextStat
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
-from langkit.validators.comparison import ConstraintValidator
+from langkit.validators.comparison import ConstraintValidator, ConstraintValidatorOptions
 
 expected_metrics = [
     "cardinality/est",
@@ -251,7 +251,7 @@ def test_prompt_char_count_module():
 def test_prompt_char_count_0_module():
     wf = Workflow(
         metrics=[prompt_char_count_metric, response_char_count_metric],
-        validators=[ConstraintValidator("prompt.stats.char_count", lower_threshold=2)],
+        validators=[ConstraintValidator(ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=2))],
     )
 
     df = pd.DataFrame(

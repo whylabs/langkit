@@ -1,7 +1,7 @@
-from typing import List, Optional, Sequence, Union
+from typing import List, Literal, Optional, Sequence, Union
 
 from langkit.core.validation import Validator
-from langkit.validators.comparison import ConstraintValidator
+from langkit.validators.comparison import ConstraintValidator, ConstraintValidatorOptions, MultiColumnConstraintValidator
 
 
 class lib:
@@ -69,13 +69,23 @@ class lib:
         must_be_none: Optional[bool] = None,
     ) -> Validator:
         return ConstraintValidator(
-            target_metric=target_metric,
-            upper_threshold=upper_threshold,
-            upper_threshold_inclusive=upper_threshold_inclusive,
-            lower_threshold=lower_threshold,
-            lower_threshold_inclusive=lower_threshold_inclusive,
-            one_of=one_of,
-            none_of=none_of,
-            must_be_non_none=must_be_non_none,
-            must_be_none=must_be_none,
+            ConstraintValidatorOptions(
+                target_metric=target_metric,
+                upper_threshold=upper_threshold,
+                upper_threshold_inclusive=upper_threshold_inclusive,
+                lower_threshold=lower_threshold,
+                lower_threshold_inclusive=lower_threshold_inclusive,
+                one_of=one_of,
+                none_of=none_of,
+                must_be_non_none=must_be_non_none,
+                must_be_none=must_be_none,
+            )
         )
+
+    @staticmethod
+    def multi_column_constraint(
+        constraints: List[ConstraintValidatorOptions],
+        operator: Literal["AND", "OR"] = "AND",
+        report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC",
+    ) -> Validator:
+        return MultiColumnConstraintValidator(constraints=constraints, operator=operator, report_mode=report_mode)
