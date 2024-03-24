@@ -1,3 +1,4 @@
+from functools import partial
 from typing import List, Optional
 
 from langkit.core.metric import MetricCreator
@@ -104,7 +105,7 @@ class lib:
             from langkit.metrics.pii import pii_presidio_metric, prompt_presidio_pii_metric
 
             if entities:
-                return lambda: pii_presidio_metric(entities=entities, input_name=input_name)
+                return partial(pii_presidio_metric, entities=entities, input_name=input_name)
 
             return prompt_presidio_pii_metric
 
@@ -185,7 +186,7 @@ class lib:
                 from langkit.metrics.token import prompt_token_metric, token_metric
 
                 if tiktoken_encoding:
-                    return lambda: token_metric(column_name="prompt", encoding=tiktoken_encoding)
+                    return partial(token_metric, column_name="prompt", encoding=tiktoken_encoding)
 
                 return prompt_token_metric
 
@@ -246,7 +247,7 @@ class lib:
                 from langkit.metrics.injections import injections_metric, prompt_injections_metric
 
                 if version:
-                    return lambda: injections_metric(column_name="prompt", version=version)
+                    return partial(injections_metric, column_name="prompt", version=version)
 
                 return prompt_injections_metric
 
@@ -275,10 +276,14 @@ class lib:
                 return prompt_sentiment_polarity
 
         class topics:
-            def __call__(self, topics: List[str], hypothesis_template: Optional[str] = None) -> MetricCreator:
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+                self.topics = topics
+                self.hypothesis_template = hypothesis_template
+
+            def __call__(self) -> MetricCreator:
                 from langkit.metrics.topic import topic_metric
 
-                return lambda: topic_metric("prompt", topics, hypothesis_template)
+                return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
 
             @staticmethod
             def medicine() -> MetricCreator:
@@ -469,13 +474,17 @@ class lib:
                 return response_refusal_similarity_metric
 
         class topics:
-            def __call__(self, topics: List[str], hypothesis_template: Optional[str] = None) -> MetricCreator:
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+                self.topics = topics
+                self.hypothesis_template = hypothesis_template
+
+            def __call__(self) -> MetricCreator:
                 from langkit.metrics.topic import topic_metric
 
-                return lambda: topic_metric("response", topics, hypothesis_template)
+                return partial(topic_metric, "response", self.topics, self.hypothesis_template)
 
             @staticmethod
             def medicine() -> MetricCreator:
                 from langkit.metrics.topic import topic_metric
 
-                return lambda: topic_metric("response", ["medicine"])
+                return partial(topic_metric, "response", ["medicine"])
