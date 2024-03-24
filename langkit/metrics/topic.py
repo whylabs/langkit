@@ -38,9 +38,11 @@ def __get_scores_per_label(
     return scores_per_label
 
 
-def topic_metric(input_name: str, topics: List[str], hypothesis_template: str = _hypothesis_template) -> MultiMetric:
+def topic_metric(input_name: str, topics: List[str], hypothesis_template: Optional[str] = None) -> MultiMetric:
+    hypothesis_template = hypothesis_template or _hypothesis_template
+
     def udf(text: pd.DataFrame) -> MultiMetricResult:
-        metrics: Dict[str, List[Optional[float]]] = {metric_name: [] for metric_name in topics}
+        metrics: Dict[str, List[Optional[float]]] = {topic: [] for topic in topics}
 
         def process_row(row: pd.DataFrame) -> Dict[str, List[Optional[float]]]:
             value: Any = row[input_name]  # type: ignore

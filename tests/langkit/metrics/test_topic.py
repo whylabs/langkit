@@ -6,6 +6,7 @@ import pandas as pd
 import whylogs as why
 from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
 from langkit.core.workflow import Workflow
+from langkit.metrics.library import lib
 from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
@@ -149,6 +150,60 @@ def test_topic_row():
     ]
 
     assert actual.index.tolist() == expected_columns
+
+
+def test_topic_library():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "What's the best kind of bait?",
+                "What's the best kind of punch?",
+                "What's the best kind of trail?",
+                "What's the best kind of swimming stroke?",
+            ],
+            "response": [
+                "The best kind of bait is worms.",
+                "The best kind of punch is a jab.",
+                "The best kind of trail is a loop.",
+                "The best kind of stroke is freestyle.",
+            ],
+        }
+    )
+
+    topics = ["fishing", "boxing", "hiking", "swimming"]
+    wf = Workflow(metrics=[lib.prompt.topics(topics), lib.response.topics(topics)])
+    # schema = WorkflowMetricConfigBuilder().add(lib.prompt.topics(topics)).add(lib.response.topics(topics)).build()
+    # schema = WorkflowMetricConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
+
+    # actual = _log(df, schema)
+    result = wf.run(df)
+    actual = result.metrics
+
+    expected_columns = [
+        "prompt.topics.fishing",
+        "prompt.topics.boxing",
+        "prompt.topics.hiking",
+        "prompt.topics.swimming",
+        "response.topics.fishing",
+        "response.topics.boxing",
+        "response.topics.hiking",
+        "response.topics.swimming",
+        "id",
+    ]
+    assert actual.columns.tolist() == expected_columns
+
+    pd.set_option("display.max_columns", None)
+    print(actual.transpose())
+
+    assert actual["prompt.topics.fishing"][0] > 0.50
+    assert actual["prompt.topics.boxing"][1] > 0.50
+    assert actual["prompt.topics.hiking"][2] > 0.50
+    assert actual["prompt.topics.swimming"][3] > 0.50
+
+    assert actual["response.topics.fishing"][0] > 0.50
+    assert actual["response.topics.boxing"][1] > 0.50
+    assert actual["response.topics.hiking"][2] > 0.50
+    assert actual["response.topics.swimming"][3] > 0.50
 
 
 def test_custom_topic():
