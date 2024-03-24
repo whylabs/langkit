@@ -206,12 +206,17 @@ class ConstraintValidator(Validator):
         return ValidationResult(failures)
 
 
+@dataclass
+class MultiColumnConstraintValidatorOptions:
+    constraints: List[ConstraintValidatorOptions]
+    operator: Literal["AND", "OR"] = "AND"
+    report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC"
+
+
 class MultiColumnConstraintValidator(Validator):
     def __init__(
         self,
-        constraints: List[ConstraintValidatorOptions],
-        operator: Literal["AND", "OR"] = "AND",
-        report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC",
+        options: MultiColumnConstraintValidatorOptions,
     ):
         """
 
@@ -222,9 +227,9 @@ class MultiColumnConstraintValidator(Validator):
             return a single validation result when there are failures, and that validation result will contain the
             first failed metric. If "ALL_FAILED_METRICS", then this validator will return each validation failure.
         """
-        self._operator = operator
-        self._constraints = [ConstraintValidator(constraint) for constraint in constraints]
-        self._report_mode = report_mode
+        self._operator = options.operator
+        self._constraints = [ConstraintValidator(constraint) for constraint in options.constraints]
+        self._report_mode = options.report_mode
 
     def get_target_metric_names(self) -> List[str]:
         target_metrics: List[str] = []
