@@ -68,7 +68,14 @@ def test_topic():
 
     actual = _log(df, schema)
 
-    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
+    expected_columns = [
+        "prompt",
+        "prompt.topics.economy",
+        "prompt.topics.entertainment",
+        "prompt.topics.medicine",
+        "prompt.topics.technology",
+        "response",
+    ]
 
     assert actual.index.tolist() == expected_columns
 
@@ -89,7 +96,14 @@ def test_topic_empty_input():
 
     actual = _log(df, schema)
 
-    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
+    expected_columns = [
+        "prompt",
+        "prompt.topics.economy",
+        "prompt.topics.entertainment",
+        "prompt.topics.medicine",
+        "prompt.topics.technology",
+        "response",
+    ]
 
     assert actual.index.tolist() == expected_columns
     for column in expected_columns:
@@ -108,7 +122,7 @@ def test_topic_empty_input_wf():
             ],
         }
     )
-    expected_metrics = ["economy", "entertainment", "medicine", "technology"]
+    expected_metrics = ["prompt.topics.economy", "prompt.topics.entertainment", "prompt.topics.medicine", "prompt.topics.technology"]
     wf = Workflow(metrics=[prompt_topic_module])
     actual = wf.run(df)
     for metric_name in expected_metrics:
@@ -125,7 +139,14 @@ def test_topic_row():
 
     actual = _log(row, schema)
 
-    expected_columns = ["economy", "entertainment", "medicine", "prompt", "response", "technology"]
+    expected_columns = [
+        "prompt",
+        "prompt.topics.economy",
+        "prompt.topics.entertainment",
+        "prompt.topics.medicine",
+        "prompt.topics.technology",
+        "response",
+    ]
 
     assert actual.index.tolist() == expected_columns
 
@@ -137,7 +158,7 @@ def test_custom_topic():
                 "What's the best kind of bait?",
                 "What's the best kind of punch?",
                 "What's the best kind of trail?",
-                "What's the best kind of stroke?",
+                "What's the best kind of swimming stroke?",
             ],
             "response": [
                 "The best kind of bait is worms.",
@@ -153,7 +174,18 @@ def test_custom_topic():
 
     actual = _log(df, schema)
 
-    expected_columns = ["boxing", "fishing", "hiking", "prompt", "response", "swimming"]
+    expected_columns = [
+        "prompt",
+        "prompt.topics.boxing",
+        "prompt.topics.fishing",
+        "prompt.topics.hiking",
+        "prompt.topics.swimming",
+        "response",
+        "response.topics.boxing",
+        "response.topics.fishing",
+        "response.topics.hiking",
+        "response.topics.swimming",
+    ]
     assert actual.index.tolist() == expected_columns
     for column in expected_columns:
         if column not in ["prompt", "response"]:

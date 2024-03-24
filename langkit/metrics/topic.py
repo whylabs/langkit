@@ -38,13 +38,13 @@ def __get_scores_per_label(
     return scores_per_label
 
 
-def topic_metric(input_name: str, topics: List[str], template: str) -> MultiMetric:
+def topic_metric(input_name: str, topics: List[str], hypothesis_template: str = _hypothesis_template) -> MultiMetric:
     def udf(text: pd.DataFrame) -> MultiMetricResult:
         metrics: Dict[str, List[Optional[float]]] = {metric_name: [] for metric_name in topics}
 
         def process_row(row: pd.DataFrame) -> Dict[str, List[Optional[float]]]:
             value: Any = row[input_name]  # type: ignore
-            scores = __get_scores_per_label(value, topics=topics, hypothesis_template=template)  # pyright: ignore[reportUnknownArgumentType]
+            scores = __get_scores_per_label(value, topics=topics, hypothesis_template=hypothesis_template)  # pyright: ignore[reportUnknownArgumentType]
             for topic in topics:
                 metrics[topic].append(scores[topic] if scores else None)
             return metrics
@@ -60,7 +60,7 @@ def topic_metric(input_name: str, topics: List[str], template: str) -> MultiMetr
     def cache_assets():
         __classifier.value
 
-    metric_names = topics
+    metric_names = [f"{input_name}.topics.{topic}" for topic in topics]
     return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets)
 
 

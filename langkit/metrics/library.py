@@ -27,6 +27,7 @@ class lib:
                 prompt_injections_metric,
                 prompt_jailbreak_similarity_metric,
                 prompt_presidio_pii_metric,
+                lib.prompt.topics.medicine(),
             ]
 
             response_metrics = [
@@ -37,6 +38,7 @@ class lib:
                 response_refusal_similarity_metric,
                 response_presidio_pii_metric,
                 response_toxicity_metric,
+                lib.response.topics.medicine(),
             ]
 
             return [
@@ -272,6 +274,18 @@ class lib:
 
                 return prompt_sentiment_polarity
 
+        class topics:
+            def __call__(self, topics: List[str], hypothesis_template: Optional[str] = None) -> MetricCreator:
+                from langkit.metrics.topic import topic_metric
+
+                return lambda: topic_metric("prompt", topics, hypothesis_template)
+
+            @staticmethod
+            def medicine() -> MetricCreator:
+                from langkit.metrics.topic import topic_metric
+
+                return lambda: topic_metric("prompt", ["medicine"])
+
     class response:
         @staticmethod
         def pii(entities: Optional[List[str]] = None, input_name: str = "response") -> MetricCreator:
@@ -453,3 +467,15 @@ class lib:
                 from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
                 return response_refusal_similarity_metric
+
+        class topics:
+            def __call__(self, topics: List[str], hypothesis_template: Optional[str] = None) -> MetricCreator:
+                from langkit.metrics.topic import topic_metric
+
+                return lambda: topic_metric("response", topics, hypothesis_template)
+
+            @staticmethod
+            def medicine() -> MetricCreator:
+                from langkit.metrics.topic import topic_metric
+
+                return lambda: topic_metric("response", ["medicine"])
