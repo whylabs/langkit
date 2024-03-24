@@ -17,7 +17,6 @@ logger = getLogger(__name__)
 LANGKIT_INJECTIONS_CACHE: str = os.path.join(LANGKIT_CACHE, "injections")
 
 __transformer_name = "all-MiniLM-L6-v2"
-__version = "v2"
 __injections_base_url = "https://whylabs-public.s3.us-west-2.amazonaws.com/langkit/data/injections/"
 
 
@@ -60,16 +59,16 @@ def __process_embeddings(harm_embeddings: pd.DataFrame) -> "np.ndarray[Any, Any]
 
 
 @lru_cache
-def _get_embeddings() -> "np.ndarray[Any, Any]":
-    filename = f"embeddings_{__transformer_name}_harm_{__version}.parquet"
+def _get_embeddings(version: str) -> "np.ndarray[Any, Any]":
+    filename = f"embeddings_{__transformer_name}_harm_{version}.parquet"
     harm_embeddings = __download_embeddings(filename)
     embeddings_norm = __process_embeddings(harm_embeddings)
     return embeddings_norm
 
 
-def injections_metric(column_name: str) -> Metric:
+def injections_metric(column_name: str, version: str = "v2") -> Metric:
     def cache_assets():
-        _get_embeddings()
+        _get_embeddings(version)
 
     def init():
         sentence_transformer()
@@ -77,7 +76,7 @@ def injections_metric(column_name: str) -> Metric:
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
             raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
-        _embeddings = _get_embeddings()
+        _embeddings = _get_embeddings(version)
         _transformer = sentence_transformer()
         target_embeddings: npt.NDArray[np.float32] = _transformer.encode(text[column_name])  # type: ignore[reportUnknownMemberType]
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
