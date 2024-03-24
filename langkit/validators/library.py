@@ -1,7 +1,12 @@
 from typing import List, Literal, Optional, Sequence, Union
 
 from langkit.core.validation import Validator
-from langkit.validators.comparison import ConstraintValidator, ConstraintValidatorOptions, MultiColumnConstraintValidator
+from langkit.validators.comparison import (
+    ConstraintValidator,
+    ConstraintValidatorOptions,
+    MultiColumnConstraintValidator,
+    MultiColumnConstraintValidatorOptions,
+)
 
 
 class lib:
@@ -88,4 +93,6 @@ class lib:
         operator: Literal["AND", "OR"] = "AND",
         report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC",
     ) -> Validator:
-        return MultiColumnConstraintValidator(constraints=constraints, operator=operator, report_mode=report_mode)
+        return MultiColumnConstraintValidator(
+            MultiColumnConstraintValidatorOptions(constraints=constraints, operator=operator, report_mode=report_mode)
+        )

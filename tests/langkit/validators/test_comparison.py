@@ -3,7 +3,12 @@ import pytest
 from langkit.core.validation import ValidationFailure
 from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib as metric_lib
-from langkit.validators.comparison import ConstraintValidator, ConstraintValidatorOptions, MultiColumnConstraintValidator
+from langkit.validators.comparison import (
+    ConstraintValidator,
+    ConstraintValidatorOptions,
+    MultiColumnConstraintValidator,
+    MultiColumnConstraintValidatorOptions,
+)
 
 
 def test_one_required():
@@ -149,10 +154,12 @@ def test_must_be_non_none():
 
 def test_multiple_contraint_first_failure():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=5),
-            ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=5),
-        ]
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=5),
+                ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=5),
+            ]
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count],
@@ -180,12 +187,14 @@ def test_multiple_contraint_first_failure():
 
 def test_multiple_constriant_all_failure():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=5),
-            ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=5),
-        ],
-        report_mode="ALL_FAILED_METRICS",
-        operator="AND",
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=5),
+                ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=5),
+            ],
+            report_mode="ALL_FAILED_METRICS",
+            operator="AND",
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count],
@@ -224,12 +233,14 @@ def test_multiple_constriant_all_failure():
 
 def test_multiple_constriant_all_failure_or():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=4),
-            ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=4),
-        ],
-        report_mode="ALL_FAILED_METRICS",
-        operator="OR",
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=4),
+                ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=4),
+            ],
+            report_mode="ALL_FAILED_METRICS",
+            operator="OR",
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count],
@@ -256,12 +267,14 @@ def test_multiple_constriant_all_failure_or():
 
 def test_multiple_constriant_first_failure_or():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=4),
-            ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=4),
-        ],
-        report_mode="FIRST_FAILED_METRIC",
-        operator="OR",
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.stats.char_count", lower_threshold=4),
+                ConstraintValidatorOptions("prompt.stats.token_count", lower_threshold=4),
+            ],
+            report_mode="FIRST_FAILED_METRIC",
+            operator="OR",
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count],
@@ -288,13 +301,15 @@ def test_multiple_constriant_first_failure_or():
 
 def test_multiple_constriant_first_failure_or_multiple_failures():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.stats.char_count", upper_threshold=100),
-            ConstraintValidatorOptions("prompt.stats.token_count", upper_threshold=1),
-            ConstraintValidatorOptions("prompt.regex.email_address", upper_threshold=0),
-        ],
-        report_mode="FIRST_FAILED_METRIC",
-        operator="OR",
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.stats.char_count", upper_threshold=100),
+                ConstraintValidatorOptions("prompt.stats.token_count", upper_threshold=1),
+                ConstraintValidatorOptions("prompt.regex.email_address", upper_threshold=0),
+            ],
+            report_mode="FIRST_FAILED_METRIC",
+            operator="OR",
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count, metric_lib.prompt.regex.email_address],
@@ -322,13 +337,15 @@ def test_multiple_constriant_first_failure_or_multiple_failures():
 
 def test_multiple_constriant_first_failure_and_ordering():
     validator = MultiColumnConstraintValidator(
-        [
-            ConstraintValidatorOptions("prompt.regex.email_address", upper_threshold=0),
-            ConstraintValidatorOptions("prompt.stats.char_count", upper_threshold=1),
-            ConstraintValidatorOptions("prompt.stats.token_count", upper_threshold=1),
-        ],
-        report_mode="FIRST_FAILED_METRIC",
-        operator="AND",
+        MultiColumnConstraintValidatorOptions(
+            [
+                ConstraintValidatorOptions("prompt.regex.email_address", upper_threshold=0),
+                ConstraintValidatorOptions("prompt.stats.char_count", upper_threshold=1),
+                ConstraintValidatorOptions("prompt.stats.token_count", upper_threshold=1),
+            ],
+            report_mode="FIRST_FAILED_METRIC",
+            operator="AND",
+        )
     )
     wf = Workflow(
         metrics=[metric_lib.prompt.stats.char_count, metric_lib.prompt.stats.token_count, metric_lib.prompt.regex.email_address],
