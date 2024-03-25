@@ -38,6 +38,13 @@ def __get_scores_per_label(
     return scores_per_label
 
 
+def _sanitize_metric_name(topic: str) -> str:
+    """
+    sanitize a metric name created from a topic. Replace white space with underscores, etc.
+    """
+    return topic.replace(" ", "_").lower()
+
+
 def topic_metric(input_name: str, topics: List[str], hypothesis_template: Optional[str] = None) -> MultiMetric:
     hypothesis_template = hypothesis_template or _hypothesis_template
 
@@ -62,7 +69,7 @@ def topic_metric(input_name: str, topics: List[str], hypothesis_template: Option
     def cache_assets():
         __classifier.value
 
-    metric_names = [f"{input_name}.topics.{topic}" for topic in topics]
+    metric_names = [f"{input_name}.topics.{_sanitize_metric_name(topic)}" for topic in topics]
     return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets)
 
 

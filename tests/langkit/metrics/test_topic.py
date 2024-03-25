@@ -172,10 +172,6 @@ def test_topic_library():
 
     topics = ["fishing", "boxing", "hiking", "swimming"]
     wf = Workflow(metrics=[lib.prompt.topics(topics), lib.response.topics(topics)])
-    # schema = WorkflowMetricConfigBuilder().add(lib.prompt.topics(topics)).add(lib.response.topics(topics)).build()
-    # schema = WorkflowMetricConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
-
-    # actual = _log(df, schema)
     result = wf.run(df)
     actual = result.metrics
 
@@ -245,3 +241,34 @@ def test_custom_topic():
     for column in expected_columns:
         if column not in ["prompt", "response"]:
             assert actual.loc[column]["distribution/max"] >= 0.50
+
+
+def test_topic_name_sanitize():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "What's the best kind of bait?",
+            ],
+            "response": [
+                "The best kind of bait is worms.",
+            ],
+        }
+    )
+
+    topics = ["Fishing supplies"]
+    wf = Workflow(metrics=[lib.prompt.topics(topics), lib.response.topics(topics)])
+
+    result = wf.run(df)
+    actual = result.metrics
+
+    expected_columns = [
+        "prompt.topics.fishing_supplies",
+        "response.topics.fishing_supplies",
+        "id",
+    ]
+    assert actual.columns.tolist() == expected_columns
+
+    pd.set_option("display.max_columns", None)
+    print(actual.transpose())
+
+    assert actual["prompt.topics.fishing_supplies"][0] > 0.50
