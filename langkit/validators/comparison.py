@@ -1,6 +1,6 @@
 from dataclasses import dataclass, replace
 from functools import partial
-from typing import Any, Callable, List, Literal, Optional, Sequence, Set, Union
+from typing import Any, Callable, List, Literal, Optional, Sequence, Set, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -140,15 +140,15 @@ def _enforce_must_be_non_none(target_metric: str, value: Any, id: str) -> Sequen
     return []
 
 
-@dataclass
+@dataclass(frozen=True)
 class ConstraintValidatorOptions:
     target_metric: str
     upper_threshold: Optional[Union[float, int]] = None
     upper_threshold_inclusive: Optional[Union[float, int]] = None
     lower_threshold: Optional[Union[float, int]] = None
     lower_threshold_inclusive: Optional[Union[float, int]] = None
-    one_of: Optional[Sequence[Union[str, float, int]]] = None
-    none_of: Optional[Sequence[Union[str, float, int]]] = None
+    one_of: Optional[Tuple[Union[str, float, int], ...]] = None
+    none_of: Optional[Tuple[Union[str, float, int], ...]] = None
     must_be_non_none: Optional[bool] = None
     must_be_none: Optional[bool] = None
 
@@ -206,9 +206,9 @@ class ConstraintValidator(Validator):
         return ValidationResult(failures)
 
 
-@dataclass
+@dataclass(frozen=True)
 class MultiColumnConstraintValidatorOptions:
-    constraints: List[ConstraintValidatorOptions]
+    constraints: Tuple[ConstraintValidatorOptions, ...]
     operator: Literal["AND", "OR"] = "AND"
     report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC"
 

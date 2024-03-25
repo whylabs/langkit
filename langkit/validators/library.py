@@ -80,8 +80,8 @@ class lib:
                 upper_threshold_inclusive=upper_threshold_inclusive,
                 lower_threshold=lower_threshold,
                 lower_threshold_inclusive=lower_threshold_inclusive,
-                one_of=one_of,
-                none_of=none_of,
+                one_of=tuple(one_of) if one_of else None,
+                none_of=tuple(none_of) if none_of else None,
                 must_be_non_none=must_be_non_none,
                 must_be_none=must_be_none,
             )
@@ -94,5 +94,5 @@ class lib:
         report_mode: Literal["ALL_FAILED_METRICS", "FIRST_FAILED_METRIC"] = "FIRST_FAILED_METRIC",
     ) -> Validator:
         return MultiColumnConstraintValidator(
-            MultiColumnConstraintValidatorOptions(constraints=constraints, operator=operator, report_mode=report_mode)
+            MultiColumnConstraintValidatorOptions(constraints=tuple(constraints), operator=operator, report_mode=report_mode)
         )
