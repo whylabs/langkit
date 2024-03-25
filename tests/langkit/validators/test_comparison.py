@@ -407,7 +407,7 @@ def test_trigger_or():
     validator = MultiColumnConstraintValidator(
         MultiColumnConstraintValidatorOptions(
             (
-                ConstraintValidatorOptions("prompt.similarity.injection", upper_threshold=0),  # does
+                ConstraintValidatorOptions("prompt.stats.char_count", upper_threshold=0),  # does
                 ConstraintValidatorOptions("prompt.topics.medicine", upper_threshold=0.5),  # doesn't trigger
                 ConstraintValidatorOptions("prompt.topics.advice", upper_threshold=0.5),  # doesn't trigger
             ),
@@ -435,9 +435,9 @@ def test_trigger_or():
     assert result.validation_results.report == [
         ValidationFailure(
             id="0",
-            metric="prompt.similarity.injection",
-            details="Value 0.5880643725395203 is above threshold 0",
-            value=0.5880643725395203,
+            metric="prompt.stats.char_count",
+            details="Value 57 is above threshold 0",
+            value=57,
             upper_threshold=0,
             lower_threshold=None,
             allowed_values=None,
