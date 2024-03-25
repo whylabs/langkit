@@ -251,6 +251,15 @@ class MultiColumnConstraintValidator(Validator):
         if len(all_failures) == 0:
             return None
 
+        # Determine if the validation triggers by applying the operator to the list of failures
+        if self._operator == "AND":
+            triggered = len(all_failures) == len(self._constraints)
+        else:
+            triggered = len(all_failures) > 0
+
+        if not triggered:
+            return None
+
         if self._report_mode == "FIRST_FAILED_METRIC":
             # Create a new message that explains the failure happened because of the operator+ the names of the other failed metrics
             failure = all_failures[0]
@@ -259,7 +268,6 @@ class MultiColumnConstraintValidator(Validator):
                 f". Triggered because of failures in {', '.join(failure_metric_names)} ({self._operator})." if len(all_failures) > 1 else ""
             )
             failure_details = f"{failure.details}{trigger_details}"
-
             return ValidationResult([replace(failure, details=failure_details)])
 
         return ValidationResult(all_failures)
