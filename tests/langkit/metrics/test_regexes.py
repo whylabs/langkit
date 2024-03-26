@@ -10,6 +10,7 @@ import pandas as pd
 
 import whylogs as why
 from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
+from langkit.core.workflow import Workflow
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, PatternGroups
 from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_for_column_module,
@@ -27,12 +28,14 @@ from langkit.metrics.regexes.regexes import (
     prompt_response_phone_number_regex_module,
     prompt_response_ssn_regex_module,
     prompt_ssn_regex_metric,
+    prompt_url_regex_metric,
     response_credit_card_number_regex_metric,
     response_default_regexes_module,
     response_email_address_regex_metric,
     response_mailing_address_regex_metric,
     response_phone_number_regex_metric,
     response_ssn_regex_metric,
+    response_url_regex_metric,
 )
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 from whylogs.core.metrics.metrics import FrequentItem
@@ -74,6 +77,30 @@ expected_metrics = [
 def _log(item: Any, conf: WorkflowMetricConfig) -> pd.DataFrame:
     schema = create_whylogs_udf_schema(conf)
     return why.log(item, schema=schema).view().to_pandas()  # type: ignore
+
+
+def test_prompt_regex_df_url():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "Does this code look good? foo.strip()/10. My blog is at whylabs.ai/foo.html",
+            ],
+            "response": [
+                "Yeah. Nice blog, mine is at whylabs.ai/bar.html",
+            ],
+        }
+    )
+
+    wf = Workflow(metrics=[prompt_url_regex_metric, response_url_regex_metric])
+    result = wf.run(df)
+
+    actual = result.metrics
+
+    expected_columns = ["prompt.regex.url", "response.regex.url", "id"]
+
+    assert list(actual.columns) == expected_columns
+    assert actual["prompt.regex.url"][0] == 1
+    assert actual["response.regex.url"][0] == 1
 
 
 def test_prompt_regex_df_ssn():

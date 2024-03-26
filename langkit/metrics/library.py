@@ -226,6 +226,12 @@ class lib:
 
                 return prompt_credit_card_number_regex_metric
 
+            @staticmethod
+            def url() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import prompt_url_regex_metric
+
+                return prompt_url_regex_metric
+
         class similarity:
             """
             These metrics are used to compare the response to various examples and use cosine similarity/embedding distances
@@ -426,6 +432,12 @@ class lib:
                 from langkit.metrics.regexes.regexes import response_credit_card_number_regex_metric
 
                 return response_credit_card_number_regex_metric
+
+            @staticmethod
+            def url() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_url_regex_metric
+
+                return response_url_regex_metric
 
         class sentiment:
             def __call__(self) -> MetricCreator:
