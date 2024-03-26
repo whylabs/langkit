@@ -414,7 +414,7 @@ def test_multi_text_stat_metric():
 
         return MultiMetric(
             names=[f"{column_name}.custom_textstat1", f"{column_name}.custom_textstat2"],
-            input_name=column_name,
+            input_names=[column_name],
             evaluate=udf,
         )
 

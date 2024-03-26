@@ -87,7 +87,7 @@ def injections_metric(column_name: str, version: str = "v2") -> Metric:
         return SingleMetricResult(metrics=metrics)
 
     return SingleMetric(
-        name=f"{column_name}.similarity.injection", input_name=column_name, evaluate=udf, cache_assets=cache_assets, init=init
+        name=f"{column_name}.similarity.injection", input_names=[column_name], evaluate=udf, cache_assets=cache_assets, init=init
     )
 
 

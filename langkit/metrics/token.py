@@ -25,7 +25,7 @@ def token_metric(column_name: str, encoding: str = "cl100k_base") -> Metric:
 
     return SingleMetric(
         name=f"{column_name}.stats.token_count",
-        input_name=column_name,
+        input_names=[column_name],
         evaluate=udf,
         init=init,
         cache_assets=cache_assets,

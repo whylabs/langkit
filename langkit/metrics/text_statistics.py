@@ -15,7 +15,7 @@ def textstat_module(stat: TextStat, column_name: str) -> Metric:
 
     return SingleMetric(
         name=f"{column_name}.stats.{stat}",
-        input_name=column_name,
+        input_names=[column_name],
         evaluate=udf,
     )
 

@@ -75,6 +75,16 @@ class Callback(ABC):
 # - DONE replace PII with <redacted>
 
 
+@dataclass(frozen=True)
+class MetricFilterOptions:
+    by_required_inputs: Optional[List[List[str]]] = None
+
+
+@dataclass(frozen=True)
+class RunOptions:
+    metric_filter: Optional[MetricFilterOptions] = None
+
+
 class Workflow:
     def __init__(
         self,
@@ -93,7 +103,7 @@ class Workflow:
             cache_assets: If True, the assets required for the metrics will be cached during inititialization.
         """
         self.callbacks = callbacks or []
-        self.metrics = WorkflowMetricConfigBuilder().add(metrics).build()
+        self.metrics_config = WorkflowMetricConfigBuilder().add(metrics).build()
         self.validators = validators or []
         self._initialized = False
         self._cache_assets = cache_assets
@@ -109,7 +119,7 @@ class Workflow:
         # TODO Maybe we should keep track of which already were initialized and only init the ones that weren't in this pipeline?
         # I prefer init just be idempotent but it might be hard for people to get right.
         metric_names: Set[str] = set()
-        for metric in self.metrics.metrics:
+        for metric in self.metrics_config.metrics:
             if self._cache_assets and metric.cache_assets:
                 metric.cache_assets()
 
@@ -144,7 +154,7 @@ class Workflow:
 
     def get_metric_names(self) -> List[str]:
         names: List[str] = []
-        for metric in self.metrics.metrics:
+        for metric in self.metrics_config.metrics:
             if isinstance(metric, SingleMetric):
                 names.append(metric.name)
             else:
@@ -152,7 +162,7 @@ class Workflow:
         return names
 
     @overload
-    def run(self, data: pd.DataFrame) -> WorkflowResult:
+    def run(self, data: pd.DataFrame, options: Optional[RunOptions] = None) -> WorkflowResult:
         """
         This form is intended for batch inputs,
         where the input is a pandas DataFrame.
@@ -160,7 +170,7 @@ class Workflow:
         ...
 
     @overload
-    def run(self, data: Row) -> WorkflowResult:
+    def run(self, data: Row, options: Optional[RunOptions] = None) -> WorkflowResult:
         """
         This form is intended for single row inputs,
         where the input is a dictionary with the keys "prompt" and "response".
@@ -168,7 +178,7 @@ class Workflow:
         ...
 
     @overload
-    def run(self, data: Dict[str, str]) -> WorkflowResult:
+    def run(self, data: Dict[str, str], options: Optional[RunOptions] = None) -> WorkflowResult:
         """
         This form doesn't assume the "prompt" and "response" key names.
         This would be required in cases where the user wants to use different
@@ -176,7 +186,7 @@ class Workflow:
         """
         ...
 
-    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]]) -> WorkflowResult:
+    def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]], options: Optional[RunOptions] = None) -> WorkflowResult:
         start = time.perf_counter()
 
         self.init()
@@ -193,10 +203,16 @@ class Workflow:
         all_metrics_start = time.perf_counter()
         metric_times: List[Tuple[str, float]] = []
 
-        for metric in self.metrics.metrics:
+        if options and options.metric_filter and options.metric_filter.by_required_inputs:
+            by_required_inputs_set = frozenset([frozenset(x) for x in options.metric_filter.by_required_inputs])
+            metrics_to_run = [metric for metric in self.metrics_config.metrics if frozenset(metric.input_names) in by_required_inputs_set]
+        else:
+            metrics_to_run = self.metrics_config.metrics
+
+        for metric in metrics_to_run:
             # check that the dataframe has the metric.input_name present, or else skip
-            if metric.input_name not in df.columns:
-                logger.debug(f"Skipping metric {metric} because {metric.input_name} is not present in the input dataframe")
+            if not all([input_name in df.columns for input_name in metric.input_names]):
+                logger.debug(f"Skipping metric {metric} because {metric.input_names} is not present in the input dataframe")
                 continue
 
             metric_start = time.perf_counter()

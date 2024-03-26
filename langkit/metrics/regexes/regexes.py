@@ -61,7 +61,7 @@ def __get_regexes_frequent_items_module(column_name: str, patterns: CompiledPatt
 
     return SingleMetric(
         name=f"{column_name}.regex.has_patterns",
-        input_name=column_name,
+        input_names=[column_name],
         evaluate=udf,
     )
 
@@ -126,7 +126,7 @@ def __single_regex_module(column_name: str, patterns: CompiledPatternGroups, pat
 
     return SingleMetric(
         name=f"{column_name}.regex.{__sanitize_name_for_metric(pattern_name)}",
-        input_name=column_name,
+        input_names=[column_name],
         evaluate=udf,
     )
 
@@ -239,7 +239,7 @@ def __single_substitution_metric(column_name: str, patterns: CompiledPatternGrou
 
     return SingleMetric(
         name=f"{column_name}.substitutions.{__sanitize_name_for_metric(pattern_name)}",
-        input_name=column_name,
+        input_names=[column_name],
         evaluate=udf,
     )
 
