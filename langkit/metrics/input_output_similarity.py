@@ -24,7 +24,7 @@ def input_output_similarity_metric(input_column_name: str = "prompt", output_col
 
     return SingleMetric(
         name=f"{output_column_name}.similarity.{input_column_name}",
-        input_name=[input_column_name, output_column_name],
+        input_names=[input_column_name, output_column_name],
         evaluate=udf,
         init=init,
     )

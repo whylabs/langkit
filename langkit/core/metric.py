@@ -84,7 +84,7 @@ MetricResult = Union[SingleMetricResult, MultiMetricResult]
 @dataclass(frozen=True)
 class SingleMetric:
     name: str  # Basically the output name
-    input_name: List[str]
+    input_names: List[str]
     evaluate: Callable[[pd.DataFrame], SingleMetricResult]
     init: Optional[Callable[[], None]] = None
     cache_assets: Optional[Callable[[], None]] = None
@@ -95,7 +95,7 @@ class MultiMetric:
     # Splitting the metric into single/multi can be a bit verbose, but it lets us know all of the metric names
     # that are going to be generated upfront without having to evaluate all of the metrics to find out.
     names: List[str]
-    input_name: List[str]
+    input_names: List[str]
     evaluate: Callable[[pd.DataFrame], MultiMetricResult]
     init: Optional[Callable[[], None]] = None
     cache_assets: Optional[Callable[[], None]] = None

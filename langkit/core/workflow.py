@@ -205,14 +205,14 @@ class Workflow:
 
         if options and options.metric_filter and options.metric_filter.by_required_inputs:
             by_required_inputs_set = frozenset([frozenset(x) for x in options.metric_filter.by_required_inputs])
-            metrics_to_run = [metric for metric in self.metrics_config.metrics if frozenset(metric.input_name) in by_required_inputs_set]
+            metrics_to_run = [metric for metric in self.metrics_config.metrics if frozenset(metric.input_names) in by_required_inputs_set]
         else:
             metrics_to_run = self.metrics_config.metrics
 
         for metric in metrics_to_run:
             # check that the dataframe has the metric.input_name present, or else skip
-            if not all([input_name in df.columns for input_name in metric.input_name]):
-                logger.debug(f"Skipping metric {metric} because {metric.input_name} is not present in the input dataframe")
+            if not all([input_name in df.columns for input_name in metric.input_names]):
+                logger.debug(f"Skipping metric {metric} because {metric.input_names} is not present in the input dataframe")
                 continue
 
             metric_start = time.perf_counter()

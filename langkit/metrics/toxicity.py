@@ -51,7 +51,7 @@ def toxicity_metric(column_name: str) -> Metric:
         metrics = __toxicity(_pipeline, max_length, col)
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.toxicity.toxicity_score", input_name=[column_name], evaluate=udf, init=init)
+    return SingleMetric(name=f"{column_name}.toxicity.toxicity_score", input_names=[column_name], evaluate=udf, init=init)
 
 
 prompt_toxicity_metric = partial(toxicity_metric, "prompt")
