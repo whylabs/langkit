@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import reduce
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import pandas as pd
 
@@ -63,8 +63,11 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
         types = {"prompt": str, "response": str}
         column_names = ["prompt", "response"]
     else:
-        types = {metric.input_names: str}
-        column_names = [metric.input_names]
+        types: Dict[str, Type[str]] = {}
+        for name in metric.input_names:
+            types[name] = str
+
+        column_names = [*metric.input_names]
 
     schema = UdfSchemaArgs(
         types=types,
@@ -89,7 +92,7 @@ def _to_udf_schema_args_multiple(metric: MultiMetric) -> UdfSchemaArgs:
     return UdfSchemaArgs(
         resolvers=[],
         types={k: str for k in metric.names},
-        udf_specs=[UdfSpec(column_names=[metric.input_names], udf=udf, prefix="")],
+        udf_specs=[UdfSpec(column_names=metric.input_names, udf=udf, prefix="")],
     )
 
 
