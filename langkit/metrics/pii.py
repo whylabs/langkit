@@ -94,7 +94,7 @@ def pii_presidio_metric(
         return MultiMetricResult(metrics=all_metrics)
 
     metric_names = list(entity_types.values()) + [redacted_metric_name]
-    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets, init=init)
+    return MultiMetric(names=metric_names, input_name=[input_name], evaluate=udf, cache_assets=cache_assets, init=init)
 
 
 prompt_presidio_pii_metric = partial(pii_presidio_metric, "prompt")

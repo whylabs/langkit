@@ -70,7 +70,7 @@ def topic_metric(input_name: str, topics: List[str], hypothesis_template: Option
         __classifier.value
 
     metric_names = [f"{input_name}.topics.{_sanitize_metric_name(topic)}" for topic in topics]
-    return MultiMetric(names=metric_names, input_name=input_name, evaluate=udf, cache_assets=cache_assets)
+    return MultiMetric(names=metric_names, input_name=[input_name], evaluate=udf, cache_assets=cache_assets)
 
 
 prompt_topic_module = partial(topic_metric, "prompt", __default_topics, _hypothesis_template)

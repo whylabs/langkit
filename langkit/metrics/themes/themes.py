@@ -81,7 +81,7 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
 
     return SingleMetric(
         name=f"{column_name}.similarity.{themes_group}",
-        input_name=column_name,
+        input_name=[column_name],
         evaluate=udf,
         cache_assets=cache_assets,
     )
