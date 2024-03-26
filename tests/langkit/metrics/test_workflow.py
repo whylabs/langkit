@@ -1,5 +1,7 @@
 from typing import List
 
+import pytest
+
 from langkit.core.workflow import MetricFilterOptions, RunOptions, Workflow
 from langkit.metrics.library import lib
 from langkit.validators.library import lib as validator_lib
@@ -127,6 +129,14 @@ def test_metric_filter_both_prompt_and_response():
         "response.similarity.prompt",
         "id",
     ]
+
+
+def test_metric_filter_no_metrics_left():
+    wf = Workflow(metrics=[lib.presets.recommended(), lib.response.similarity.prompt()])
+    options = RunOptions(metric_filter=MetricFilterOptions(by_required_inputs=[["doesnt exist"]]))
+
+    with pytest.raises(ValueError):
+        wf.run({"prompt": "hi", "response": "hello"}, options)
 
 
 def test_metric_filter_include_everything():
