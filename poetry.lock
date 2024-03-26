@@ -3952,12 +3952,13 @@ urllib3 = ">=1.25.3"
 
 [[package]]
 name = "whylogs"
-version = "1.3.23.dev8"
+version = "1.3.27"
 description = "Profile and monitor your ML data pipeline end-to-end"
 optional = false
-python-versions = ">=3.7.1,<4"
+python-versions = "<4,>=3.7.1"
 files = [
-    {file = "whylogs-1.3.23.dev8-py3-none-any.whl", hash = "sha256:2ccd981d4cb19161935dbe6fc38ad8ec7858d3b6f8e2c56dfe35d066a89db6d0"},
+    {file = "whylogs-1.3.27-py3-none-any.whl", hash = "sha256:465c2943d5b1f36465426bca4872e5fa254f529bc9b595b2ed5c7f2d646c8989"},
+    {file = "whylogs-1.3.27.tar.gz", hash = "sha256:ef6117bdfc4a4b53e915e6d9562f89b6b59e990af669e881568e48ea985ae317"},
 ]
 
 [package.dependencies]
@@ -3983,10 +3984,6 @@ proc-mp = ["orjson (>=3.8.10,<4.0.0)", "pandas"]
 s3 = ["boto3 (>=1.22.13,<2.0.0)"]
 spark = ["pyarrow (>=8.0.0,<13)", "pyspark (>=3.0.0,<4.0.0)"]
 viz = ["Pillow (>=9.2.0,<10.0.0)", "ipython", "numpy", "numpy (>=1.23.2)", "pybars3 (>=0.9,<0.10)", "scipy (>=1.5)", "scipy (>=1.9.2)"]
-
-[package.source]
-type = "url"
-url = "https://whypy.s3.us-west-2.amazonaws.com/whylogs-1.3.23.dev8-py3-none-any.whl"
 
 [[package]]
 name = "whylogs-sketching"
@@ -4301,4 +4298,4 @@ torch = ["torch"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<4"
-content-hash = "1ac7a44418b38e0bf1c89b45d2248351cdf80c674ef87470dbded694858cbcdb"
+content-hash = "d4a8d95f606814e905e251ec6d0aa9f9a94114f9b25289fc5cf09eb961c77d89"
