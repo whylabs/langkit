@@ -206,6 +206,11 @@ class Workflow:
         if options and options.metric_filter and options.metric_filter.by_required_inputs:
             by_required_inputs_set = frozenset([frozenset(x) for x in options.metric_filter.by_required_inputs])
             metrics_to_run = [metric for metric in self.metrics_config.metrics if frozenset(metric.input_names) in by_required_inputs_set]
+            if not metrics_to_run:
+                raise ValueError(
+                    f"No metrics to run. Filters {options.metric_filter.by_required_inputs} did "
+                    f"not match any metrics {self.get_metric_names()}"
+                )
         else:
             metrics_to_run = self.metrics_config.metrics
 
