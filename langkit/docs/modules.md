@@ -111,6 +111,11 @@ profile = why.log({"prompt":"What is the primary function of the mitochondria in
                    "response":"The Eiffel Tower is a renowned landmark in Paris, France"}, schema=text_schema).profile()
 ```
 
+#### Configuration
+
+- [Local model path configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb)
+- [Custom Encoder configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Custom_Encoder.ipynb)
+
 ### `response.relevance_to_prompt`
 
 The `response.relevance_to_prompt` computed column will contain a similarity score between the prompt and response. The higher the score, the more relevant the response is to the prompt.
@@ -415,6 +420,8 @@ from langkit import themes
 themes.init(theme_file_path="path/to/themes.json")
 ```
 
+Users can also use local models with `themes`. See the [Local Model](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb) example for more information.
+
 ### `jailbreaks`
 
 This group gathers a set of known jailbreak examples.
@@ -482,3 +489,7 @@ results = extract({"prompt": "I hate you."})
 ```
 
 For more information, see the [Toxicity Model Configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Toxicity_Model_Configuration.ipynb) example.
+
+Users can also pass a local model to `toxicity`. Currently, only `martin-ha/toxic-comment-model` is supported with local use. See the example in:
+
+- [Local model path configuration](https://github.com/whylabs/langkit/blob/main/langkit/examples/Local_Models.ipynb)

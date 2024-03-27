@@ -38,18 +38,23 @@ def group_similarity(text: str, group):
         raise ValueError("Must initialize a transformer before calling encode!")
 
     text_embedding = _transformer_model.encode(text)
+    _cache_embeddings_map(group)
     for embedding in _embeddings_map.get(group, []):
         similarity = get_embeddings_similarity(text_embedding, embedding)
         similarities.append(similarity)
     return max(similarities) if similarities else None
 
 
-def _map_embeddings():
-    global _embeddings_map
-    for group in _theme_groups:
+def _cache_embeddings_map(group):
+    if group not in _embeddings_map:
         _embeddings_map[group] = [
             _transformer_model.encode(s) for s in _theme_groups.get(group, [])
         ]
+
+
+def _clear_embeddings_map():
+    global _embeddings_map
+    _embeddings_map = {}
 
 
 _registered = set()
@@ -57,7 +62,6 @@ _registered = set()
 
 def _register_theme_udfs():
     global _registered
-    _map_embeddings()
 
     for group in _theme_groups:
         for column in [_prompt, _response]:
@@ -111,6 +115,7 @@ def init(
             _theme_groups = load_themes(config.theme_file_path)
     else:
         _theme_groups = load_themes(theme_file_path)
+    _clear_embeddings_map()
     _register_theme_udfs()
 
 

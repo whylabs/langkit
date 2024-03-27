@@ -53,9 +53,9 @@ def init(
         )
 
     try:
-        np_embeddings = np.stack(harm_embeddings["sentence_embedding"].values).astype(
-            np.float32
-        )
+        array_list = [np.array(x) for x in harm_embeddings["sentence_embedding"].values]
+        np_embeddings = np.stack(array_list).astype(np.float32)
+
         _embeddings_norm = np_embeddings / np.linalg.norm(
             np_embeddings, axis=1, keepdims=True
         )
