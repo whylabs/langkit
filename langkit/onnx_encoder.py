@@ -17,9 +17,6 @@ from langkit.metrics.embeddings_types import EmbeddingEncoder
 
 @lru_cache
 def _get_inference_session(onnx_file_path: str):
-    cpus = cpu_count(logical=True)
-    # environ["OMP_NUM_THREADS"] = str(cpus)
-    # environ["OMP_WAIT_POLICY"] = "ACTIVE"
     sess_opts: ort.SessionOptions = ort.SessionOptions()
     # sess_opts.enable_cpu_mem_arena = True
     # sess_opts.inter_op_num_threads = cpus
@@ -50,7 +47,9 @@ class OnnxSentenceTransformer(EmbeddingEncoder):
         self._session = _get_inference_session(model.get_model_path())
 
     def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
-        model_inputs = self._tokenizer.batch_encode_plus(list(text), return_tensors="pt", padding=True, truncation=True)
+        max_length_in_chars = self._tokenizer.model_max_length * 5  # approx limit
+        truncated_text = tuple(content[:max_length_in_chars] for content in text)
+        model_inputs = self._tokenizer.batch_encode_plus(list(truncated_text), return_tensors="pt", padding=True, truncation=True)
         input_tensor: torch.Tensor = cast(torch.Tensor, model_inputs["input_ids"])
         inputs_onnx = {"input_ids": input_tensor.cpu().numpy()}
         attention_mask: torch.Tensor = cast(torch.Tensor, model_inputs["attention_mask"])
