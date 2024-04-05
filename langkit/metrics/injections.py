@@ -81,11 +81,11 @@ def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) 
         input_series: "pd.Series[str]" = cast("pd.Series[str]", text[column_name])
 
         if onnx:
-            _transformer = embedding_adapter()  # onnx
-            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()  # onnx
+            _transformer = embedding_adapter()
+            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()
         else:
             _transformer = sentence_transformer()
-            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series), show_progress_bar=False)
+            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(list(input_series), show_progress_bar=False)  # pyright: ignore[reportAssignmentType, reportUnknownMemberType]
 
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
         cosine_similarities = np.dot(_embeddings, target_norms.T)

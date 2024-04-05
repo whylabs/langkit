@@ -1,7 +1,7 @@
 from functools import lru_cache
-import torch
 from typing import Tuple
 
+import torch
 from sentence_transformers import SentenceTransformer
 
 from langkit.metrics.embeddings_types import CachingEmbeddingEncoder, EmbeddingEncoder

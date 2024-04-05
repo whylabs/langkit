@@ -4,6 +4,8 @@ inputs:
   type:
     description: python_version
     required: true
+  whylabs_api_key:
+    required: true
 
 runs:
   using: "composite"
@@ -34,6 +36,8 @@ runs:
 
     - name: Run test
       shell: bash
+      env:
+        WHYLABS_API_KEY: ${{ inputs.whylabs_api_key }}
       run: make test
 
     - name: Make dists

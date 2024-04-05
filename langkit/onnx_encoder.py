@@ -1,14 +1,11 @@
 # pyright: reportUnknownVariableType=false, reportUnknownMemberType=false, reportUnknownParameterType=false
-import time
 from enum import Enum
 from functools import lru_cache
-from os import environ
 from typing import Any, List, Tuple, cast
 
 import numpy as np
 import onnxruntime as ort  # pyright: ignore[reportMissingImports]
 import torch
-from psutil import cpu_count
 from transformers import BertTokenizerFast
 
 from langkit.asset_downloader import get_asset
@@ -17,19 +14,7 @@ from langkit.metrics.embeddings_types import EmbeddingEncoder
 
 @lru_cache
 def _get_inference_session(onnx_file_path: str):
-    cpus = cpu_count(logical=True)
-    # environ["OMP_NUM_THREADS"] = str(cpus)
-    # environ["OMP_WAIT_POLICY"] = "ACTIVE"
-    sess_opts: ort.SessionOptions = ort.SessionOptions()
-    # sess_opts.enable_cpu_mem_arena = True
-    # sess_opts.inter_op_num_threads = cpus
-    # sess_opts.intra_op_num_threads = 1
-    # sess_opts.execution_mode = ort.ExecutionMode.ORT_PARALLEL
-
-    # sess_opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
-    # sess_opts.enable_mem_pattern = True
-
-    return ort.InferenceSession(onnx_file_path, providers=["CPUExecutionProvider"], sess_options=sess_opts)  # pyright: ignore[reportUnknownArgumentType]
+    return ort.InferenceSession(onnx_file_path, providers=["CPUExecutionProvider"])  # pyright: ignore[reportUnknownArgumentType]
 
 
 class TransformerModel(Enum):
@@ -40,9 +25,6 @@ class TransformerModel(Enum):
         return f"{get_asset(name, tag)}/{name}.onnx"
 
 
-# _times: List[float] = []
-
-
 class OnnxSentenceTransformer(EmbeddingEncoder):
     def __init__(self, model: TransformerModel):
         self._tokenizer: BertTokenizerFast = cast(BertTokenizerFast, BertTokenizerFast.from_pretrained("bert-base-uncased"))
@@ -50,15 +32,16 @@ class OnnxSentenceTransformer(EmbeddingEncoder):
         self._session = _get_inference_session(model.get_model_path())
 
     def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
-        model_inputs = self._tokenizer.batch_encode_plus(list(text), return_tensors="pt", padding=True, truncation=True)
+        # Pre-truncate the inputs to the model length for better performance
+        max_length_in_chars = self._tokenizer.model_max_length * 5  # approx limit
+        truncated_text = tuple(content[:max_length_in_chars] for content in text)
+        model_inputs = self._tokenizer.batch_encode_plus(list(truncated_text), return_tensors="pt", padding=True, truncation=True)
+
         input_tensor: torch.Tensor = cast(torch.Tensor, model_inputs["input_ids"])
         inputs_onnx = {"input_ids": input_tensor.cpu().numpy()}
         attention_mask: torch.Tensor = cast(torch.Tensor, model_inputs["attention_mask"])
         inputs_onnx["attention_mask"] = attention_mask.cpu().detach().numpy().astype(np.float32)
-        start_time = time.perf_counter()
         onnx_output: List['np.ndarray["Any", "Any"]'] = cast(List['np.ndarray["Any", "Any"]'], self._session.run(None, inputs_onnx))
-        # _times.append(time.perf_counter() - start_time)
-        # print(f"Average time: {sum(_times) / len(_times)}")
         embedding = OnnxSentenceTransformer.mean_pooling(onnx_output=onnx_output, attention_mask=attention_mask)
         return embedding[0]
 

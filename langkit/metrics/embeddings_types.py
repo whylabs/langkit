@@ -15,7 +15,8 @@ class TransformerEmbeddingAdapter:
 
 
 class EmbeddingEncoder(Protocol):
-    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor": ...
+    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
+        ...
 
 
 class CachingEmbeddingEncoder(EmbeddingEncoder):

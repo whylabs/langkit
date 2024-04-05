@@ -41,7 +41,7 @@ class UdfInput:
 
     def to_list(self, column_name: str) -> List[Any]:
         if column_name not in self.text:
-            raise ValueError(f"Column {column_name} not found in {self.text}")
+            raise KeyError(f"Column {column_name} not found in {self.text}")
 
         if isinstance(self.text, pd.DataFrame):
             col = cast("pd.Series[Any]", self.text[column_name])
