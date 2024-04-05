@@ -4,7 +4,8 @@ from typing import Tuple
 import torch
 from sentence_transformers import SentenceTransformer
 
-from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
+from langkit.metrics.embeddings_types import CachingEmbeddingEncoder, EmbeddingEncoder
+from langkit.onnx_encoder import OnnxSentenceTransformer, TransformerModel
 
 
 @lru_cache
@@ -24,5 +25,5 @@ def sentence_transformer(
 
 
 @lru_cache
-def embedding_adapter() -> TransformerEmbeddingAdapter:
-    return TransformerEmbeddingAdapter(sentence_transformer())
+def embedding_adapter() -> EmbeddingEncoder:
+    return CachingEmbeddingEncoder(OnnxSentenceTransformer(TransformerModel.AllMiniLM))

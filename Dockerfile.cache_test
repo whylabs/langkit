@@ -21,6 +21,8 @@ RUN chmod -R a+rw $CONTAINER_CACHE_BASE
 ## Install/build pip dependencies
 ##
 USER root
+ARG WHYLABS_API_KEY
+
 RUN apt-get update && apt-get install -y curl build-essential
 USER whylabs
 # Install poetry

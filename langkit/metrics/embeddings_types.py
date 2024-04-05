@@ -17,3 +17,12 @@ class TransformerEmbeddingAdapter:
 class EmbeddingEncoder(Protocol):
     def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
         ...
+
+
+class CachingEmbeddingEncoder(EmbeddingEncoder):
+    def __init__(self, transformer: EmbeddingEncoder):
+        self._transformer = transformer
+
+    @lru_cache(maxsize=6, typed=True)
+    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":  # pyright: ignore[reportIncompatibleMethodOverride]
+        return self._transformer.encode(text)  # type: ignore[no-any-return]

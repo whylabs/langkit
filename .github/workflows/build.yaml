@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/python-build
         with:
           python_version: ${{ matrix.python_version }}
-
+          whylabs_api_key: ${{ secrets.WHYLABS_API_KEY }}
 
   enforce_cache_constraint:
     name: Make sure the cache constraint logic works
@@ -84,4 +84,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Run test
+        env:
+          WHYLABS_API_KEY: ${{ secrets.WHYLABS_API_KEY }}
         run: make test-cache-constraint

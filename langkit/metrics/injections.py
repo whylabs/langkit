@@ -1,7 +1,7 @@
 import os
 from functools import lru_cache, partial
 from logging import getLogger
-from typing import Any, Sequence
+from typing import Any, Sequence, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -10,7 +10,7 @@ import pandas as pd
 from langkit.config import LANGKIT_CACHE
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import retry
-from langkit.transformer import sentence_transformer
+from langkit.transformer import embedding_adapter, sentence_transformer
 
 logger = getLogger(__name__)
 
@@ -66,19 +66,27 @@ def _get_embeddings(version: str) -> "np.ndarray[Any, Any]":
     return embeddings_norm
 
 
-def injections_metric(column_name: str, version: str = "v2") -> Metric:
+def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) -> Metric:
     def cache_assets():
         _get_embeddings(version)
 
     def init():
-        sentence_transformer()
+        embedding_adapter()
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
             raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
         _embeddings = _get_embeddings(version)
-        _transformer = sentence_transformer()
-        target_embeddings: npt.NDArray[np.float32] = _transformer.encode(text[column_name])  # type: ignore[reportUnknownMemberType]
+
+        input_series: "pd.Series[str]" = cast("pd.Series[str]", text[column_name])
+
+        if onnx:
+            _transformer = embedding_adapter()
+            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()
+        else:
+            _transformer = sentence_transformer()
+            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(list(input_series), show_progress_bar=False)  # pyright: ignore[reportAssignmentType, reportUnknownMemberType]
+
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
         cosine_similarities = np.dot(_embeddings, target_norms.T)
         max_similarities = np.max(cosine_similarities, axis=0)  # type: ignore[reportUnknownMemberType]
