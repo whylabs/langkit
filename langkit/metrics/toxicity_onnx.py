@@ -44,14 +44,15 @@ def _download_assets():
 
 @lru_cache
 def _get_tokenizer() -> PreTrainedTokenizerBase:
-    return AutoTokenizer.from_pretrained(_download_assets)
+    return AutoTokenizer.from_pretrained(_download_assets())
 
 
 @lru_cache
 def _get_session() -> onnxruntime.InferenceSession:
     downloaded_path = _download_assets()
     onnx_model_path = os.path.join(downloaded_path, "model.onnx")
-    return onnxruntime.InferenceSession(Path(onnx_model_path))
+    print(f"Loading ONNX model from {onnx_model_path}")
+    return onnxruntime.InferenceSession(onnx_model_path, providers=["CPUExecutionProvider"])
 
 
 def toxicity_metric(column_name: str) -> Metric:
