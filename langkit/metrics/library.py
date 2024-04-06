@@ -281,7 +281,7 @@ class lib:
                 return prompt_sentiment_polarity
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = False):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
                 self.onnx = onnx
@@ -496,7 +496,7 @@ class lib:
                 return response_refusal_similarity_metric
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = False):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
                 self.onnx = onnx

@@ -12,9 +12,7 @@ from optimum.modeling_base import PreTrainedModel
 from optimum.onnxruntime import ORTModelForSequenceClassification
 from transformers import AutoTokenizer, Pipeline, PreTrainedTokenizerBase, pipeline  # type: ignore
 
-from langkit.asset_downloader import get_asset
 from langkit.core.metric import MetricCreator, MultiMetric, MultiMetricResult
-from langkit.onnx_encoder import TransformerModel
 
 __default_topics = [
     "medicine",
@@ -27,19 +25,21 @@ _hypothesis_template = "This example is about {}"
 
 
 def _download_assets():
-    name, tag = TransformerModel.XtremeDistilL6H256ZeroShot.value
-    return get_asset(name, tag)
+    ORTModelForSequenceClassification.from_pretrained(
+        "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+        file_name="onnx/model_quantized.onnx",
+        export=False,
+    )
 
 
 def _get_tokenizer() -> PreTrainedTokenizerBase:
-    return AutoTokenizer.from_pretrained(_download_assets())
+    return AutoTokenizer.from_pretrained("MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33")
 
 
 def _get_model() -> PreTrainedModel:
-    extracted_path = _download_assets()
     return ORTModelForSequenceClassification.from_pretrained(
-        extracted_path,
-        file_name="model_quantized.onnx",
+        "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+        file_name="onnx/model.onnx",
         export=False,
         local_files_only=True,
     )
@@ -49,8 +49,8 @@ def _get_model() -> PreTrainedModel:
 def _get_classifier() -> Pipeline:
     return pipeline(
         "zero-shot-classification",
-        model=_get_model(),  # type: ignore
-        tokenizer=_get_tokenizer(),  # type: ignore
+        model=_get_model(),  # pyright: ignore[reportArgumentType]
+        tokenizer=_get_tokenizer(),  # pyright: ignore[reportArgumentType]
         truncation=True,
         device="cuda" if torch.cuda.is_available() else "cpu",
     )

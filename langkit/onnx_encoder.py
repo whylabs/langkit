@@ -20,7 +20,6 @@ def _get_inference_session(onnx_file_path: str):
 class TransformerModel(Enum):
     AllMiniLM = ("all-MiniLM-L6-v2", "0")
     ToxicCommentModel = ("toxic-comment-model", "0")
-    XtremeDistilL6H256ZeroShot = ("xtremedistil-l6-h256-zeroshot", "v1.1-all-33")
 
     def cache_model_assets(self):
         """
