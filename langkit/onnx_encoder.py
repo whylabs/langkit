@@ -19,8 +19,13 @@ def _get_inference_session(onnx_file_path: str):
 
 class TransformerModel(Enum):
     AllMiniLM = ("all-MiniLM-L6-v2", "0")
+    ToxicCommentModel = ("toxic-comment-model", "0")
+    XtremeDistilL6H256ZeroShot = ("xtremedistil-l6-h256-zeroshot", "v1.1-all-33")
 
-    def get_model_path(self):
+    def cache_model_assets(self):
+        """
+        Returns the path of the cached model assets, downloading them if necessary.
+        """
         name, tag = self.value
         return f"{get_asset(name, tag)}/{name}.onnx"
 
@@ -28,8 +33,7 @@ class TransformerModel(Enum):
 class OnnxSentenceTransformer(EmbeddingEncoder):
     def __init__(self, model: TransformerModel):
         self._tokenizer: BertTokenizerFast = cast(BertTokenizerFast, BertTokenizerFast.from_pretrained("bert-base-uncased"))
-        self._model = model
-        self._session = _get_inference_session(model.get_model_path())
+        self._session = _get_inference_session(model.cache_model_assets())
 
     def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
         # Pre-truncate the inputs to the model length for better performance

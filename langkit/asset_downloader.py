@@ -36,7 +36,7 @@ def _get_asset_path(asset_id: str, tag: str = "0") -> AssetPath:
         asset_id=asset_id,
         tag=tag,
         zip_path=f"{LANGKIT_CACHE}/assets/{asset_id}/{tag}/{asset_id}.zip",
-        extract_path=f"{LANGKIT_CACHE}/assets/{asset_id}/{tag}/{asset_id}/",
+        extract_path=f"{LANGKIT_CACHE}/assets/{asset_id}/{tag}/{asset_id}",
     )
 
 

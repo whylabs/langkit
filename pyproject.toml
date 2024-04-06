@@ -32,6 +32,7 @@ presidio-anonymizer = {version = "^2.2.352", optional = true}
 tiktoken = {version = "^0.6.0", optional = true}
 tenacity = "^8.2.3"
 onnxruntime = {version = "^1.17.1", optional = true}
+optimum = {extras = ["onnxruntime"], version = "^1.18.0", optional = true}
 
 
 [tool.poetry.group.dev.dependencies]
@@ -63,6 +64,7 @@ all = [
     "presidio-anonymizer",
     "tiktoken",
     "onnxruntime",
+    "optimum",
 ]
 
 [build-system]
