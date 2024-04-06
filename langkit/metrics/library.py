@@ -281,20 +281,31 @@ class lib:
                 return prompt_sentiment_polarity
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = False):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
+                self.onnx = onnx
 
             def __call__(self) -> MetricCreator:
-                from langkit.metrics.topic_onnx import topic_metric
+                if self.onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
+                    return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
+                else:
+                    from langkit.metrics.topic import topic_metric
+
+                    return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine() -> MetricCreator:
-                from langkit.metrics.topic_onnx import topic_metric
+            def medicine(onnx: bool = False) -> MetricCreator:
+                if onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return lambda: topic_metric("prompt", ["medicine"])
+                    return lambda: topic_metric("prompt", ["medicine"])
+                else:
+                    from langkit.metrics.topic_onnx import topic_metric
+
+                    return lambda: topic_metric("prompt", ["medicine"])
 
     class response:
         @staticmethod
@@ -485,17 +496,28 @@ class lib:
                 return response_refusal_similarity_metric
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = False):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
+                self.onnx = onnx
 
             def __call__(self) -> MetricCreator:
-                from langkit.metrics.topic_onnx import topic_metric
+                if self.onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "response", self.topics, self.hypothesis_template)
+                    return partial(topic_metric, "response", self.topics, self.hypothesis_template)
+                else:
+                    from langkit.metrics.topic import topic_metric
+
+                    return partial(topic_metric, "response", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine() -> MetricCreator:
-                from langkit.metrics.topic_onnx import topic_metric
+            def medicine(onnx: bool = False) -> MetricCreator:
+                if onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "response", ["medicine"])
+                    return partial(topic_metric, "response", ["medicine"])
+                else:
+                    from langkit.metrics.topic_onnx import topic_metric
+
+                    return partial(topic_metric, "response", ["medicine"])
