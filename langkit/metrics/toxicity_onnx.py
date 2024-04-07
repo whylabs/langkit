@@ -55,6 +55,9 @@ def _get_session() -> onnxruntime.InferenceSession:
 
 
 def toxicity_metric(column_name: str) -> Metric:
+    def cache_assets():
+        _download_assets()
+
     def init():
         _get_session()
         _get_tokenizer()
@@ -68,7 +71,9 @@ def toxicity_metric(column_name: str) -> Metric:
         metrics = __toxicity(_tokenizer, _session, max_length, col)
         return SingleMetricResult(metrics=metrics)
 
-    return SingleMetric(name=f"{column_name}.toxicity.toxicity_score", input_names=[column_name], evaluate=udf, init=init)
+    return SingleMetric(
+        name=f"{column_name}.toxicity.toxicity_score", input_names=[column_name], evaluate=udf, init=init, cache_assets=cache_assets
+    )
 
 
 prompt_toxicity_metric = partial(toxicity_metric, "prompt")
