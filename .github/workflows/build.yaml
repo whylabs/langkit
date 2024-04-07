@@ -83,7 +83,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Run test
+      - name: Run cache constraint test
         env:
           WHYLABS_API_KEY: ${{ secrets.WHYLABS_API_KEY }}
         run: make test-cache-constraint
