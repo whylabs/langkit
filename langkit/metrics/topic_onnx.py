@@ -2,6 +2,7 @@
 # pyright: reportUnknownVariableType=none
 # pyright: reportUnknownLambdaType=none
 
+import os
 from dataclasses import dataclass
 from functools import lru_cache, partial
 from typing import List, Optional, TypedDict
@@ -23,26 +24,46 @@ __default_topics = [
 
 _hypothesis_template = "This example is about {}"
 
+_model = "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33"
+_revision = "dea69e79cd6063916d08b883ea8a3c1823fd10b4"
+
 
 def _download_assets():
     ORTModelForSequenceClassification.from_pretrained(
-        "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
+        _model,
         subfolder="onnx",
         file_name="model.onnx",
+        revision=_revision,
         export=False,
     )
+    AutoTokenizer.from_pretrained(_model, revision=_revision)
 
 
 def _get_tokenizer() -> PreTrainedTokenizerBase:
-    return AutoTokenizer.from_pretrained("MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33")
+    return AutoTokenizer.from_pretrained(_model, revision=_revision, local_files_only=True)
 
 
 def _get_model() -> PreTrainedModel:
+    # return ORTModelForSequenceClassification.from_pretrained(
+    #     _model,
+    #     subfolder="onnx",
+    #     file_name="model.onnx",
+    #     export=False,
+    #     revision=_revision,
+    #     local_files_only=True,
+    # )
+    # Optimum doesn't support offline mode https://github.com/huggingface/optimum/issues/1796
+    # workaround for now is to reference the actual model path after caching it. Uncomment the above code when the issue is resolved
+
+    model_name = _model.replace("/", "--")
+    home_dir = os.path.expanduser("~")
+    base = os.environ.get("HF_HOME", os.path.join(home_dir, ".cache/huggingface"))
+    model_path = f"{base}/hub/models--{model_name }/snapshots/{_revision}"
     return ORTModelForSequenceClassification.from_pretrained(
-        "MoritzLaurer/xtremedistil-l6-h256-zeroshot-v1.1-all-33",
-        subfolder="onnx",
-        file_name="model.onnx",
+        model_path,
+        file_name="onnx/model.onnx",
         export=False,
+        revision=_revision,
         local_files_only=True,
     )
 

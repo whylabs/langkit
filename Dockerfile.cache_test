@@ -4,7 +4,6 @@ WORKDIR /opt/whylogs-container
 RUN chown -R whylabs:whylabs /opt/whylogs-container
 USER whylabs
 
-ENV LLM_CONTAINER=True
 ENV CONTAINER_CACHE_BASE=/opt/whylogs-container/.cache
 ENV HF_HOME=$CONTAINER_CACHE_BASE/hf_home/
 ENV NLTK_DATA=$CONTAINER_CACHE_BASE/nltk_data/
@@ -38,9 +37,15 @@ RUN poetry config virtualenvs.in-project true
 RUN poetry install --no-root --extras "all" --without dev
 RUN rm -rf .venv/lib/python3.10/site-packages/pandas/tests # Pandas deploys a ton of tests to pypi
 
+ENV TRANSFORMERS_VERBOSITY=debug
 
 copy ./langkit ./langkit
 RUN bash -c "source .venv/bin/activate; python -m langkit.scripts.langkit_cache"
+RUN find  $CONTAINER_CACHE_BASE/
+
 # This step will fail if any network requests happen
+ENV TRANSFORMERS_OFFLINE=1
+ENV HF_DATASETS_OFFLINE=1
+ENV HF_HUB_OFFLINE=1
 RUN --network=none bash -c "source .venv/bin/activate; python -m langkit.scripts.langkit_cache --skip-downloads"
 
