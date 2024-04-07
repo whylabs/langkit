@@ -16,14 +16,13 @@ class lib:
             from langkit.metrics.text_statistics import prompt_textstat_metric, response_textstat_metric
             from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
             from langkit.metrics.token import prompt_token_metric, response_token_metric
-            from langkit.metrics.toxicity import prompt_toxicity_metric, response_toxicity_metric
 
             prompt_metrics = [
                 prompt_textstat_metric,
                 prompt_token_metric,
                 prompt_regex_metric,
                 prompt_sentiment_polarity,
-                prompt_toxicity_metric,
+                lib.prompt.toxicity(),
                 prompt_response_input_output_similarity_metric,
                 prompt_injections_metric,
                 prompt_jailbreak_similarity_metric,
@@ -38,7 +37,7 @@ class lib:
                 response_sentiment_polarity,
                 response_refusal_similarity_metric,
                 response_presidio_pii_metric,
-                response_toxicity_metric,
+                lib.response.toxicity(),
                 lib.response.topics.medicine(),
             ]
 
@@ -119,7 +118,7 @@ class lib:
                 Analyze the input for toxicity. The output of this metric ranges from 0 to 1, where 0 indicates
                 non-toxic and 1 indicates toxic.
                 """
-                from langkit.metrics.toxicity import prompt_toxicity_metric
+                from langkit.metrics.toxicity_onnx import prompt_toxicity_metric
 
                 return prompt_toxicity_metric
 
@@ -282,20 +281,31 @@ class lib:
                 return prompt_sentiment_polarity
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
+                self.onnx = onnx
 
             def __call__(self) -> MetricCreator:
-                from langkit.metrics.topic import topic_metric
+                if self.onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
+                    return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
+                else:
+                    from langkit.metrics.topic import topic_metric
+
+                    return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine() -> MetricCreator:
-                from langkit.metrics.topic import topic_metric
+            def medicine(onnx: bool = False) -> MetricCreator:
+                if onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return lambda: topic_metric("prompt", ["medicine"])
+                    return lambda: topic_metric("prompt", ["medicine"])
+                else:
+                    from langkit.metrics.topic_onnx import topic_metric
+
+                    return lambda: topic_metric("prompt", ["medicine"])
 
     class response:
         @staticmethod
@@ -326,7 +336,7 @@ class lib:
                 Analyze the toxicity of the response. The output of this metric ranges from 0 to 1, where 0
                 indicates a non-toxic response and 1 indicates a toxic response.
                 """
-                from langkit.metrics.toxicity import response_toxicity_metric
+                from langkit.metrics.toxicity_onnx import response_toxicity_metric
 
                 return response_toxicity_metric
 
@@ -486,17 +496,28 @@ class lib:
                 return response_refusal_similarity_metric
 
         class topics:
-            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None):
+            def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
                 self.topics = topics
                 self.hypothesis_template = hypothesis_template
+                self.onnx = onnx
 
             def __call__(self) -> MetricCreator:
-                from langkit.metrics.topic import topic_metric
+                if self.onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "response", self.topics, self.hypothesis_template)
+                    return partial(topic_metric, "response", self.topics, self.hypothesis_template)
+                else:
+                    from langkit.metrics.topic import topic_metric
+
+                    return partial(topic_metric, "response", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine() -> MetricCreator:
-                from langkit.metrics.topic import topic_metric
+            def medicine(onnx: bool = False) -> MetricCreator:
+                if onnx:
+                    from langkit.metrics.topic_onnx import topic_metric
 
-                return partial(topic_metric, "response", ["medicine"])
+                    return partial(topic_metric, "response", ["medicine"])
+                else:
+                    from langkit.metrics.topic_onnx import topic_metric
+
+                    return partial(topic_metric, "response", ["medicine"])
