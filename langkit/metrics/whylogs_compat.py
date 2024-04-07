@@ -105,6 +105,8 @@ def to_udf_schema_args(metric: Metric) -> List[UdfSchemaArgs]:
 
 def create_whylogs_udf_schema(eval_conf: WorkflowMetricConfig) -> UdfSchema:
     for metric in eval_conf.metrics:
+        if metric.cache_assets:
+            metric.cache_assets()
         if metric.init:
             metric.init()
 
