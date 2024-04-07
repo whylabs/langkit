@@ -10,7 +10,7 @@ import pandas as pd
 from langkit.config import LANGKIT_CACHE
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import retry
-from langkit.transformer import embedding_adapter, sentence_transformer
+from langkit.transformer import embedding_adapter
 
 logger = getLogger(__name__)
 
@@ -34,7 +34,8 @@ def __cache_embeddings(harm_embeddings: pd.DataFrame, embeddings_path: str, file
         logger.warning(f"Injections - unable to serialize embeddings to {embeddings_path_local}. Error: {serialization_error}")
 
 
-def __download_embeddings(filename: str) -> pd.DataFrame:
+def __download_embeddings(version: str) -> pd.DataFrame:
+    filename = f"embeddings_{__transformer_name}_harm_{version}.parquet"
     embeddings_path_remote: str = __injections_base_url + filename
     embeddings_path_local: str = os.path.join(LANGKIT_INJECTIONS_CACHE, filename)
     try:
@@ -60,18 +61,17 @@ def __process_embeddings(harm_embeddings: pd.DataFrame) -> "np.ndarray[Any, Any]
 
 @lru_cache
 def _get_embeddings(version: str) -> "np.ndarray[Any, Any]":
-    filename = f"embeddings_{__transformer_name}_harm_{version}.parquet"
-    harm_embeddings = __download_embeddings(filename)
-    embeddings_norm = __process_embeddings(harm_embeddings)
-    return embeddings_norm
+    return __process_embeddings(__download_embeddings(version))
 
 
 def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) -> Metric:
     def cache_assets():
-        _get_embeddings(version)
+        __download_embeddings(version)
+        embedding_adapter(onnx)
 
     def init():
-        embedding_adapter()
+        _get_embeddings(version)
+        embedding_adapter(onnx)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
         if column_name not in text.columns:
@@ -80,12 +80,8 @@ def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) 
 
         input_series: "pd.Series[str]" = cast("pd.Series[str]", text[column_name])
 
-        if onnx:
-            _transformer = embedding_adapter()
-            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()
-        else:
-            _transformer = sentence_transformer()
-            target_embeddings: npt.NDArray[np.float32] = _transformer.encode(list(input_series), show_progress_bar=False)  # pyright: ignore[reportAssignmentType, reportUnknownMemberType]
+        _transformer = embedding_adapter(onnx)
+        target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()
 
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
         cosine_similarities = np.dot(_embeddings, target_norms.T)

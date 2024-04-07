@@ -4,12 +4,11 @@ from typing import Tuple
 import torch
 from sentence_transformers import SentenceTransformer
 
-from langkit.metrics.embeddings_types import CachingEmbeddingEncoder, EmbeddingEncoder
+from langkit.metrics.embeddings_types import CachingEmbeddingEncoder, EmbeddingEncoder, TransformerEmbeddingAdapter
 from langkit.onnx_encoder import OnnxSentenceTransformer, TransformerModel
 
 
-@lru_cache
-def sentence_transformer(
+def _sentence_transformer(
     name_revision: Tuple[str, str] = ("all-MiniLM-L6-v2", "44eb4044493a3c34bc6d7faae1a71ec76665ebc6"),
 ) -> SentenceTransformer:
     """
@@ -25,5 +24,8 @@ def sentence_transformer(
 
 
 @lru_cache
-def embedding_adapter() -> EmbeddingEncoder:
-    return CachingEmbeddingEncoder(OnnxSentenceTransformer(TransformerModel.AllMiniLM))
+def embedding_adapter(onnx: bool = True) -> EmbeddingEncoder:
+    if onnx:
+        return CachingEmbeddingEncoder(OnnxSentenceTransformer(TransformerModel.AllMiniLM))
+    else:
+        return TransformerEmbeddingAdapter(_sentence_transformer())

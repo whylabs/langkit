@@ -59,7 +59,7 @@ def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]
     return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
 
-def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"]) -> Metric:
+def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"], onnx: bool = True) -> Metric:
     if themes_group == "refusal" and column_name == "prompt":
         raise ValueError("Refusal themes are not applicable to prompt")
 
@@ -67,10 +67,13 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
         raise ValueError("Jailbreak themes are not applicable to response")
 
     def cache_assets():
-        _get_themes(embedding_adapter())
+        embedding_adapter(onnx)
+
+    def init():
+        _get_themes(embedding_adapter(onnx))
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
-        encoder = embedding_adapter()
+        encoder = embedding_adapter(onnx)
         theme = _get_themes(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
         text_list: List[str] = text[column_name].tolist()
         encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
@@ -84,6 +87,7 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
         input_names=[column_name],
         evaluate=udf,
         cache_assets=cache_assets,
+        init=init,
     )
 
 
