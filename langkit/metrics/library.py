@@ -249,7 +249,7 @@ class lib:
                 ]
 
             @staticmethod
-            def injection(version: Optional[str] = None) -> MetricCreator:
+            def injection(version: Optional[str] = None, onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the input for injection themes. The injection score is a measure of how similar the input is
                 to known injection examples, where 0 indicates no similarity and 1 indicates a high similarity.
@@ -257,19 +257,19 @@ class lib:
                 from langkit.metrics.injections import injections_metric, prompt_injections_metric
 
                 if version:
-                    return partial(injections_metric, column_name="prompt", version=version)
+                    return partial(injections_metric, column_name="prompt", version=version, onnx=onnx)
 
                 return prompt_injections_metric
 
             @staticmethod
-            def jailbreak() -> MetricCreator:
+            def jailbreak(onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the input for jailbreak themes. The jailbreak score is a measure of how similar the input is
                 to known jailbreak examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
 
-                return prompt_jailbreak_similarity_metric
+                return partial(prompt_jailbreak_similarity_metric, onnx=onnx)
 
         class sentiment:
             def __call__(self) -> MetricCreator:
@@ -302,7 +302,7 @@ class lib:
                     return partial(topic_metric, "prompt", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine(onnx: bool = False) -> MetricCreator:
+            def medicine(onnx: bool = True) -> MetricCreator:
                 if onnx:
                     from langkit.metrics.topic_onnx import topic_metric
 
@@ -486,24 +486,24 @@ class lib:
                 ]
 
             @staticmethod
-            def prompt() -> MetricCreator:
+            def prompt(onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the similarity between the input and the response. The output of this metric ranges from 0 to 1,
                 where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_metric
 
-                return prompt_response_input_output_similarity_metric
+                return partial(prompt_response_input_output_similarity_metric, onnx=onnx)
 
             @staticmethod
-            def refusal() -> MetricCreator:
+            def refusal(onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the response for refusal themes. The refusal score is a measure of how similar the response is
                 to known refusal examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
-                return response_refusal_similarity_metric
+                return partial(response_refusal_similarity_metric, onnx=onnx)
 
         class topics:
             def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
@@ -522,7 +522,7 @@ class lib:
                     return partial(topic_metric, "response", self.topics, self.hypothesis_template)
 
             @staticmethod
-            def medicine(onnx: bool = False) -> MetricCreator:
+            def medicine(onnx: bool = True) -> MetricCreator:
                 if onnx:
                     from langkit.metrics.topic_onnx import topic_metric
 

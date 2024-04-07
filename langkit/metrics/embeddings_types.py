@@ -5,18 +5,18 @@ import torch
 from sentence_transformers import SentenceTransformer
 
 
-class TransformerEmbeddingAdapter:
+class EmbeddingEncoder(Protocol):
+    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
+        ...
+
+
+class TransformerEmbeddingAdapter(EmbeddingEncoder):
     def __init__(self, transformer: SentenceTransformer):
         self._transformer = transformer
 
     @lru_cache(maxsize=6, typed=True)
-    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
-        return torch.as_tensor(self._transformer.encode(sentences=list(text)))  # type: ignore[reportUnknownMemberType]
-
-
-class EmbeddingEncoder(Protocol):
-    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":
-        ...
+    def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":  # pyright: ignore[reportIncompatibleMethodOverride]
+        return torch.as_tensor(self._transformer.encode(sentences=list(text), show_progress_bar=False))  # type: ignore[reportUnknownMemberType]
 
 
 class CachingEmbeddingEncoder(EmbeddingEncoder):
