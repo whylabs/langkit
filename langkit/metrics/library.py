@@ -113,14 +113,19 @@ class lib:
                 return self.toxicity_score()
 
             @staticmethod
-            def toxicity_score() -> MetricCreator:
+            def toxicity_score(onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the input for toxicity. The output of this metric ranges from 0 to 1, where 0 indicates
                 non-toxic and 1 indicates toxic.
                 """
-                from langkit.metrics.toxicity_onnx import prompt_toxicity_metric
+                if onnx:
+                    from langkit.metrics.toxicity_onnx import prompt_toxicity_metric
 
-                return prompt_toxicity_metric
+                    return prompt_toxicity_metric
+                else:
+                    from langkit.metrics.toxicity import prompt_toxicity_metric
+
+                    return prompt_toxicity_metric
 
         class stats:
             def __call__(self) -> MetricCreator:
@@ -331,14 +336,19 @@ class lib:
                 return self.toxicity_score()
 
             @staticmethod
-            def toxicity_score() -> MetricCreator:
+            def toxicity_score(onnx: bool = True) -> MetricCreator:
                 """
                 Analyze the toxicity of the response. The output of this metric ranges from 0 to 1, where 0
                 indicates a non-toxic response and 1 indicates a toxic response.
                 """
-                from langkit.metrics.toxicity_onnx import response_toxicity_metric
+                if onnx:
+                    from langkit.metrics.toxicity_onnx import response_toxicity_metric
 
-                return response_toxicity_metric
+                    return response_toxicity_metric
+                else:
+                    from langkit.metrics.toxicity import response_toxicity_metric
+
+                    return response_toxicity_metric
 
         class stats:
             def __call__(self) -> MetricCreator:
