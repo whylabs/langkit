@@ -1,16 +1,22 @@
+import inspect
 import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, overload
+from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, cast, overload
 
 import pandas as pd
 
+from langkit.core.context import Context
 from langkit.core.metric import (
     Metric,
     MetricCreator,
     MetricResult,
+    MultiEvaluate,
+    MultiEvaluateWithContext,
     MultiMetricResult,
+    SingleEvaluate,
+    SingleEvaluateWithContext,
     SingleMetric,
     SingleMetricResult,
     WorkflowMetricConfigBuilder,
@@ -29,8 +35,10 @@ class Row(TypedDict):
 @dataclass(frozen=True)
 class RunPerf:
     metrics_time_sec: Dict[str, float]
+    context_time_sec: Dict[str, float]
     workflow_total_sec: float
     metrics_total_sec: float
+    context_total_sec: float
     validation_total_sec: float
 
 
@@ -108,6 +116,11 @@ class Workflow:
         self._initialized = False
         self._cache_assets = cache_assets
 
+        # Get the context dependencies from the metrics and dedupe them with set
+        self._context_dependencies = list(
+            set([dependency for sublist in self.metrics_config.metrics for dependency in (sublist.context_dependencies or [])])
+        )
+
         if not lazy_init:
             self.init()
 
@@ -116,6 +129,13 @@ class Workflow:
             return
 
         self._initialized = True
+
+        for dependency in self._context_dependencies:
+            if self._cache_assets:
+                dependency.cache_assets()
+
+            dependency.init()
+
         # TODO Maybe we should keep track of which already were initialized and only init the ones that weren't in this pipeline?
         # I prefer init just be idempotent but it might be hard for people to get right.
         metric_names: Set[str] = set()
@@ -188,7 +208,6 @@ class Workflow:
 
     def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]], options: Optional[RunOptions] = None) -> WorkflowResult:
         start = time.perf_counter()
-
         self.init()
 
         if not isinstance(data, pd.DataFrame):
@@ -202,6 +221,18 @@ class Workflow:
         metric_results: Dict[str, SingleMetricResult] = {}
         all_metrics_start = time.perf_counter()
         metric_times: List[Tuple[str, float]] = []
+        context_dependency_times: List[Tuple[str, float]] = []
+
+        all_context_start = time.perf_counter()
+
+        # Setup context
+        context = Context()
+        for dependency in self._context_dependencies:
+            context_dependency_start = time.perf_counter()
+            dependency.populate_request(context, df)
+            context_dependency_times.append((dependency.name(), round(time.perf_counter() - context_dependency_start, 3)))
+
+        all_context_end = time.perf_counter() - all_context_start
 
         if options and options.metric_filter and options.metric_filter.by_required_inputs:
             by_required_inputs_set = frozenset([frozenset(x) for x in options.metric_filter.by_required_inputs])
@@ -222,7 +253,15 @@ class Workflow:
 
             metric_start = time.perf_counter()
             if isinstance(metric, SingleMetric):
-                result = metric.evaluate(df)
+                param_count = len(inspect.signature(metric.evaluate).parameters)
+
+                if param_count == 2:
+                    fn = cast(SingleEvaluateWithContext, metric.evaluate)
+                    result = fn(df, context)
+                else:
+                    fn = cast(SingleEvaluate, metric.evaluate)
+                    result = fn(df)
+
                 self._validate_evaluate(df, metric, result)
                 metric_results[metric.name] = result
 
@@ -230,7 +269,14 @@ class Workflow:
 
             else:
                 # MultiMetrics are basically just converted into single metrics asap.
-                result = metric.evaluate(df)
+                param_count = len(inspect.signature(metric.evaluate).parameters)
+                if param_count == 2:
+                    fn = cast(MultiEvaluateWithContext, metric.evaluate)
+                    result = fn(df, context)
+                else:
+                    fn = cast(MultiEvaluate, metric.evaluate)
+                    result = fn(df)
+
                 self._validate_evaluate(df, metric, result)
                 for metric_name, metric_result in zip(metric.names, result.metrics):
                     single_metric = SingleMetricResult(metric_result)
@@ -283,6 +329,8 @@ class Workflow:
             workflow_total_sec=round(time.perf_counter() - start, 3),
             validation_total_sec=round(all_validators_end, 3),
             metrics_total_sec=round(all_metrics_end, 3),
+            context_time_sec=dict(context_dependency_times),
+            context_total_sec=round(all_context_end, 3),
         )
 
         return WorkflowResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)

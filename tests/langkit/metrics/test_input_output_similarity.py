@@ -1,48 +1,9 @@
 # pyright: reportUnknownMemberType=none
-from typing import Any
 
 import pandas as pd
 
-import whylogs as why
-from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
+from langkit.core.workflow import Workflow
 from langkit.metrics.input_output_similarity import input_output_similarity_metric, prompt_response_input_output_similarity_metric
-from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
-
-expected_metrics = [
-    "cardinality/est",
-    "cardinality/lower_1",
-    "cardinality/upper_1",
-    "counts/inf",
-    "counts/n",
-    "counts/nan",
-    "counts/null",
-    "distribution/max",
-    "distribution/mean",
-    "distribution/median",
-    "distribution/min",
-    "distribution/n",
-    "distribution/q_01",
-    "distribution/q_05",
-    "distribution/q_10",
-    "distribution/q_25",
-    "distribution/q_75",
-    "distribution/q_90",
-    "distribution/q_95",
-    "distribution/q_99",
-    "distribution/stddev",
-    "type",
-    "types/boolean",
-    "types/fractional",
-    "types/integral",
-    "types/object",
-    "types/string",
-    "types/tensor",
-]
-
-
-def _log(item: Any, conf: WorkflowMetricConfig) -> pd.DataFrame:
-    schema = create_whylogs_udf_schema(conf)
-    return why.log(item, schema=schema).view().to_pandas()  # type: ignore
 
 
 def test_input_output():
@@ -57,24 +18,14 @@ def test_input_output():
         }
     )
 
-    schema = WorkflowMetricConfigBuilder().add(input_output_similarity_metric).build()
+    wf = Workflow(metrics=[input_output_similarity_metric])
 
-    actual = _log(df, schema)
-    assert list(actual.columns) == expected_metrics
+    actual = wf.run(df)
 
-    expected_columns = [
-        "prompt",
-        "response",
-        "response.similarity.prompt",
-    ]
+    expected_columns = ["response.similarity.prompt", "id"]
 
-    pd.set_option("display.max_columns", None)
-
-    assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.similarity.prompt"] > 0.5
-    assert actual["distribution/min"]["response.similarity.prompt"] > 0.5
-    assert actual["types/fractional"]["response.similarity.prompt"] == 1
-    assert actual["cardinality/est"]["response.similarity.prompt"] == 1
+    assert actual.metrics.columns.tolist() == expected_columns
+    assert actual.metrics["response.similarity.prompt"].tolist()[0] > 0.5
 
 
 def test_input_output_row():
@@ -83,22 +34,14 @@ def test_input_output_row():
         "response": "I'm going to answer that question!",
     }
 
-    schema = WorkflowMetricConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
+    wf = Workflow(metrics=[prompt_response_input_output_similarity_metric])
 
-    actual = _log(row, schema)
-    assert list(actual.columns) == expected_metrics
+    actual = wf.run(row)
 
-    expected_columns = [
-        "prompt",
-        "response",
-        "response.similarity.prompt",
-    ]
+    expected_columns = ["response.similarity.prompt", "id"]
 
-    assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.similarity.prompt"] > 0.5
-    assert actual["distribution/min"]["response.similarity.prompt"] > 0.5
-    assert actual["types/fractional"]["response.similarity.prompt"] == 1
-    assert actual["cardinality/est"]["response.similarity.prompt"] == 1
+    assert actual.metrics.columns.tolist() == expected_columns
+    assert actual.metrics["response.similarity.prompt"].tolist()[0] > 0.5
 
 
 def test_input_output_multiple():
@@ -115,19 +58,12 @@ def test_input_output_multiple():
         }
     )
 
-    schema = WorkflowMetricConfigBuilder().add(prompt_response_input_output_similarity_metric).build()
+    wf = Workflow(metrics=[prompt_response_input_output_similarity_metric])
 
-    actual = _log(df, schema)
-    assert list(actual.columns) == expected_metrics
+    actual = wf.run(df)
 
-    expected_columns = [
-        "prompt",
-        "response",
-        "response.similarity.prompt",
-    ]
+    expected_columns = ["response.similarity.prompt", "id"]
 
-    assert actual.index.tolist() == expected_columns
-    assert actual["distribution/max"]["response.similarity.prompt"] > 0
-    assert actual["distribution/min"]["response.similarity.prompt"] > 0
-    assert actual["types/fractional"]["response.similarity.prompt"] == 2
-    assert int(actual["cardinality/est"]["response.similarity.prompt"]) == 2  # type: ignore
+    assert actual.metrics.columns.tolist() == expected_columns
+    assert actual.metrics["response.similarity.prompt"].tolist()[0] > 0
+    assert actual.metrics["response.similarity.prompt"].tolist()[1] < 0.5

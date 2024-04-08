@@ -1,10 +1,13 @@
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Tuple
 
+import pandas as pd
 import torch
 from sentence_transformers import SentenceTransformer
 
-from langkit.metrics.embeddings_types import CachingEmbeddingEncoder, EmbeddingEncoder, TransformerEmbeddingAdapter
+from langkit.core.context import Context, ContextDependency
+from langkit.metrics.embeddings_types import EmbeddingEncoder, TransformerEmbeddingAdapter
 from langkit.onnx_encoder import OnnxSentenceTransformer, TransformerModel
 
 
@@ -26,6 +29,36 @@ def _sentence_transformer(
 @lru_cache
 def embedding_adapter(onnx: bool = True) -> EmbeddingEncoder:
     if onnx:
-        return CachingEmbeddingEncoder(OnnxSentenceTransformer(TransformerModel.AllMiniLM))
+        return OnnxSentenceTransformer(TransformerModel.AllMiniLM)
     else:
         return TransformerEmbeddingAdapter(_sentence_transformer())
+
+
+@dataclass(frozen=True)
+class EmbeddingContextDependency(ContextDependency[torch.Tensor]):
+    onnx: bool
+    input_column: str
+
+    def name(self) -> str:
+        return f"{self.input_column}.embedding?onnx={self.onnx}"
+
+    def cache_assets(self) -> None:
+        # TODO do only the downloading
+        embedding_adapter(onnx=self.onnx)
+
+    def init(self) -> None:
+        embedding_adapter(onnx=self.onnx)
+
+    def populate_request(self, context: Context, data: pd.DataFrame):
+        if self.input_column not in data.columns:
+            return
+
+        if self.name() in context.request_data:
+            return
+
+        encoder = embedding_adapter(onnx=self.onnx)
+        embedding = encoder.encode(tuple(data[self.input_column]))  # pyright: ignore[reportUnknownArgumentType]
+        context.request_data[self.name()] = embedding
+
+    def get_request_data(self, context: Context) -> torch.Tensor:
+        return context.request_data[self.name()]

@@ -8,9 +8,9 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 
+from langkit.core.context import Context
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
-from langkit.metrics.embeddings_types import TransformerEmbeddingAdapter
-from langkit.transformer import embedding_adapter
+from langkit.transformer import EmbeddingContextDependency, embedding_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,8 @@ def __load_themes() -> Dict[str, List[str]]:
 
 
 @lru_cache
-def _get_themes(encoder: TransformerEmbeddingAdapter) -> Dict[str, torch.Tensor]:
+def _get_themes() -> Dict[str, torch.Tensor]:
+    encoder = embedding_adapter()
     theme_groups = __load_themes()
     return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
@@ -66,17 +67,18 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
     if themes_group == "jailbreak" and column_name == "response":
         raise ValueError("Jailbreak themes are not applicable to response")
 
-    def cache_assets():
-        embedding_adapter(onnx)
-
     def init():
-        _get_themes(embedding_adapter(onnx))
+        _get_themes()
 
-    def udf(text: pd.DataFrame) -> SingleMetricResult:
-        encoder = embedding_adapter(onnx)
-        theme = _get_themes(encoder)[themes_group]  # (n_theme_examples, embedding_dim)
-        text_list: List[str] = text[column_name].tolist()
-        encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
+    embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=column_name)
+
+    def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
+        theme = _get_themes()[themes_group]  # (n_theme_examples, embedding_dim)
+        # text_list: List[str] = text[column_name].tolist()
+        # encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
+        encoded_text = embedding_dep.get_request_data(context)
+        print(encoded_text)
+        print(type(encoded_text))
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
         max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)
         similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
@@ -86,8 +88,8 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
         name=f"{column_name}.similarity.{themes_group}",
         input_names=[column_name],
         evaluate=udf,
-        cache_assets=cache_assets,
         init=init,
+        context_dependencies=[embedding_dep],
     )
 
 

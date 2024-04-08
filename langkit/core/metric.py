@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import inspect
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union, cast
 
 import numpy as np
 import pandas as pd
 
+from langkit.core.context import Context, ContextDependency
 from langkit.metrics.util import LazyInit
 
 
@@ -81,13 +83,37 @@ class MultiMetricResult:
 MetricResult = Union[SingleMetricResult, MultiMetricResult]
 
 
+SingleEvaluateWithContext = Callable[[pd.DataFrame, Context], SingleMetricResult]
+SingleEvaluate = Callable[[pd.DataFrame], SingleMetricResult]
+
+
+def invoke_evaluate(
+    evaluate: Union[SingleEvaluateWithContext, SingleEvaluate], text: pd.DataFrame, context: Optional[Context] = None
+) -> SingleMetricResult:
+    param_count = len(inspect.signature(evaluate).parameters)
+    if param_count == 2:
+        if not context:
+            raise ValueError("Context is required for this evaluate function")
+        fn = cast(SingleEvaluateWithContext, evaluate)
+        return fn(text, context)
+    else:
+        fn = cast(SingleEvaluate, evaluate)
+        return fn(text)
+
+
 @dataclass(frozen=True)
 class SingleMetric:
     name: str  # Basically the output name
     input_names: List[str]
-    evaluate: Callable[[pd.DataFrame], SingleMetricResult]
+    evaluate: Union[SingleEvaluateWithContext, SingleEvaluate]
     init: Optional[Callable[[], None]] = None
     cache_assets: Optional[Callable[[], None]] = None
+    # Maybe expose the generic on Metrics in the future, not urgent
+    context_dependencies: Optional[List[ContextDependency[Any]]] = None
+
+
+MultiEvaluateWithContext = Callable[[pd.DataFrame, Context], MultiMetricResult]
+MultiEvaluate = Callable[[pd.DataFrame], MultiMetricResult]
 
 
 @dataclass(frozen=True)
@@ -96,9 +122,24 @@ class MultiMetric:
     # that are going to be generated upfront without having to evaluate all of the metrics to find out.
     names: List[str]
     input_names: List[str]
-    evaluate: Callable[[pd.DataFrame], MultiMetricResult]
+    evaluate: Union[MultiEvaluateWithContext, MultiEvaluate]
     init: Optional[Callable[[], None]] = None
     cache_assets: Optional[Callable[[], None]] = None
+    context_dependencies: Optional[List[ContextDependency[Any]]] = None
+
+
+def invoke_evaluate_multi(
+    evaluate: Union[MultiEvaluateWithContext, MultiEvaluate], text: pd.DataFrame, context: Optional[Context] = None
+) -> MultiMetricResult:
+    param_count = len(inspect.signature(evaluate).parameters)
+    if param_count == 2:
+        if not context:
+            raise ValueError("Context is required for this evaluate function")
+        fn = cast(MultiEvaluateWithContext, evaluate)
+        return fn(text, context)
+    else:
+        fn = cast(MultiEvaluate, evaluate)
+        return fn(text)
 
 
 Metric = Union[SingleMetric, MultiMetric]

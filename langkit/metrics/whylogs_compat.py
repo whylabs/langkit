@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 import pandas as pd
 
-from langkit.core.metric import Metric, MultiMetric, SingleMetric, WorkflowMetricConfig
+from langkit.core.metric import Metric, MultiMetric, SingleMetric, WorkflowMetricConfig, invoke_evaluate, invoke_evaluate_multi
 from whylogs.core.resolvers import StandardMetric
 from whylogs.core.segmentation_partition import SegmentationPartition
 from whylogs.experimental.core.metrics.udf_metric import MetricConfig as YMetricConfig
@@ -39,9 +39,9 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
     # This entire function just hard coded looks for metric names and knows how to translate things.
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         if isinstance(text, pd.DataFrame):
-            return metric.evaluate(text).metrics
+            return invoke_evaluate(metric.evaluate, text).metrics
         else:
-            return metric.evaluate(pd.DataFrame(text)).metrics
+            return invoke_evaluate(metric.evaluate, pd.DataFrame(text)).metrics
 
     if "has_patterns" in metric.name or "closest_topic" in metric.name:
         resolvers = [
@@ -86,7 +86,7 @@ def _to_udf_schema_args_single(metric: SingleMetric) -> UdfSchemaArgs:
 def _to_udf_schema_args_multiple(metric: MultiMetric) -> UdfSchemaArgs:
     def udf(text: Union[pd.DataFrame, Dict[str, List[Any]]]) -> Any:
         wf_input = pd.DataFrame(text) if isinstance(text, dict) else text
-        metrics = metric.evaluate(wf_input).metrics
+        metrics = invoke_evaluate_multi(metric.evaluate, wf_input).metrics
         return pd.concat([pd.Series(metric, name=name) for (metric, name) in zip(metrics, metric.names)], axis=1)  # pyright: ignore [reportUnknownMemberType]
 
     return UdfSchemaArgs(
