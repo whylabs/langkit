@@ -254,12 +254,12 @@ class lib:
                 Analyze the input for injection themes. The injection score is a measure of how similar the input is
                 to known injection examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
-                from langkit.metrics.injections import injections_metric, prompt_injections_metric
+                from langkit.metrics.injections import prompt_injections_metric
 
                 if version:
-                    return partial(injections_metric, column_name="prompt", version=version, onnx=onnx)
+                    return partial(prompt_injections_metric, onnx=onnx, version=version)
 
-                return prompt_injections_metric
+                return partial(prompt_injections_metric, onnx=onnx)
 
             @staticmethod
             def jailbreak(onnx: bool = True) -> MetricCreator:
