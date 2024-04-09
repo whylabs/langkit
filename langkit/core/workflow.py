@@ -34,12 +34,13 @@ class Row(TypedDict):
 
 @dataclass(frozen=True)
 class RunPerf:
+    init_total_sec: float
     metrics_time_sec: Dict[str, float]
-    context_time_sec: Dict[str, float]
-    workflow_total_sec: float
     metrics_total_sec: float
+    context_time_sec: Dict[str, float]
     context_total_sec: float
     validation_total_sec: float
+    workflow_total_sec: float
 
 
 @dataclass(frozen=True)
@@ -208,7 +209,9 @@ class Workflow:
 
     def run(self, data: Union[pd.DataFrame, Row, Dict[str, str]], options: Optional[RunOptions] = None) -> WorkflowResult:
         start = time.perf_counter()
+        init_start = time.perf_counter()
         self.init()
+        init_end = time.perf_counter() - init_start
 
         if not isinstance(data, pd.DataFrame):
             if not is_dict_with_strings(data):
@@ -217,15 +220,9 @@ class Workflow:
         else:
             df = data
 
-        # Metrics
-        metric_results: Dict[str, SingleMetricResult] = {}
-        all_metrics_start = time.perf_counter()
-        metric_times: List[Tuple[str, float]] = []
-        context_dependency_times: List[Tuple[str, float]] = []
-
-        all_context_start = time.perf_counter()
-
         # Setup context
+        all_context_start = time.perf_counter()
+        context_dependency_times: List[Tuple[str, float]] = []
         context = Context()
         for dependency in self._context_dependencies:
             context_dependency_start = time.perf_counter()
@@ -233,6 +230,11 @@ class Workflow:
             context_dependency_times.append((dependency.name(), round(time.perf_counter() - context_dependency_start, 3)))
 
         all_context_end = time.perf_counter() - all_context_start
+
+        # Metrics
+        metric_results: Dict[str, SingleMetricResult] = {}
+        all_metrics_start = time.perf_counter()
+        metric_times: List[Tuple[str, float]] = []
 
         if options and options.metric_filter and options.metric_filter.by_required_inputs:
             by_required_inputs_set = frozenset([frozenset(x) for x in options.metric_filter.by_required_inputs])
@@ -331,6 +333,7 @@ class Workflow:
             metrics_total_sec=round(all_metrics_end, 3),
             context_time_sec=dict(context_dependency_times),
             context_total_sec=round(all_context_end, 3),
+            init_total_sec=round(init_end, 3),
         )
 
         return WorkflowResult(full_df, self._condense_validation_results(validation_results), perf_info=run_perf)
