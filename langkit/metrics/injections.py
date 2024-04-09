@@ -1,16 +1,17 @@
 import os
 from functools import lru_cache, partial
 from logging import getLogger
-from typing import Any, Sequence, cast
+from typing import Any, Sequence
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
 from langkit.config import LANGKIT_CACHE
+from langkit.core.context import Context
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.util import retry
-from langkit.transformer import embedding_adapter
+from langkit.transformer import EmbeddingContextDependency
 
 logger = getLogger(__name__)
 
@@ -67,21 +68,17 @@ def _get_embeddings(version: str) -> "np.ndarray[Any, Any]":
 def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) -> Metric:
     def cache_assets():
         __download_embeddings(version)
-        embedding_adapter(onnx)
 
     def init():
         _get_embeddings(version)
-        embedding_adapter(onnx)
 
-    def udf(text: pd.DataFrame) -> SingleMetricResult:
+    embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=column_name)
+
+    def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
         if column_name not in text.columns:
             raise ValueError(f"Injections: Column {column_name} not found in input dataframe")
         _embeddings = _get_embeddings(version)
-
-        input_series: "pd.Series[str]" = cast("pd.Series[str]", text[column_name])
-
-        _transformer = embedding_adapter(onnx)
-        target_embeddings: npt.NDArray[np.float32] = _transformer.encode(tuple(input_series)).numpy()
+        target_embeddings = embedding_dep.get_request_data(context).numpy()
 
         target_norms = target_embeddings / np.linalg.norm(target_embeddings, axis=1, keepdims=True)
         cosine_similarities = np.dot(_embeddings, target_norms.T)
@@ -91,7 +88,12 @@ def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) 
         return SingleMetricResult(metrics=metrics)
 
     return SingleMetric(
-        name=f"{column_name}.similarity.injection", input_names=[column_name], evaluate=udf, cache_assets=cache_assets, init=init
+        name=f"{column_name}.similarity.injection",
+        input_names=[column_name],
+        evaluate=udf,
+        cache_assets=cache_assets,
+        init=init,
+        context_dependencies=[embedding_dep],
     )
 
 
