@@ -77,8 +77,6 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
         # text_list: List[str] = text[column_name].tolist()
         # encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
         encoded_text = embedding_dep.get_request_data(context)
-        print(encoded_text)
-        print(type(encoded_text))
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
         max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)
         similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
