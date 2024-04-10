@@ -35,13 +35,6 @@ class DynamicLazyInit(Generic[In, Out]):
         return self.__cache[arg]
 
 
-def is_dict_with_strings(variable: object) -> bool:
-    if not isinstance(variable, dict):
-        return False
-    # Check if all values in the dictionary are strings
-    return all(isinstance(value, str) for value in variable.values())  # type: ignore[reportUnknownMemberType]
-
-
 ReturnType = TypeVar("ReturnType")
 
 

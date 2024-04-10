@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, cast, overload
 
 import pandas as pd
+from typing_extensions import NotRequired
 
 from langkit.core.context import Context
 from langkit.core.metric import (
@@ -22,14 +23,23 @@ from langkit.core.metric import (
     WorkflowMetricConfigBuilder,
 )
 from langkit.core.validation import ValidationResult, Validator
-from langkit.metrics.util import is_dict_with_strings
 
 logger = logging.getLogger(__name__)
 
 
+class InputContextItem(TypedDict):
+    content: str
+    metadata: NotRequired[Dict[str, str]]
+
+
+class InputContext(TypedDict):
+    entries: List[InputContextItem]
+
+
 class Row(TypedDict):
-    prompt: str
-    response: str
+    prompt: NotRequired[str]
+    response: NotRequired[str]
+    context: NotRequired[InputContext]
 
 
 @dataclass(frozen=True)
@@ -214,9 +224,9 @@ class Workflow:
         init_end = time.perf_counter() - init_start
 
         if not isinstance(data, pd.DataFrame):
-            if not is_dict_with_strings(data):
+            if not is_dict_input(data):
                 raise ValueError("Input must be a pandas DataFrame or a dictionary with string keys and string values")
-            df = pd.DataFrame(data, index=[0])
+            df = pd.DataFrame([data])
         else:
             df = data
 
@@ -351,3 +361,34 @@ class Workflow:
         if isinstance(metric_result, MultiMetricResult):
             for result in metric_result.metrics:
                 assert len(input_df) == len(result)
+
+
+def is_input_context_item(variable: object) -> bool:
+    if not isinstance(variable, dict):
+        return False
+
+    variable = cast(InputContextItem, variable)
+    return "content" in variable and ("metadata" in variable or len(variable) == 1)
+
+
+def is_input_context(variable: object) -> bool:
+    if not isinstance(variable, dict):
+        return False
+    if "entries" not in variable:
+        return False
+
+    if not isinstance(variable["entries"], list):
+        return False
+
+    variable = cast(InputContext, variable)
+    if len(variable) != 1:
+        return False
+
+    return all(is_input_context_item(value) for value in variable["entries"])
+
+
+def is_dict_input(variable: object) -> bool:
+    if not isinstance(variable, dict):
+        return False
+    # Check if all values in the dictionary are strings
+    return all(isinstance(value, str) or is_input_context(value) for value in variable.values())  # type: ignore[reportUnknownMemberType]

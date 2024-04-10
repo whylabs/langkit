@@ -24,6 +24,7 @@ class lib:
                 prompt_sentiment_polarity,
                 lib.prompt.toxicity(),
                 prompt_response_input_output_similarity_metric,
+                lib.prompt.similarity.context(),
                 prompt_injections_metric,
                 prompt_jailbreak_similarity_metric,
                 prompt_presidio_pii_metric,
@@ -270,6 +271,12 @@ class lib:
                 from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
 
                 return partial(prompt_jailbreak_similarity_metric, onnx=onnx)
+
+            @staticmethod
+            def context(onnx: bool = True) -> MetricCreator:
+                from langkit.metrics.input_context_similarity import input_context_similarity
+
+                return partial(input_context_similarity, onnx=onnx)
 
         class sentiment:
             def __call__(self) -> MetricCreator:
