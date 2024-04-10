@@ -3,10 +3,10 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set, Tuple, TypedDict, Union, cast, overload
+from typing import Dict, List, Mapping, Optional, Set, Tuple, Union, cast, overload
 
 import pandas as pd
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, TypedDict
 
 from langkit.core.context import Context
 from langkit.core.metric import (
