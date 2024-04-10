@@ -13,9 +13,6 @@ def input_output_similarity_metric(input_column_name: str = "prompt", output_col
     response_embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=output_column_name)
 
     def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
-        # in_np = UdfInput(text).to_list(input_column_name)
-        # out_np = UdfInput(text).to_list(output_column_name)
-        # encoder = embedding_adapter(onnx)
         prompt_embedding = prompt_embedding_dep.get_request_data(context)
         response_embedding = response_embedding_dep.get_request_data(context)
         similarity = compute_embedding_similarity_encoded(prompt_embedding, response_embedding)
