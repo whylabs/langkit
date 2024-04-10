@@ -39,6 +39,7 @@ class lib:
                 response_refusal_similarity_metric,
                 response_presidio_pii_metric,
                 lib.response.toxicity(),
+                lib.response.similarity.context(),
                 lib.response.topics.medicine(),
             ]
 
@@ -511,6 +512,12 @@ class lib:
                 from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
                 return partial(response_refusal_similarity_metric, onnx=onnx)
+
+            @staticmethod
+            def context(onnx: bool = True) -> MetricCreator:
+                from langkit.metrics.input_context_similarity import input_context_similarity
+
+                return partial(input_context_similarity, onnx=onnx, input_column_name="response")
 
         class topics:
             def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):
