@@ -2,6 +2,7 @@ from functools import partial
 from typing import List, Optional
 
 from langkit.core.metric import MetricCreator
+from langkit.transformer import EmbeddingChoiceArg
 
 
 class lib:
@@ -251,7 +252,7 @@ class lib:
                 ]
 
             @staticmethod
-            def injection(version: Optional[str] = None, onnx: bool = True) -> MetricCreator:
+            def injection(version: Optional[str] = None) -> MetricCreator:
                 """
                 Analyze the input for injection themes. The injection score is a measure of how similar the input is
                 to known injection examples, where 0 indicates no similarity and 1 indicates a high similarity.
@@ -259,25 +260,25 @@ class lib:
                 from langkit.metrics.injections import prompt_injections_metric
 
                 if version:
-                    return partial(prompt_injections_metric, onnx=onnx, version=version)
+                    return partial(prompt_injections_metric, version=version)
 
-                return partial(prompt_injections_metric, onnx=onnx)
+                return partial(prompt_injections_metric)
 
             @staticmethod
-            def jailbreak(onnx: bool = True) -> MetricCreator:
+            def jailbreak(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
                 """
                 Analyze the input for jailbreak themes. The jailbreak score is a measure of how similar the input is
                 to known jailbreak examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
 
-                return partial(prompt_jailbreak_similarity_metric, onnx=onnx)
+                return partial(prompt_jailbreak_similarity_metric, embedding=embedding)
 
             @staticmethod
-            def context(onnx: bool = True) -> MetricCreator:
+            def context(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
                 from langkit.metrics.input_context_similarity import input_context_similarity
 
-                return partial(input_context_similarity, onnx=onnx)
+                return partial(input_context_similarity, embedding=embedding)
 
         class sentiment:
             def __call__(self) -> MetricCreator:
@@ -494,30 +495,30 @@ class lib:
                 ]
 
             @staticmethod
-            def prompt(onnx: bool = True) -> MetricCreator:
+            def prompt(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
                 """
                 Analyze the similarity between the input and the response. The output of this metric ranges from 0 to 1,
                 where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.input_output_similarity import prompt_response_input_output_similarity_metric
 
-                return partial(prompt_response_input_output_similarity_metric, onnx=onnx)
+                return partial(prompt_response_input_output_similarity_metric, embedding=embedding)
 
             @staticmethod
-            def refusal(onnx: bool = True) -> MetricCreator:
+            def refusal(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
                 """
                 Analyze the response for refusal themes. The refusal score is a measure of how similar the response is
                 to known refusal examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
-                return partial(response_refusal_similarity_metric, onnx=onnx)
+                return partial(response_refusal_similarity_metric, embedding=embedding)
 
             @staticmethod
-            def context(onnx: bool = True) -> MetricCreator:
+            def context(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
                 from langkit.metrics.input_context_similarity import input_context_similarity
 
-                return partial(input_context_similarity, onnx=onnx, input_column_name="response")
+                return partial(input_context_similarity, embedding=embedding, input_column_name="response")
 
         class topics:
             def __init__(self, topics: List[str], hypothesis_template: Optional[str] = None, onnx: bool = True):

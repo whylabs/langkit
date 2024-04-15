@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 from langkit.core.context import Context
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
-from langkit.transformer import EmbeddingContextDependency, embedding_adapter
+from langkit.transformer import EmbeddingChoiceArg, EmbeddingContextDependency, embedding_adapter
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def _get_themes() -> Dict[str, torch.Tensor]:
     return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
 
-def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"], onnx: bool = True) -> Metric:
+def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"], embedding: EmbeddingChoiceArg = "default") -> Metric:
     if themes_group == "refusal" and column_name == "prompt":
         raise ValueError("Refusal themes are not applicable to prompt")
 
@@ -70,12 +70,10 @@ def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusa
     def init():
         _get_themes()
 
-    embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=column_name)
+    embedding_dep = EmbeddingContextDependency(embedding_choice=embedding, input_column=column_name)
 
     def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
         theme = _get_themes()[themes_group]  # (n_theme_examples, embedding_dim)
-        # text_list: List[str] = text[column_name].tolist()
-        # encoded_text = encoder.encode(tuple(text_list))  # (n_input_rows, embedding_dim)
         encoded_text = embedding_dep.get_request_data(context)
         similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
         max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)

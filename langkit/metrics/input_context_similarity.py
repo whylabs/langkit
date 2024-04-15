@@ -3,12 +3,14 @@ import pandas as pd
 from langkit.core.context import Context
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
 from langkit.metrics.embeddings_utils import compute_embedding_similarity_encoded
-from langkit.transformer import EmbeddingContextDependency, RAGContextDependency
+from langkit.transformer import EmbeddingChoiceArg, EmbeddingContextDependency, RAGContextDependency
 
 
-def input_context_similarity(input_column_name: str = "prompt", context_column_name: str = "context", onnx: bool = True) -> Metric:
-    prompt_embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=input_column_name)
-    context_embedding_dep = RAGContextDependency(onnx=onnx, context_column_name=context_column_name)
+def input_context_similarity(
+    input_column_name: str = "prompt", context_column_name: str = "context", embedding: EmbeddingChoiceArg = "default"
+) -> Metric:
+    prompt_embedding_dep = EmbeddingContextDependency(embedding_choice=embedding, input_column=input_column_name)
+    context_embedding_dep = RAGContextDependency(embedding_choice=embedding, context_column_name=context_column_name)
 
     def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
         prompt_embedding = prompt_embedding_dep.get_request_data(context)
