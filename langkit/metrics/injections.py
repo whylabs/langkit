@@ -65,14 +65,14 @@ def _get_embeddings(version: str) -> "np.ndarray[Any, Any]":
     return __process_embeddings(__download_embeddings(version))
 
 
-def injections_metric(column_name: str, version: str = "v2", onnx: bool = True) -> Metric:
+def injections_metric(column_name: str, version: str = "v2") -> Metric:
     def cache_assets():
         __download_embeddings(version)
 
     def init():
         _get_embeddings(version)
 
-    embedding_dep = EmbeddingContextDependency(onnx=onnx, input_column=column_name)
+    embedding_dep = EmbeddingContextDependency(embedding_choice="default", input_column=column_name)
 
     def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
         if column_name not in text.columns:
