@@ -1,4 +1,5 @@
 # pyright: reportUnknownMemberType=none
+from functools import partial
 from typing import Any
 
 import pandas as pd
@@ -7,7 +8,7 @@ import whylogs as why
 from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
 from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
-from langkit.metrics.topic import get_custom_topic_modules, prompt_topic_module
+from langkit.metrics.topic import MODEL_BASE, get_custom_topic_modules, prompt_topic_module, topic_metric
 from langkit.metrics.whylogs_compat import create_whylogs_udf_schema
 
 expected_metrics = [
@@ -79,6 +80,21 @@ def test_topic():
     ]
 
     assert actual.index.tolist() == expected_columns
+
+
+def test_topic_base_model():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "http://get-free-money-now.xyz/bank/details",
+            ],
+        }
+    )
+
+    custom_topic_module = partial(topic_metric, "prompt", ["phishing"], model_version=MODEL_BASE)
+    schema = WorkflowMetricConfigBuilder().add(custom_topic_module).build()
+    actual = _log(df, schema)
+    assert actual.loc["prompt.topics.phishing"]["distribution/mean"] > 0.80
 
 
 def test_topic_empty_input():
@@ -241,6 +257,25 @@ def test_custom_topic():
     for column in expected_columns:
         if column not in ["prompt", "response"]:
             assert actual.loc[column]["distribution/max"] >= 0.50
+
+
+def test_custom_topics_base_model():
+    df = pd.DataFrame(
+        {
+            "prompt": [
+                "http://get-free-money-now.xyz/bank/details",
+            ],
+            "response": [
+                "http://win-a-free-iphone-today.net",
+            ],
+        }
+    )
+
+    custom_topic_modules = get_custom_topic_modules(["phishing"], model_version=MODEL_BASE)
+    schema = WorkflowMetricConfigBuilder().add(custom_topic_modules.prompt_response_topic_module).build()
+    actual = _log(df, schema)
+    assert actual.loc["prompt.topics.phishing"]["distribution/mean"] > 0.80
+    assert actual.loc["response.topics.phishing"]["distribution/mean"] > 0.80
 
 
 def test_topic_name_sanitize():
