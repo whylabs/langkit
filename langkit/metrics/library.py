@@ -433,6 +433,12 @@ class lib:
                 return response_regex_metric
 
             @staticmethod
+            def refusal() -> MetricCreator:
+                from langkit.metrics.regexes.regexes import response_refusal_regex_metric
+
+                return response_refusal_regex_metric
+
+            @staticmethod
             def ssn() -> MetricCreator:
                 from langkit.metrics.regexes.regexes import response_ssn_regex_metric
 
