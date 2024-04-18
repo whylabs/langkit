@@ -26,6 +26,28 @@ __default_patterns["patterns"].append(
 )
 
 
+def generate_refusal_regex(phrases: List[str]):
+    # Replace specific escaped tokens that should be variable (like spaces and apostrophes)
+    adjusted_phrases = [phrase.replace("\\ ", r"\\s+").replace("['’]", "['’]") for phrase in phrases]
+
+    # Join all phrases into a single regex pattern with word boundaries and a case-insensitive flag
+    pattern = r"\b(" + "|".join(adjusted_phrases) + r")\b"
+    print(pattern)
+    return re.compile(pattern, re.IGNORECASE)
+
+
+# expressions=[re.compile(r"\b(I['’]m\s+sorry|I\s+can['’]t)\b", re.IGNORECASE)],
+
+__default_patterns["patterns"].append(
+    # This regex is too complicated to define in json
+    CompiledPattern(
+        name="refusal",
+        expressions=[generate_refusal_regex(["I'm sorry", "I can't", "I cannot", "I can not", "I'm unable", "I am unable"])],
+        substitutions=None,
+    )
+)
+
+
 def __sanitize_name_for_metric(pattern_name: str) -> str:
     return pattern_name.replace(" ", "_").lower()
 
@@ -148,6 +170,7 @@ prompt_regex_metric = [
 ]
 
 response_ssn_regex_metric = partial(__single_regex_module, "response", __default_patterns, "SSN")
+response_refusal_regex_metric = partial(__single_regex_module, "response", __default_patterns, "refusal")
 response_credit_card_number_regex_metric = partial(__single_regex_module, "response", __default_patterns, "credit card number")
 response_phone_number_regex_metric = partial(__single_regex_module, "response", __default_patterns, "phone number")
 response_mailing_address_regex_metric = partial(__single_regex_module, "response", __default_patterns, "mailing address")
@@ -156,6 +179,7 @@ response_url_regex_metric = partial(__single_regex_module, "response", __default
 
 response_regex_metric = [
     response_ssn_regex_metric,
+    response_refusal_regex_metric,
     response_credit_card_number_regex_metric,
     response_phone_number_regex_metric,
     response_mailing_address_regex_metric,

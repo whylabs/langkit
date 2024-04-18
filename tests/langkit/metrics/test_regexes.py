@@ -11,6 +11,7 @@ import pandas as pd
 import whylogs as why
 from langkit.core.metric import WorkflowMetricConfig, WorkflowMetricConfigBuilder
 from langkit.core.workflow import Workflow
+from langkit.metrics.library import lib
 from langkit.metrics.regexes.regex_loader import CompiledPatternGroups, PatternGroups
 from langkit.metrics.regexes.regexes import (
     get_custom_regex_frequent_items_for_column_module,
@@ -101,6 +102,26 @@ def test_prompt_regex_df_url():
     assert list(actual.columns) == expected_columns
     assert actual["prompt.regex.url"][0] == 1
     assert actual["response.regex.url"][0] == 1
+
+
+def test_response_regex_refusal():
+    df = pd.DataFrame(
+        {
+            "response": [
+                "I'm sorry, I can't answer that",
+            ],
+        }
+    )
+
+    wf = Workflow(metrics=[lib.response.regex.refusal()])
+    result = wf.run(df)
+
+    actual = result.metrics
+
+    expected_columns = ["response.regex.refusal", "id"]
+
+    assert list(actual.columns) == expected_columns
+    assert actual["response.regex.refusal"][0] == 1
 
 
 def test_prompt_regex_df_ssn():

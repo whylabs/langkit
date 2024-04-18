@@ -68,7 +68,10 @@ def _is_zip_file(file_path: str) -> bool:
 @retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(max=5))
 def _download_asset(asset_id: str, tag: str = "0"):
     asset_path = _get_asset_path(asset_id, tag)
-    response: GetAssetResponse = cast(GetAssetResponse, assets_api.get_asset(asset_id))
+    try:
+        response: GetAssetResponse = cast(GetAssetResponse, assets_api.get_asset(asset_id))
+    except whylabs_client.ApiException as e:
+        raise ValueError(f"Failed to download asset {asset_id} with tag {tag}: {e}")
     url = cast(str, response.download_url)
     os.makedirs(os.path.dirname(asset_path.zip_path), exist_ok=True)
     r = requests.get(url, stream=True)
