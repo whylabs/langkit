@@ -3,11 +3,13 @@ import logging
 import os
 import zipfile
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import cast
 
 import requests
 import whylabs_client
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
+from whylabs_client import Configuration
 from whylabs_client.api.assets_api import AssetsApi
 from whylabs_client.model.get_asset_response import GetAssetResponse
 
@@ -15,12 +17,14 @@ from langkit.config import LANGKIT_CACHE
 
 logger = logging.getLogger(__name__)
 
-configuration = whylabs_client.Configuration(host="https://api.whylabsapp.com")
-configuration.api_key["ApiKeyAuth"] = os.environ["WHYLABS_API_KEY"]
-configuration.discard_unknown_keys = True
 
-client = whylabs_client.ApiClient(configuration)
-assets_api = AssetsApi(client)
+@lru_cache(maxsize=1)
+def _get_asset_api():
+    configuration = Configuration(host="https://api.whylabsapp.com")
+    configuration.api_key["ApiKeyAuth"] = os.environ["WHYLABS_API_KEY"]
+    configuration.discard_unknown_keys = True
+    client = whylabs_client.ApiClient(configuration)
+    return AssetsApi(client)
 
 
 @dataclass
@@ -69,7 +73,7 @@ def _is_zip_file(file_path: str) -> bool:
 def _download_asset(asset_id: str, tag: str = "0"):
     asset_path = _get_asset_path(asset_id, tag)
     try:
-        response: GetAssetResponse = cast(GetAssetResponse, assets_api.get_asset(asset_id))
+        response: GetAssetResponse = cast(GetAssetResponse, _get_asset_api().get_asset(asset_id))
     except whylabs_client.ApiException as e:
         raise ValueError(f"Failed to download asset {asset_id} with tag {tag}: {e}")
     url = cast(str, response.download_url)
