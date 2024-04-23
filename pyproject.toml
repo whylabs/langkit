@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "langkit"
-version = "0.0.28.dev12"
+version = "0.0.28.dev13"
 description = "A language toolkit for monitoring LLM interactions"
 authors = ["WhyLabs.ai <langkit@whylabs.ai>"]
 homepage = "https://docs.whylabs.ai/docs/large-language-model-monitoring"
