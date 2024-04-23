@@ -32,7 +32,6 @@ def generate_refusal_regex(phrases: List[str]):
 
     # Join all phrases into a single regex pattern with word boundaries and a case-insensitive flag
     pattern = r"\b(" + "|".join(adjusted_phrases) + r")\b"
-    print(pattern)
     return re.compile(pattern, re.IGNORECASE)
 
 
