@@ -5,10 +5,12 @@ from typing import Any, Callable, List, Literal, Optional, Sequence, Set, Tuple,
 import numpy as np
 import pandas as pd
 
-from langkit.core.validation import ValidationFailure, ValidationResult, Validator
+from langkit.core.validation import ValidationFailure, ValidationFailureLevel, ValidationResult, Validator
 
 
-def _enforce_upper_threshold(target_metric: str, upper_threshold: Union[int, float], value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_upper_threshold(
+    target_metric: str, upper_threshold: Union[int, float], level: ValidationFailureLevel, value: Any, id: str
+) -> Sequence[ValidationFailure]:
     if not isinstance(value, (float, int)):
         return []
 
@@ -20,13 +22,16 @@ def _enforce_upper_threshold(target_metric: str, upper_threshold: Union[int, flo
                 details=f"Value {value} is above threshold {upper_threshold}",
                 value=value,
                 upper_threshold=upper_threshold,
+                failure_level=level,
             )
         ]
 
     return []
 
 
-def _enforce_lower_threshold(target_metric: str, lower_threshold: Union[int, float], value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_lower_threshold(
+    target_metric: str, lower_threshold: Union[int, float], level: ValidationFailureLevel, value: Any, id: str
+) -> Sequence[ValidationFailure]:
     if not isinstance(value, (float, int)):
         return []
 
@@ -38,6 +43,7 @@ def _enforce_lower_threshold(target_metric: str, lower_threshold: Union[int, flo
                 details=f"Value {value} is below threshold {lower_threshold}",
                 value=value,
                 lower_threshold=lower_threshold,
+                failure_level=level,
             )
         ]
 
@@ -45,7 +51,7 @@ def _enforce_lower_threshold(target_metric: str, lower_threshold: Union[int, flo
 
 
 def _enforce_upper_threshold_inclusive(
-    target_metric: str, upper_threshold_inclusive: Union[int, float], value: Any, id: str
+    target_metric: str, upper_threshold_inclusive: Union[int, float], level: ValidationFailureLevel, value: Any, id: str
 ) -> Sequence[ValidationFailure]:
     if not isinstance(value, (float, int)):
         return []
@@ -58,6 +64,7 @@ def _enforce_upper_threshold_inclusive(
                 details=f"Value {value} is above or equal to threshold {upper_threshold_inclusive}",
                 value=value,
                 upper_threshold=upper_threshold_inclusive,
+                failure_level=level,
             )
         ]
 
@@ -65,7 +72,7 @@ def _enforce_upper_threshold_inclusive(
 
 
 def _enforce_lower_threshold_inclusive(
-    target_metric: str, lower_threshold_inclusive: Union[int, float], value: Any, id: str
+    target_metric: str, lower_threshold_inclusive: Union[int, float], level: ValidationFailureLevel, value: Any, id: str
 ) -> Sequence[ValidationFailure]:
     if not isinstance(value, (float, int)):
         return []
@@ -78,13 +85,16 @@ def _enforce_lower_threshold_inclusive(
                 details=f"Value {value} is below or equal to threshold {lower_threshold_inclusive}",
                 value=value,
                 lower_threshold=lower_threshold_inclusive,
+                failure_level=level,
             )
         ]
 
     return []
 
 
-def _enforce_one_of(target_metric: str, one_of: Set[Union[str, float, int]], value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_one_of(
+    target_metric: str, one_of: Set[Union[str, float, int]], level: ValidationFailureLevel, value: Any, id: str
+) -> Sequence[ValidationFailure]:
     if value not in one_of:
         return [
             ValidationFailure(
@@ -93,12 +103,15 @@ def _enforce_one_of(target_metric: str, one_of: Set[Union[str, float, int]], val
                 details=f"Value {value} is not in allowed values {one_of}",
                 value=value,
                 allowed_values=list(one_of),
+                failure_level=level,
             )
         ]
     return []
 
 
-def _enforce_none_of(target_metric: str, none_of: Set[Union[str, float, int]], value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_none_of(
+    target_metric: str, none_of: Set[Union[str, float, int]], level: ValidationFailureLevel, value: Any, id: str
+) -> Sequence[ValidationFailure]:
     if value in none_of:
         return [
             ValidationFailure(
@@ -107,12 +120,13 @@ def _enforce_none_of(target_metric: str, none_of: Set[Union[str, float, int]], v
                 details=f"Value {value} is in disallowed values {none_of}",
                 value=value,
                 disallowed_values=list(none_of),
+                failure_level=level,
             )
         ]
     return []
 
 
-def _enforce_must_be_none(target_metric: str, value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_must_be_none(target_metric: str, level: ValidationFailureLevel, value: Any, id: str) -> Sequence[ValidationFailure]:
     if value is not None:
         return [
             ValidationFailure(
@@ -121,12 +135,13 @@ def _enforce_must_be_none(target_metric: str, value: Any, id: str) -> Sequence[V
                 details=f"Value {value} is not None",
                 value=value,
                 must_be_none=True,
+                failure_level=level,
             )
         ]
     return []
 
 
-def _enforce_must_be_non_none(target_metric: str, value: Any, id: str) -> Sequence[ValidationFailure]:
+def _enforce_must_be_non_none(target_metric: str, level: ValidationFailureLevel, value: Any, id: str) -> Sequence[ValidationFailure]:
     if value is None:
         return [
             ValidationFailure(
@@ -135,6 +150,7 @@ def _enforce_must_be_non_none(target_metric: str, value: Any, id: str) -> Sequen
                 details="Value is None",
                 value=value,
                 must_be_non_none=True,
+                failure_level=level,
             )
         ]
     return []
@@ -151,32 +167,35 @@ class ConstraintValidatorOptions:
     none_of: Optional[Tuple[Union[str, float, int], ...]] = None
     must_be_non_none: Optional[bool] = None
     must_be_none: Optional[bool] = None
+    failure_level: Optional[ValidationFailureLevel] = None
 
 
 class ConstraintValidator(Validator):
     def __init__(self, options: ConstraintValidatorOptions):
         validation_functions: List[Callable[[Any, str], Sequence[ValidationFailure]]] = []
 
+        level = options.failure_level or "block"
+
         if options.upper_threshold is not None:
-            validation_functions.append(partial(_enforce_upper_threshold, options.target_metric, options.upper_threshold))
+            validation_functions.append(partial(_enforce_upper_threshold, options.target_metric, options.upper_threshold, level))
         if options.lower_threshold is not None:
-            validation_functions.append(partial(_enforce_lower_threshold, options.target_metric, options.lower_threshold))
+            validation_functions.append(partial(_enforce_lower_threshold, options.target_metric, options.lower_threshold, level))
         if options.upper_threshold_inclusive is not None:
             validation_functions.append(
-                partial(_enforce_upper_threshold_inclusive, options.target_metric, options.upper_threshold_inclusive)
+                partial(_enforce_upper_threshold_inclusive, options.target_metric, options.upper_threshold_inclusive, level)
             )
         if options.lower_threshold_inclusive is not None:
             validation_functions.append(
-                partial(_enforce_lower_threshold_inclusive, options.target_metric, options.lower_threshold_inclusive)
+                partial(_enforce_lower_threshold_inclusive, options.target_metric, options.lower_threshold_inclusive, level)
             )
         if options.one_of is not None:
-            validation_functions.append(partial(_enforce_one_of, options.target_metric, set(options.one_of)))
+            validation_functions.append(partial(_enforce_one_of, options.target_metric, set(options.one_of), level))
         if options.none_of is not None:
-            validation_functions.append(partial(_enforce_none_of, options.target_metric, set(options.none_of)))
+            validation_functions.append(partial(_enforce_none_of, options.target_metric, set(options.none_of), level))
         if options.must_be_non_none is not None:
-            validation_functions.append(partial(_enforce_must_be_non_none, options.target_metric))
+            validation_functions.append(partial(_enforce_must_be_non_none, options.target_metric, level))
         if options.must_be_none is not None:
-            validation_functions.append(partial(_enforce_must_be_none, options.target_metric))
+            validation_functions.append(partial(_enforce_must_be_none, options.target_metric, level))
 
         self._target_metric = options.target_metric
         self._validation_functions = validation_functions

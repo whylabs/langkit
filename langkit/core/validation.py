@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import List, Optional, Union
+from typing import List, Literal, Optional, Union
 
 import pandas as pd
+
+ValidationFailureLevel = Literal["flag", "block"]
 
 
 @dataclass(frozen=True)
@@ -18,6 +20,8 @@ class ValidationFailure:
     disallowed_values: Optional[List[Union[str, float, int]]] = None
     must_be_none: Optional[bool] = None
     must_be_non_none: Optional[bool] = None
+
+    failure_level: ValidationFailureLevel = "block"
 
 
 @dataclass(frozen=True)
