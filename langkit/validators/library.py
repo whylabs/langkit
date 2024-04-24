@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional, Sequence, Union
 
-from langkit.core.validation import Validator
+from langkit.core.validation import ValidationFailureLevel, Validator
 from langkit.validators.comparison import (
     ConstraintValidator,
     ConstraintValidatorOptions,
@@ -72,6 +72,7 @@ class lib:
         none_of: Optional[Sequence[Union[str, float, int]]] = None,
         must_be_non_none: Optional[bool] = None,
         must_be_none: Optional[bool] = None,
+        failure_level: Optional[ValidationFailureLevel] = None,
     ) -> Validator:
         return ConstraintValidator(
             ConstraintValidatorOptions(
@@ -84,6 +85,7 @@ class lib:
                 none_of=tuple(none_of) if none_of else None,
                 must_be_non_none=must_be_non_none,
                 must_be_none=must_be_none,
+                failure_level=failure_level,
             )
         )
 
