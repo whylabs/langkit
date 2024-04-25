@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from functools import lru_cache, partial
-from typing import Any, Dict, List, Literal, TypedDict, cast
+from typing import Any, Dict, List, Literal, Optional, TypedDict, cast
 
 import pandas as pd
 import torch
@@ -10,6 +10,7 @@ import torch.nn.functional as F
 
 from langkit.core.context import Context
 from langkit.core.metric import Metric, SingleMetric, SingleMetricResult
+from langkit.metrics.themes.additional_data import AdditionalData
 from langkit.transformer import EmbeddingChoiceArg, EmbeddingContextDependency, embedding_adapter
 
 logger = logging.getLogger(__name__)
@@ -60,22 +61,40 @@ def _get_themes() -> Dict[str, torch.Tensor]:
     return {group: torch.as_tensor(encoder.encode(tuple(themes))) for group, themes in theme_groups.items()}
 
 
-def __themes_metric(column_name: str, themes_group: Literal["jailbreak", "refusal"], embedding: EmbeddingChoiceArg = "default") -> Metric:
+def __themes_metric(
+    column_name: str,
+    themes_group: Literal["jailbreak", "refusal"],
+    embedding: EmbeddingChoiceArg = "default",
+    additional_data_path: Optional[str] = None,
+) -> Metric:
     if themes_group == "refusal" and column_name == "prompt":
         raise ValueError("Refusal themes are not applicable to prompt")
 
     if themes_group == "jailbreak" and column_name == "response":
         raise ValueError("Jailbreak themes are not applicable to response")
 
+    combined_tensors: Optional[torch.Tensor] = None
+
     def init():
-        _get_themes()
+        nonlocal combined_tensors
+        theme = _get_themes()[themes_group]  # (n_theme_examples, embedding_dim)
+        if additional_data_path is not None:
+            additional_data = AdditionalData(additional_data_path)
+            additional_tensors = additional_data.encode_additional_data()
+        else:
+            additional_tensors = torch.tensor([])
+
+        combined_tensors = torch.cat([theme, additional_tensors], dim=0)  # (n_theme_examples + n_additional_data, embedding_dim)
 
     embedding_dep = EmbeddingContextDependency(embedding_choice=embedding, input_column=column_name)
 
     def udf(text: pd.DataFrame, context: Context) -> SingleMetricResult:
-        theme = _get_themes()[themes_group]  # (n_theme_examples, embedding_dim)
+        if combined_tensors is None:
+            raise ValueError("Themes not initialized")
         encoded_text = embedding_dep.get_request_data(context)
-        similarities = F.cosine_similarity(encoded_text.unsqueeze(1), theme.unsqueeze(0), dim=2)  # (n_input_rows, n_theme_examples)
+        similarities = F.cosine_similarity(
+            encoded_text.unsqueeze(1), combined_tensors.unsqueeze(0), dim=2
+        )  # (n_input_rows, n_theme_examples)
         max_similarities = similarities.max(dim=1)[0]  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]  (n_input_rows,)
         similarity_list: List[float] = max_similarities.tolist()  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportUnknownVariableType]
         return SingleMetricResult(similarity_list)  # pyright: ignore[reportUnknownArgumentType]
