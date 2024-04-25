@@ -15,7 +15,7 @@ class lib:
             from langkit.metrics.regexes.regexes import prompt_regex_metric, response_regex_metric
             from langkit.metrics.sentiment_polarity import prompt_sentiment_polarity, response_sentiment_polarity
             from langkit.metrics.text_statistics import prompt_textstat_metric, response_textstat_metric
-            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric, response_refusal_similarity_metric
+            from langkit.metrics.themes.themes import prompt_jailbreak_similarity_metric
             from langkit.metrics.token import prompt_token_metric, response_token_metric
 
             prompt_metrics = [
@@ -37,7 +37,7 @@ class lib:
                 response_token_metric,
                 response_regex_metric,
                 response_sentiment_polarity,
-                response_refusal_similarity_metric,
+                lib.response.similarity.refusal(),
                 response_presidio_pii_metric,
                 lib.response.toxicity(),
                 lib.response.similarity.context(),
@@ -511,14 +511,14 @@ class lib:
                 return partial(prompt_response_input_output_similarity_metric, embedding=embedding)
 
             @staticmethod
-            def refusal(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:
+            def refusal(embedding: EmbeddingChoiceArg = "default", additional_data_path: Optional[str] = None) -> MetricCreator:
                 """
                 Analyze the response for refusal themes. The refusal score is a measure of how similar the response is
                 to known refusal examples, where 0 indicates no similarity and 1 indicates a high similarity.
                 """
                 from langkit.metrics.themes.themes import response_refusal_similarity_metric
 
-                return partial(response_refusal_similarity_metric, embedding=embedding)
+                return partial(response_refusal_similarity_metric, embedding=embedding, additional_data_path=additional_data_path)
 
             @staticmethod
             def context(embedding: EmbeddingChoiceArg = "default") -> MetricCreator:

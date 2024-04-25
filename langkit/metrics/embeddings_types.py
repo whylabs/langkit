@@ -14,4 +14,4 @@ class TransformerEmbeddingAdapter(EmbeddingEncoder):
         self._transformer = transformer
 
     def encode(self, text: Tuple[str, ...]) -> "torch.Tensor":  # pyright: ignore[reportIncompatibleMethodOverride]
-        return torch.as_tensor(self._transformer.encode(sentences=list(text), show_progress_bar=False))  # type: ignore[reportUnknownMemberType]
+        return self._transformer.encode(sentences=list(text), convert_to_tensor=True, show_progress_bar=False)  # type: ignore[reportUnknownMemberType]
