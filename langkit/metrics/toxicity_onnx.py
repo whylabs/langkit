@@ -3,7 +3,7 @@
 # pyright: reportUnknownLambdaType=none
 import os
 from functools import lru_cache, partial
-from typing import List, cast
+from typing import List, Optional, cast
 
 import numpy as np
 import onnxruntime
@@ -36,35 +36,35 @@ def __toxicity(tokenizer: PreTrainedTokenizerBase, session: onnxruntime.Inferenc
     return [result["score"] if result["label"] == "toxic" else 1.0 - result["score"] for result in results]  # type: ignore
 
 
-def _download_assets():
-    name, tag = TransformerModel.ToxicCommentModel.value
-    return get_asset(name, tag)
+def _download_assets(tag: Optional[str]):
+    name, default_tag = TransformerModel.ToxicCommentModel.value
+    return get_asset(name, tag or default_tag)
 
 
 @lru_cache
-def _get_tokenizer() -> PreTrainedTokenizerBase:
-    return AutoTokenizer.from_pretrained(_download_assets())
+def _get_tokenizer(tag: Optional[str]) -> PreTrainedTokenizerBase:
+    return AutoTokenizer.from_pretrained(_download_assets(tag))
 
 
 @lru_cache
-def _get_session() -> onnxruntime.InferenceSession:
-    downloaded_path = _download_assets()
+def _get_session(tag: Optional[str]) -> onnxruntime.InferenceSession:
+    downloaded_path = _download_assets(tag)
     onnx_model_path = os.path.join(downloaded_path, "model.onnx")
     print(f"Loading ONNX model from {onnx_model_path}")
     return onnxruntime.InferenceSession(onnx_model_path, providers=["CPUExecutionProvider"])
 
 
-def toxicity_metric(column_name: str) -> Metric:
+def toxicity_metric(column_name: str, tag: Optional[str] = None) -> Metric:
     def cache_assets():
-        _download_assets()
+        _download_assets(tag)
 
     def init():
-        _get_session()
-        _get_tokenizer()
+        _get_session(tag)
+        _get_tokenizer(tag)
 
     def udf(text: pd.DataFrame) -> SingleMetricResult:
-        _tokenizer = _get_tokenizer()
-        _session = _get_session()
+        _tokenizer = _get_tokenizer(tag)
+        _session = _get_session(tag)
 
         col = list(UdfInput(text).iter_column_rows(column_name))
         max_length = cast(int, _tokenizer.model_max_length)
