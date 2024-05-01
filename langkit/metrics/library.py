@@ -116,19 +116,26 @@ class lib:
                 return self.toxicity_score()
 
             @staticmethod
-            def toxicity_score(onnx: bool = True) -> MetricCreator:
+            def toxicity_score(
+                onnx: bool = True, onnx_tag: Optional[str] = None, hf_model: Optional[str] = None, hf_model_revision: Optional[str] = None
+            ) -> MetricCreator:
                 """
                 Analyze the input for toxicity. The output of this metric ranges from 0 to 1, where 0 indicates
                 non-toxic and 1 indicates toxic.
+
+                :param onnx: Whether to use the ONNX model for toxicity analysis. This is mutually exclusive with model options.
+                :param hf_model: The Hugging Face model to use for toxicity analysis. Defaults to martin-ha/toxic-comment-model
+                :param hf_model_revision: The revision of the Hugging Face model to use. This default can change between releases so you
+                    can specify the revision to lock it to a specific version.
                 """
                 if onnx:
                     from langkit.metrics.toxicity_onnx import prompt_toxicity_metric
 
-                    return prompt_toxicity_metric
+                    return partial(prompt_toxicity_metric, tag=onnx_tag)
                 else:
                     from langkit.metrics.toxicity import prompt_toxicity_metric
 
-                    return prompt_toxicity_metric
+                    return partial(prompt_toxicity_metric, hf_model=hf_model, hf_model_revision=hf_model_revision)
 
         class stats:
             def __call__(self) -> MetricCreator:
