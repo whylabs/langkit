@@ -3,7 +3,7 @@ import logging
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Set, Tuple, Union, cast, overload
+from typing import Any, Dict, List, Mapping, Optional, Set, Tuple, Union, cast, overload
 
 import pandas as pd
 from typing_extensions import NotRequired, TypedDict
@@ -191,6 +191,17 @@ class Workflow:
             else:
                 names.extend(metric.names)
         return names
+
+    def get_metric_metadata(self) -> Dict[str, Dict[str, Any]]:
+        metadata: Dict[str, Dict[str, Any]] = {}
+        for metric in self.metrics_config.metrics:
+            if metric.metadata:
+                if isinstance(metric, SingleMetric):
+                    metadata[metric.name] = metric.metadata
+                else:
+                    for name in metric.names:
+                        metadata[name] = metric.metadata
+        return metadata
 
     @overload
     def run(self, data: pd.DataFrame, options: Optional[RunOptions] = None) -> WorkflowResult:

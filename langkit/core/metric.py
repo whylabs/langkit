@@ -110,6 +110,7 @@ class SingleMetric:
     cache_assets: Optional[Callable[[], None]] = None
     # Maybe expose the generic on Metrics in the future, not urgent
     context_dependencies: Optional[List[ContextDependency[Any]]] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 MultiEvaluateWithContext = Callable[[pd.DataFrame, Context], MultiMetricResult]
@@ -126,6 +127,7 @@ class MultiMetric:
     init: Optional[Callable[[], None]] = None
     cache_assets: Optional[Callable[[], None]] = None
     context_dependencies: Optional[List[ContextDependency[Any]]] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 def invoke_evaluate_multi(
