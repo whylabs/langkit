@@ -137,23 +137,21 @@ def test_topic_empty_input():
         }
     )
 
-    schema = WorkflowMetricConfigBuilder().add(prompt_topic_module).build()
+    # schema = WorkflowMetricConfigBuilder().add(prompt_topic_module).build()
+    wf = Workflow(metrics=[prompt_topic_module])
 
-    actual = _log(df, schema)
+    results = wf.run(df)
+    print(results.metrics.transpose())
 
     expected_columns = [
-        "prompt",
-        "prompt.topics.economy",
-        "prompt.topics.entertainment",
         "prompt.topics.medicine",
+        "prompt.topics.economy",
         "prompt.topics.technology",
-        "response",
+        "prompt.topics.entertainment",
+        "id",
     ]
 
-    assert actual.index.tolist() == expected_columns
-    for column in expected_columns:
-        if column not in ["prompt", "response"]:
-            assert actual.loc[column]["counts/null"] == 1
+    assert results.metrics.columns.tolist() == expected_columns
 
 
 def test_topic_empty_input_wf():
@@ -171,7 +169,7 @@ def test_topic_empty_input_wf():
     wf = Workflow(metrics=[prompt_topic_module])
     actual = wf.run(df)
     for metric_name in expected_metrics:
-        assert actual.metrics[metric_name][0] is None
+        assert actual.metrics[metric_name][0] < 0.5
 
 
 def test_topic_row():

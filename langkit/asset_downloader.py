@@ -46,13 +46,21 @@ def _get_asset_path(asset_id: str, tag: str = "0") -> AssetPath:
 
 def _is_extracted(asset_id: str, tag: str = "0") -> bool:
     asset_path = _get_asset_path(asset_id, tag)
-    if not os.path.exists(asset_path.zip_path):
-        return False
 
     # If we can see the metadata file, we assume the asset is extracted
     metadata_file_content = _read_asset_metadata(asset_id, tag)
     if metadata_file_content is not None:
+        logger.info(f"Asset {asset_id} with tag {tag} already extracted")
+        # check that each file in the metadata file exists
+        for file_name in metadata_file_content:
+            if not os.path.exists(f"{asset_path.extract_path}/{file_name}"):
+                logger.info(f"Asset {asset_id} with tag {tag} not extracted, file {file_name} missing but expected")
+                return False
         return True
+
+    if not os.path.exists(asset_path.zip_path):
+        logger.info(f"Asset {asset_id} with tag {tag} not downloaded, zip file not found")
+        return False
 
     # If the zip file is still here then check if it's been extracted
     with zipfile.ZipFile(asset_path.zip_path, "r") as zip_ref:

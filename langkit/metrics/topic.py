@@ -91,13 +91,29 @@ def _get_classifier_onnx(model: str, revision: str) -> Pipeline:
     )
 
 
+def __sanitize_text(text: str) -> str:
+    """
+    Sanitize input to the classifier pipeline. This model chokes on empty strings so we just map those
+    to a single space to avoid having to generate mock scores for select items or bailing out of the
+    batch based api (list of strings) and losing potential performance gains.
+    """
+    if text == "":
+        return " "
+
+    return text
+
+
 def __get_scores_per_label(
     classifier: Pipeline, text: List[str], topics: List[str], hypothesis_template: str = _hypothesis_template, multi_label: bool = True
 ) -> List[ClassificationResults]:
     if not text:
         return []
 
-    result: List[ClassificationResults] = classifier(text, topics, hypothesis_template=hypothesis_template, multi_label=multi_label)  # type: ignore
+    sanitized_text = [__sanitize_text(it) for it in text]
+
+    result: List[ClassificationResults] = classifier(
+        sanitized_text, topics, hypothesis_template=hypothesis_template, multi_label=multi_label
+    )  # type: ignore
     return result
 
 
