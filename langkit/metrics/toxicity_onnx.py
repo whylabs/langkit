@@ -50,7 +50,6 @@ def _get_tokenizer(tag: Optional[str]) -> PreTrainedTokenizerBase:
 def _get_session(tag: Optional[str]) -> onnxruntime.InferenceSession:
     downloaded_path = _download_assets(tag)
     onnx_model_path = os.path.join(downloaded_path, "model.onnx")
-    print(f"Loading ONNX model from {onnx_model_path}")
     return onnxruntime.InferenceSession(onnx_model_path, providers=["CPUExecutionProvider"])
 
 

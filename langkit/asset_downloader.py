@@ -4,7 +4,7 @@ import os
 import zipfile
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import cast
+from typing import List, Optional, cast
 
 import requests
 import whylabs_client
@@ -46,12 +46,27 @@ def _get_asset_path(asset_id: str, tag: str = "0") -> AssetPath:
 
 def _is_extracted(asset_id: str, tag: str = "0") -> bool:
     asset_path = _get_asset_path(asset_id, tag)
+
+    # If we can see the metadata file, we assume the asset is extracted
+    metadata_file_content = _read_asset_metadata(asset_id, tag)
+    if metadata_file_content is not None:
+        logger.info(f"Asset {asset_id} with tag {tag} already extracted")
+        # check that each file in the metadata file exists
+        for file_name in metadata_file_content:
+            if not os.path.exists(f"{asset_path.extract_path}/{file_name}"):
+                logger.info(f"Asset {asset_id} with tag {tag} not extracted, file {file_name} missing but expected")
+                return False
+        return True
+
     if not os.path.exists(asset_path.zip_path):
+        logger.info(f"Asset {asset_id} with tag {tag} not downloaded, zip file not found")
         return False
 
+    # If the zip file is still here then check if it's been extracted
     with zipfile.ZipFile(asset_path.zip_path, "r") as zip_ref:
         zip_names = set(zip_ref.namelist())
         extract_names = set(os.listdir(asset_path.extract_path))
+
     return zip_names.issubset(extract_names)
 
 
@@ -61,12 +76,36 @@ def _extract_asset(asset_id: str, tag: str = "0"):
         zip_ref.extractall(asset_path.extract_path)
 
 
+def _generate_asset_metadata(asset_id: str, tag: str = "0"):
+    """
+    Create a metadata file with a list of all of the expected files in the asset zip
+    """
+    asset_path = _get_asset_path(asset_id, tag)
+    with zipfile.ZipFile(asset_path.zip_path, "r") as zip_ref:
+        with open(f"{asset_path.extract_path}/metadata.txt", "w") as f:
+            f.write("\n".join(zip_ref.namelist()))
+
+
+def _read_asset_metadata(asset_id: str, tag: str = "0") -> Optional[List[str]]:
+    asset_path = _get_asset_path(asset_id, tag)
+    if not os.path.exists(f"{asset_path.extract_path}/metadata.txt"):
+        return None
+
+    with open(f"{asset_path.extract_path}/metadata.txt", "r") as f:
+        return f.read().split("\n")
+
+
 def _is_zip_file(file_path: str) -> bool:
     try:
         with zipfile.ZipFile(file_path, "r"):
             return True
     except zipfile.BadZipFile:
         return False
+
+
+def _remove_zip_file(asset_id: str, tag: str = "0"):
+    asset_path = _get_asset_path(asset_id, tag)
+    os.remove(asset_path.zip_path)
 
 
 @retry(stop=stop_after_attempt(3), wait=wait_exponential_jitter(max=5))
@@ -99,5 +138,9 @@ def get_asset(asset_id: str, tag: str = "0"):
         _download_asset(asset_id, tag)
 
     logger.info(f"Extracting asset {asset_id} with tag {tag}")
+
     _extract_asset(asset_id, tag)
+    _generate_asset_metadata(asset_id, tag)
+    _remove_zip_file(asset_id, tag)
+
     return asset_path.extract_path

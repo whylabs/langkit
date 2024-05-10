@@ -1,7 +1,10 @@
+import logging
 import sys
 
 from langkit.core.workflow import Workflow
 from langkit.metrics.library import lib
+
+logging.basicConfig(level=logging.INFO)
 
 if __name__ == "__main__":
     wf = Workflow(metrics=[lib.presets.all()], cache_assets="--skip-downloads" not in sys.argv)
