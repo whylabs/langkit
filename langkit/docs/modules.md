@@ -287,7 +287,7 @@ The `sentiment_nltk` will contain metrics related to the compound sentiment scor
 
 ## Text Statistics
 
-The `textstat` namespace will compute various text statistics for each value in every column of type `String`, using the `textstat` python package. It will create several udf submetrics related to the text's quality, such as readability, complexity, and grade scores.
+The `textstat` namespace will compute various text statistics for each value in every column of type `String`, using the `textstat` python package. It will create several udf submetrics related to the text's quality, such as readability, complexity, and grade scores. `textstat` combines several readability metrics into a concensus metric named `text_standard` which LangKit emits as `aggregate_reading_level`, which incorporates metric values from "flesch_kincaid_grade", "smog_index", "coleman_liau_index", "dale_chall_readability_score", "linsear_write_formula", and "gunning_fog". To help focus the output of LangKit's metrics, these metrics are not included separately with `aggregate_reading_level`, but you can also include these individually by passing `schema_name=["text_standard_component"]` in calls to `udf_schema()`. Additionally some metrics are specific to certain languages and are not included by default but can be added as an additional schema name specifying the language code.
 
 ### Usage
 
@@ -295,74 +295,74 @@ The `textstat` namespace will compute various text statistics for each value in 
 from langkit import textstat
 from whylogs.experimental.core.udf_schema import udf_schema
 import whylogs as why
-text_schema = udf_schema()
+text_schema = udf_schema(schema_name=[""])
 
 profile = why.log({"prompt":"I like you. I love you."}, schema=text_schema).profile()
 ```
 
-### `flesch_kincaid_grade`
+### `flesch_kincaid_grade` \*
 
-This method returns the Flesch-Kincaid Grade of the input text. This score is a readability test designed to indicate how difficult a reading passage is to understand.
+This method returns the Flesch-Kincaid Grade of the input text. This score is a readability test designed to indicate how difficult a reading passage is to understand. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
 ### `flesch_reading_ease`
 
 This method returns the Flesch Reading Ease score of the input text. The score is based on sentence length and word length. Higher scores indicate material that is easier to read; lower numbers mark passages that are more complex.
 
-### `smog_index`
+### `smog_index` \*
 
-This method returns the SMOG index of the input text. SMOG stands for "Simple Measure of Gobbledygook" and is a measure of readability that estimates the years of education a person needs to understand a piece of writing.
+This method returns the SMOG index of the input text. SMOG stands for "Simple Measure of Gobbledygook" and is a measure of readability that estimates the years of education a person needs to understand a piece of writing. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
-### `coleman_liau_index`
+### `coleman_liau_index` \*
 
-This method returns the Coleman-Liau index of the input text, a readability test designed to gauge the understandability of a text.
+This method returns the Coleman-Liau index of the input text, a readability test designed to gauge the understandability of a text._Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
 ### `automated_readability_index`
 
 This method returns the Automated Readability Index (ARI) of the input text. ARI is a readability test for English texts that estimates the years of schooling a person needs to understand the text.
 
-### `dale_chall_readability_score`
+### `dale_chall_readability_score` \*
 
-This method returns the Dale-Chall readability score, a readability test that provides a numeric score reflecting the reading level necessary to comprehend the text.
+This method returns the Dale-Chall readability score, a readability test that provides a numeric score reflecting the reading level necessary to comprehend the text. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
 ### `difficult_words`
 
 This method returns the number of difficult words in the input text. "Difficult" words are those which do not belong to a list of 3000 words that fourth-grade American students can understand.
 
-### `linsear_write_formula`
+### `linsear_write_formula` \*
 
-This method returns the Linsear Write readability score, designed specifically for measuring the US grade level of a text sample based on sentence length and the number of words used that have three or more syllables.
+This method returns the Linsear Write readability score, designed specifically for measuring the US grade level of a text sample based on sentence length and the number of words used that have three or more syllables. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
-### `gunning_fog`
+### `gunning_fog` \*
 
-This method returns the Gunning Fog Index of the input text, a readability test for English writing. The index estimates the years of formal education a person needs to understand the text on the first reading.
+This method returns the Gunning Fog Index of the input text, a readability test for English writing. The index estimates the years of formal education a person needs to understand the text on the first reading. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
 ### `aggregate_reading_level`
 
-This method returns the aggregate reading level of the input text as calculated by the textstat library.
+This method returns the aggregate reading level of the input text as calculated by the textstat library, and includes the metrics above denotes with \*
 
 ### `fernandez_huerta`
 
-This method returns the Fernandez Huerta readability score of the input text, a modification of the Flesch Reading Ease score for use in Spanish.
+This method returns the Fernandez Huerta readability score of the input text, a modification of the Flesch Reading Ease score for use in Spanish. Can be included with `schema_name=["es"]`
 
 ### `szigriszt_pazos`
 
-This method returns the Szigriszt Pazos readability score of the input text, a readability index designed for Spanish texts.
+This method returns the Szigriszt Pazos readability score of the input text, a readability index designed for Spanish texts. Can be included with `schema_name=["es"]`
 
 ### `gutierrez_polini`
 
-This method returns the Gutierrez Polini readability score of the input text, another readability index for Spanish texts.
+This method returns the Gutierrez Polini readability score of the input text, another readability index for Spanish texts. Can be included with `schema_name=["es"]`
 
 ### `crawford`
 
-This method returns the Crawford readability score of the input text, a readability score for Spanish texts.
+This method returns the Crawford readability score of the input text, a readability score for Spanish texts. Can be included with `schema_name=["es"]`
 
 ### `gulpease_index`
 
-This method returns the Gulpease Index for Italian texts, a readability formula which considers sentence length and the number of letters per word.
+This method returns the Gulpease Index for Italian texts, a readability formula which considers sentence length and the number of letters per word. Can be included with `schema_name=["it"]`
 
 ### `osman`
 
-This method returns the Osman readability score of the input text. This is a readability test designed for the Turkish language.
+This method returns the Osman readability score of the input text. Designed for Arabic, an adaption of Flesch and Fog Formula. Can be included with `schema_name=["ar"]`
 
 ### `syllable_count`
 
