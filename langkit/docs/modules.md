@@ -314,7 +314,7 @@ This method returns the SMOG index of the input text. SMOG stands for "Simple Me
 
 ### `coleman_liau_index` \*
 
-This method returns the Coleman-Liau index of the input text, a readability test designed to gauge the understandability of a text._Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
+This method returns the Coleman-Liau index of the input text, a readability test designed to gauge the understandability of a text. _Is a component of aggregate_reading_level and not output independently, but can be included with `schema_name=["text_standard_component"]`._
 
 ### `automated_readability_index`
 
