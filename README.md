@@ -1,6 +1,6 @@
 # LangKit
 
-![LangKit graphic](static/img/LangKit_graphic.png)
+![LangKit graphic](static/img/LangKit-2024-readme.png)
 
 LangKit is an open-source text metrics toolkit for monitoring language models. It offers an array of methods for extracting relevant signals from the input and/or output text, which are compatible with the open-source data logging library [whylogs](https://whylogs.readthedocs.io/en/latest).
 

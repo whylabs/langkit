@@ -30,7 +30,7 @@ repos:
     rev: v4.1.0
     hooks:
       - id: check-added-large-files
-        args: [--maxkb=800]
+        args: [--maxkb=1024]
       - id: debug-statements
       - id: detect-aws-credentials
         args: [--allow-missing-credentials]
