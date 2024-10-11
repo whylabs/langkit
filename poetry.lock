@@ -4269,13 +4269,13 @@ syllapy = "*"
 
 [[package]]
 name = "whylogs"
-version = "1.5.0"
+version = "1.5.1"
 description = "Profile and monitor your ML data pipeline end-to-end"
 optional = false
 python-versions = "<4,>=3.7.1"
 files = [
-    {file = "whylogs-1.5.0-py3-none-any.whl", hash = "sha256:33afb99c8abdf8758cf97dfe2bc2c9029d286bbbb29ddcd1ebfbdd18efe4959d"},
-    {file = "whylogs-1.5.0.tar.gz", hash = "sha256:4c48846a0333b97813cf81f676396bd28c33954a86ef5f4e42e12585f6e4393d"},
+    {file = "whylogs-1.5.1-py3-none-any.whl", hash = "sha256:b52a32c132a21323a5757bfbddb96a3e7d8c8e1136e16e1b6751d67be6661e93"},
+    {file = "whylogs-1.5.1.tar.gz", hash = "sha256:68c50c507be579c97fbddb095eb72c9b2b4d8a6eb492cdfc9a6c7438dcc34774"},
 ]
 
 [package.dependencies]
